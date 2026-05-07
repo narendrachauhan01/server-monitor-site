@@ -1,6 +1,7 @@
 node_modules/
 .env
 .wwebjs_cache/
+.wwebjs_auth/
 .ww-temp/
 *.log
 npm-debug.log*
