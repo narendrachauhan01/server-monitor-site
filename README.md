@@ -64,7 +64,9 @@ server-monitor/
 
 - **Site Monitoring** — HTTP status check every 60 seconds (200/301/302 = UP)
 - **WhatsApp Alerts** — Instant alert when site goes DOWN, recovery alert when back UP
-- **Multiple Recipients** — Each recipient can be assigned to specific sites
+- **Email Alerts (SMTP)** — Beautiful HTML email alerts via Gmail SMTP — DOWN, RECOVERED, SSL expiry
+- **Dual Alerts** — WhatsApp + Email both work together per recipient
+- **Multiple Recipients** — Each recipient can have phone, email or both; assign to specific sites or all sites
 - **SSL Expiry** — Auto-checked via TLS, alerts at 30 / 15 / 7 days before expiry
 - **Domain Expiry** — Auto-checked via [api.whois.vu](https://api.whois.vu), alerts at 30 / 15 / 7 days
 - **Analytics** — Response time graph, uptime %, alert frequency charts
@@ -113,11 +115,29 @@ cd backend
 npm install
 ```
 
-Create `backend/.env`:
+Create `backend/.env` (use `.env.example` as reference):
 ```env
 PORT=5001
+FRONTEND_URL=http://localhost:3001
 MONGODB_URI=mongodb+srv://<user>:<pass>@cluster0.xxx.mongodb.net/monitor_server_prd
+
+# SMTP Email Config (Gmail)
+MAIL_USER=your@gmail.com
+MAIL_PASS=your_app_password
+MAIL_FROM=Server Monitor <your@gmail.com>
+
+# WhatsApp Session Path (optional)
+# WA_SESSION_PATH=/home/ubuntu/server-monitor-site/.ww-session
 ```
+
+#### Gmail App Password Setup (for SMTP)
+
+> Gmail direct password nahi chalega — App Password banana padega
+
+1. Gmail account mein jaao → **Google Account Settings**
+2. **Security** → **2-Step Verification** ON karo
+3. **App Passwords** → Select app: `Mail` → Select device: `Other` → `Server Monitor`
+4. Generated 16-digit password `.env` mein `MAIL_PASS` mein daalo
 
 ### 2. Frontend Setup
 
