@@ -23,11 +23,11 @@ function Navbar({ onLogout }) {
 
   const links = [
     { to: '/charts', label: 'Analytics' },
+    { to: '/server-resources', label: 'Infra Monitor' },
     { to: '/', label: 'Dashboard' },
     { to: '/servers', label: 'Servers' },
     { to: '/recipients', label: 'Recipients' },
     { to: '/alerts', label: 'Alerts' },
-    { to: '/server-resources', label: 'Infra Monitor' },
     { to: '/domain-ssl', label: 'Domain & SSL' },
     { to: '/email', label: 'Email' },
     { to: '/whatsapp', label: 'WhatsApp' },
