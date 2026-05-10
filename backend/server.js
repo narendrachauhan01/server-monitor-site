@@ -31,6 +31,7 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/whatsapp', require('./routes/whatsapp'));
 app.use('/api/expiry', require('./routes/expiry'));
 app.use('/api/email-config', require('./routes/emailConfig'));
+app.use('/api/metrics', require('./routes/metrics'));
 
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => {
