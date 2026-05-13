@@ -41,8 +41,7 @@ function Navbar({ onLogout }) {
       </button>
       <div className={`nav-links ${open ? 'nav-open' : ''}`}>
         <div className="nav-mobile-header">
-          <span className="nav-mobile-brand">SM Menu</span>
-          <button className="nav-close-btn" onClick={() => setOpen(false)}>✕</button>
+          <span className="nav-mobile-brand">Menu</span>
         </div>
         {links.map(l => (
           <NavLink key={l.to} to={l.to} end={l.to === '/'} onClick={() => setOpen(false)}>
