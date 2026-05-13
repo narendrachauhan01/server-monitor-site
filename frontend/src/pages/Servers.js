@@ -66,7 +66,7 @@ export default function Servers() {
           <p className="pg-sub">{servers.length} site{servers.length !== 1 ? 's' : ''} being monitored</p>
         </div>
         <button className="btn-primary-pill" onClick={() => setShowAdd(!showAdd)}>
-          {showAdd ? '✕ Cancel' : '+ Add Server'}
+          {showAdd ? '✕ Cancel' : '+ Add Site'}
         </button>
       </div>
 

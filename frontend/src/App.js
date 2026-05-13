@@ -25,7 +25,7 @@ function Navbar({ onLogout }) {
     { to: '/charts', label: 'Site Performance' },
     { to: '/server-resources', label: 'Infra Monitor' },
     { to: '/', label: 'Dashboard' },
-    { to: '/servers', label: 'Servers' },
+    { to: '/servers', label: 'Sites' },
     { to: '/recipients', label: 'Recipients' },
     { to: '/alerts', label: 'Alerts' },
     { to: '/domain-ssl', label: 'Domain & SSL' },
