@@ -208,12 +208,17 @@ function AppInner() {
       .catch(() => { localStorage.removeItem('sm_token'); setAuthed(false); });
   }, []);
 
-  const handleLogin = (userData) => {
+  const handleLogin = (userData, isNewUser = false) => {
     if (userData) { setUser(userData); setIsAdmin(false); }
     else { setIsAdmin(true); setUser(null); }
     setAuthed(true);
-    navigate('/dashboard');
-    showToast('Login successful! Welcome back.');
+    if (isNewUser && userData) {
+      navigate('/pay?plan=select');
+      showToast('Welcome to UptimeForge! Choose your plan to get started.');
+    } else {
+      navigate('/dashboard');
+      showToast('Login successful! Welcome back.');
+    }
   };
 
   const handleRegister = (userData, planKey) => {

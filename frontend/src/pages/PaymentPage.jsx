@@ -33,6 +33,55 @@ function loadRazorpayScript() {
     });
 }
 
+const PLAN_ORDER = ['bronze', 'silver', 'gold'];
+const PLAN_ICON  = { bronze: '🥉', silver: '🥈', gold: '🥇' };
+
+function PlanSelectScreen({ planData, user, onSelect }) {
+    const plans = PLAN_ORDER;
+    return (
+        <div className="pay-page">
+            <div className="pay-select-wrap">
+                <div className="pay-select-header">
+                    <UWLogo size={36} />
+                    <h2>Choose Your Plan</h2>
+                    <p>Welcome, <strong>{user?.name}</strong>! Select a plan to get started.</p>
+                </div>
+                <div className="pay-select-cards">
+                    {plans.map(p => {
+                        const price = planData?.plans?.[p]?.price ?? 0;
+                        const features = planData?.plans?.[p]?.features?.length
+                            ? planData.plans[p].features
+                            : PLAN_FEATURES_FALLBACK[p];
+                        return (
+                            <div key={p} className={`pay-select-card ${p === 'silver' ? 'pay-select-popular' : ''}`}>
+                                {p === 'silver' && <div className="pay-select-badge">Most Popular</div>}
+                                <div className="pay-select-icon">{PLAN_ICON[p]}</div>
+                                <div className="pay-select-name">{PLAN_LABEL[p]}</div>
+                                <div className="pay-select-price">₹{price}<span>/month</span></div>
+                                <ul className="pay-select-features">
+                                    {features.map(f => <li key={f}><span>✓</span>{f}</li>)}
+                                </ul>
+                                <button
+                                    className="pay-select-btn"
+                                    style={{ background: PLAN_GRADIENT[p] }}
+                                    onClick={() => onSelect(p)}
+                                >
+                                    Get {PLAN_LABEL[p]}
+                                </button>
+                            </div>
+                        );
+                    })}
+                </div>
+                <div style={{ textAlign: 'center', marginTop: 16 }}>
+                    <button className="pay-cancel-btn" onClick={() => onSelect('skip')}>
+                        Skip for now — use free trial
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 export default function PaymentPage({ user, onUserUpdate }) {
     const navigate = useNavigate();
     const [params] = useSearchParams();
@@ -43,6 +92,7 @@ export default function PaymentPage({ user, onUserUpdate }) {
     const [success,  setSuccess]  = useState(false);
     const [error,    setError]    = useState('');
 
+    const isSelect       = plan === 'select';
     const isVerification = plan === 'verification';
     const amount = isVerification
         ? (planData?.verificationFee ?? 2)
@@ -55,6 +105,15 @@ export default function PaymentPage({ user, onUserUpdate }) {
     useEffect(() => {
         getPlans().then(r => setPlanData(r.data)).catch(() => {});
     }, []);
+
+    // Plan selection screen for new Google users
+    if (isSelect) {
+        return <PlanSelectScreen
+            planData={planData}
+            user={user}
+            onSelect={(p) => p === 'skip' ? navigate('/dashboard') : navigate(`/pay?plan=${p}`)}
+        />;
+    }
 
     // Redirect if already verified (on verification plan)
     useEffect(() => {

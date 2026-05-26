@@ -117,11 +117,13 @@ router.post('/google-auth', async (req, res) => {
         const payload = ticket.getPayload();
         const { name, email, sub: googleId } = payload;
 
+        let isNewUser = false;
         let user = await User.findOne({ email: email.toLowerCase() });
         if (user) {
             if (user.isBlocked) return res.status(403).json({ error: 'Account blocked. Contact support.' });
             if (!user.googleId) { user.googleId = googleId; await user.save(); }
         } else {
+            isNewUser = true;
             const settings = await Settings.get();
             const trialEndsAt = new Date(Date.now() + settings.trialDays * 24 * 60 * 60 * 1000);
             user = await User.create({
@@ -131,7 +133,7 @@ router.post('/google-auth', async (req, res) => {
         }
 
         const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' });
-        res.json({ token, user: userPayload(user) });
+        res.json({ token, user: userPayload(user), isNewUser });
     } catch (e) {
         res.status(400).json({ error: 'Google Sign-In failed: ' + e.message });
     }

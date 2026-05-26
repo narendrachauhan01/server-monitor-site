@@ -37,7 +37,7 @@ export default function Login({ onLogin }) {
       const res = await googleAuth({ credential: response.credential });
       localStorage.setItem('sm_token', res.data.token);
       localStorage.setItem('sm_user', JSON.stringify(res.data.user));
-      onLogin(res.data.user);
+      onLogin(res.data.user, res.data.isNewUser);
     } catch (e) {
       setError(e.response?.data?.error || 'Google Sign-In failed');
     }
