@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getServers, checkNow, API_URL } from '../api';
-import axios from 'axios';
+import { getServers, checkNow, getExpiry } from '../api';
 
 export default function Dashboard() {
   const [servers, setServers] = useState([]);
@@ -47,7 +46,7 @@ export default function Dashboard() {
     setSiteResult(null);
     setSiteChecking(true);
     try {
-      const res = await axios.get(`${API_URL}/api/expiry/${s._id}`);
+      const res = await getExpiry(s._id);
       setSiteResult({ ssl: res.data.ssl, domain: res.data.domain });
       load();
     } catch (e) {
