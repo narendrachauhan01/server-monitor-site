@@ -11,6 +11,9 @@ api.interceptors.request.use(cfg => {
     return cfg;
 });
 
+// Expiry
+export const getExpiry = (id) => api.get(`/expiry/${id}`);
+
 // Servers
 export const getServers = () => api.get('/servers');
 export const addServer = (data) => api.post('/servers', data);

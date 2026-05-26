@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getServers, API_URL } from '../api';
-import axios from 'axios';
+import { getServers, getExpiry } from '../api';
 
 export default function DomainSSL() {
   const [servers, setServers] = useState([]);
@@ -16,7 +15,7 @@ export default function DomainSSL() {
   const checkOne = async (server) => {
     setChecking(p => ({ ...p, [server._id]: true }));
     try {
-      const res = await axios.get(`${API_URL}/api/expiry/${server._id}`);
+      const res = await getExpiry(server._id);
       setResults(p => ({ ...p, [server._id]: res.data }));
       load();
     } catch (e) {
