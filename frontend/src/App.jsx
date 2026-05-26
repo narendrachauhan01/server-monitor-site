@@ -87,7 +87,7 @@ function Sidebar({ onLogout, user, isAdmin, open, setOpen, onBell, unreadCount }
         {/* Brand */}
         <div className="sb-brand">
           <UWLogo size={34} />
-          <span className="sb-title">UptimeWatch</span>
+          <span className="sb-title">UptimeForge</span>
           {!isAdmin && (
             <button className="sb-bell" onClick={onBell} aria-label="Notifications">
               <IcoBell />
@@ -370,7 +370,7 @@ function AppInner() {
         <div className="mobile-topbar">
           <div className="mobile-topbar-brand">
             <UWLogo size={30} />
-            <span>UptimeWatch</span>
+            <span>UptimeForge</span>
           </div>
           <button className="mobile-menu-btn" onClick={() => setSidebarOpen(true)} aria-label="Open menu">
             <IcoMenu />

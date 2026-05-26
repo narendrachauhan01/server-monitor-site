@@ -34,7 +34,7 @@ function generateInvoiceHtml(r, user) {
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<title>Invoice ${invoiceNo} — UptimeWatch</title>
+<title>Invoice ${invoiceNo} — UptimeForge</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family: 'Segoe UI', Arial, sans-serif; background:#f8fafc; color:#1e293b; }
@@ -78,7 +78,7 @@ function generateInvoiceHtml(r, user) {
 <div class="page">
   <div class="inv-header">
     <div class="inv-brand">
-      <div class="inv-brand-name">UptimeWatch</div>
+      <div class="inv-brand-name">UptimeForge</div>
       <div class="inv-brand-sub">24/7 Uptime Monitoring</div>
       <div class="inv-brand-sub" style="margin-top:8px">usnarendra19961@ybl</div>
     </div>
@@ -93,7 +93,7 @@ function generateInvoiceHtml(r, user) {
     <div class="inv-parties">
       <div>
         <div class="inv-party-label">From</div>
-        <div class="inv-party-name">UptimeWatch</div>
+        <div class="inv-party-name">UptimeForge</div>
         <div class="inv-party-line">Narendra Singh — DevOps Engineer</div>
         <div class="inv-party-line">support@uptimewatch.in</div>
         <div class="inv-party-line">India</div>
@@ -144,8 +144,8 @@ function generateInvoiceHtml(r, user) {
   </div>
 
   <div class="inv-footer">
-    <div class="inv-footer-note">Thank you for using UptimeWatch! For support: support@uptimewatch.in</div>
-    <div class="inv-footer-brand">UptimeWatch © 2026</div>
+    <div class="inv-footer-note">Thank you for using UptimeForge! For support: support@uptimewatch.in</div>
+    <div class="inv-footer-brand">UptimeForge © 2026</div>
   </div>
 </div>
 

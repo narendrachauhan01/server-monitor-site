@@ -64,7 +64,7 @@ export default function Landing() {
         <div className="lp-nav-wrap">
           <Link to="/" className="lp-brand">
             <UWLogo size={34} />
-            <span className="lp-brand-text">UptimeWatch</span>
+            <span className="lp-brand-text">UptimeForge</span>
           </Link>
           <div className="lp-nav-center">
             <a href="#features">Features</a>
@@ -129,7 +129,7 @@ export default function Landing() {
             <div className="lp-dashboard-preview">
               <div className="lp-preview-header">
                 <div className="lp-preview-dot red" /><div className="lp-preview-dot yellow" /><div className="lp-preview-dot green" />
-                <span className="lp-preview-title">UptimeWatch — Dashboard</span>
+                <span className="lp-preview-title">UptimeForge — Dashboard</span>
               </div>
               <div className="lp-preview-stats">
                 <div className="lp-stat-chip total"><span className="lp-chip-num">6</span><span>Total</span></div>
@@ -288,7 +288,7 @@ export default function Landing() {
         <div className="lp-footer-wrap">
           <div className="lp-footer-brand">
             <UWLogo size={26} />
-            <span className="lp-brand-text" style={{ fontSize: 14 }}>UptimeWatch</span>
+            <span className="lp-brand-text" style={{ fontSize: 14 }}>UptimeForge</span>
           </div>
           <div className="lp-footer-links">
             <a href="#features">Features</a>
@@ -298,7 +298,7 @@ export default function Landing() {
             <Link to="/register">Register</Link>
             <Link to="/terms">Terms</Link>
           </div>
-          <div className="lp-footer-copy">© 2026 UptimeWatch · Built by <strong>Narendra Singh</strong></div>
+          <div className="lp-footer-copy">© 2026 UptimeForge · Built by <strong>Narendra Singh</strong></div>
         </div>
       </footer>
 

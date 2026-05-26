@@ -1,4 +1,4 @@
-# UptimeWatch
+# UptimeForge
 
 A full-stack SaaS uptime monitoring platform with multi-user accounts, WhatsApp & Email alerts, SSL/Domain expiry tracking, Razorpay payments, and a powerful Admin Panel.
 
@@ -168,7 +168,7 @@ RAZORPAY_KEY_SECRET=your_razorpay_secret
 # SMTP Email (Gmail)
 MAIL_USER=your@gmail.com
 MAIL_PASS=your_app_password
-MAIL_FROM=UptimeWatch <your@gmail.com>
+MAIL_FROM=UptimeForge <your@gmail.com>
 
 # Google OAuth
 GOOGLE_CLIENT_ID=your_client_id.apps.googleusercontent.com
@@ -189,7 +189,7 @@ VITE_GOOGLE_CLIENT_ID=your_client_id.apps.googleusercontent.com
 ### Gmail App Password
 
 1. Google Account → **Security** → Enable 2-Step Verification
-2. **App Passwords** → Select app: `Mail` → Device: `Other` → `UptimeWatch`
+2. **App Passwords** → Select app: `Mail` → Device: `Other` → `UptimeForge`
 3. Copy the 16-digit password → paste in `MAIL_PASS`
 
 ### Google OAuth Setup

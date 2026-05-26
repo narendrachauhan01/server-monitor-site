@@ -107,7 +107,7 @@ export default function Login({ onLogin }) {
         <div className="login-left-content">
           <Link to="/" className="login-left-brand">
             <UWLogo size={42} />
-            <span>UptimeWatch</span>
+            <span>UptimeForge</span>
           </Link>
 
           <div className="login-left-body">
@@ -152,7 +152,7 @@ export default function Login({ onLogin }) {
             </div>
           </div>
 
-          <div className="login-left-footer">© 2026 UptimeWatch</div>
+          <div className="login-left-footer">© 2026 UptimeForge</div>
         </div>
       </div>
 

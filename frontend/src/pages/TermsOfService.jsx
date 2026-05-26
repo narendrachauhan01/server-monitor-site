@@ -16,7 +16,7 @@ export default function TermsOfService() {
       <nav className="tos-nav">
         <Link to="/" className="tos-nav-brand">
           <UWLogo size={28} />
-          <span>UptimeWatch</span>
+          <span>UptimeForge</span>
         </Link>
         <Link to="/" className="tos-nav-back">← Back to Home</Link>
       </nav>
@@ -28,7 +28,7 @@ export default function TermsOfService() {
           <h1>Terms of Service</h1>
           <p className="tos-effective">Effective Date: {EFFECTIVE_DATE}</p>
           <p className="tos-intro">
-            Please read these Terms of Service carefully before using UptimeWatch.
+            Please read these Terms of Service carefully before using UptimeForge.
             By creating an account or using our Service you agree to be legally bound
             by these terms. If you do not agree, you must not use the Service.
           </p>
@@ -40,7 +40,7 @@ export default function TermsOfService() {
           <section className="tos-section">
             <h2>1. Acceptance of Terms</h2>
             <p>
-              By accessing or using <strong>UptimeWatch</strong> ("the Service"), operated by{' '}
+              By accessing or using <strong>UptimeForge</strong> ("the Service"), operated by{' '}
               <strong>{OPERATOR_NAME}</strong> ("we", "us", "our"), you confirm that you have read,
               understood, and agree to be bound by these Terms of Service ("Terms") and our Privacy
               Policy. These Terms apply to all visitors, registered users, and anyone who accesses
@@ -52,7 +52,7 @@ export default function TermsOfService() {
           <section className="tos-section">
             <h2>2. Description of Service</h2>
             <p>
-              UptimeWatch is a website and server uptime monitoring platform that provides the
+              UptimeForge is a website and server uptime monitoring platform that provides the
               following services to its registered users:
             </p>
             <ul>
@@ -110,7 +110,7 @@ export default function TermsOfService() {
 
             <h3>4.1 Payment Method — UPI Only</h3>
             <p>
-              UptimeWatch accepts payments <strong>exclusively via UPI (Unified Payments Interface)</strong>,
+              UptimeForge accepts payments <strong>exclusively via UPI (Unified Payments Interface)</strong>,
               India's government-regulated instant payment system. We do not accept credit cards,
               debit cards, net banking, international payments, or cryptocurrency of any kind.
               Accepted UPI applications include PhonePe, Google Pay, Paytm, BHIM, Amazon Pay,
@@ -165,7 +165,7 @@ export default function TermsOfService() {
 
             <h3>4.5 No Auto-Renewal — No Standing Instructions</h3>
             <p>
-              UptimeWatch does <strong>NOT</strong> set up any auto-debit mandates, recurring UPI
+              UptimeForge does <strong>NOT</strong> set up any auto-debit mandates, recurring UPI
               instructions, or automatic renewals. You will never be charged without initiating a
               payment yourself. Your plan will simply expire at the end of the billing period and you
               can choose to renew manually. You will receive a reminder email before your plan expires.
@@ -187,7 +187,7 @@ export default function TermsOfService() {
           <section className="tos-section">
             <h2>5. Acceptable Use Policy</h2>
             <p>
-              By using UptimeWatch, you agree that you will not, directly or indirectly:
+              By using UptimeForge, you agree that you will not, directly or indirectly:
             </p>
             <ul>
               <li>Monitor websites, servers, or domains that you do not own or do not have explicit written permission to monitor</li>
@@ -269,7 +269,7 @@ export default function TermsOfService() {
           <section className="tos-section">
             <h2>8. Intellectual Property</h2>
             <p>
-              All content, branding, design, code, and features of UptimeWatch are the intellectual
+              All content, branding, design, code, and features of UptimeForge are the intellectual
               property of <strong>{OPERATOR_NAME}</strong>. You may not copy, reproduce, modify,
               distribute, or create derivative works from any part of the platform without prior
               written permission.
@@ -286,7 +286,7 @@ export default function TermsOfService() {
           <section className="tos-section">
             <h2>9. Third-Party Services</h2>
             <p>
-              UptimeWatch integrates with third-party services to deliver its functionality. These
+              UptimeForge integrates with third-party services to deliver its functionality. These
               include (but are not limited to): WHOIS data providers for domain expiry checks, SSL
               certificate information services, email delivery providers, and WhatsApp Business API
               for alerts. We are not responsible for the accuracy, availability, or terms of these
@@ -302,7 +302,7 @@ export default function TermsOfService() {
           <section className="tos-section">
             <h2>10. Limitation of Liability</h2>
             <p>
-              To the maximum extent permitted by applicable law, UptimeWatch and{' '}
+              To the maximum extent permitted by applicable law, UptimeForge and{' '}
               <strong>{OPERATOR_NAME}</strong> shall not be liable for:
             </p>
             <ul>
@@ -390,7 +390,7 @@ export default function TermsOfService() {
             <ul>
               <li>
                 <strong>Entire Agreement:</strong> These Terms constitute the entire agreement between
-                you and UptimeWatch regarding the Service and supersede all prior agreements.
+                you and UptimeForge regarding the Service and supersede all prior agreements.
               </li>
               <li>
                 <strong>Severability:</strong> If any provision of these Terms is found to be
@@ -417,7 +417,7 @@ export default function TermsOfService() {
             <div className="tos-contact-box">
               <div className="tos-contact-row">
                 <span className="tos-contact-label">Service</span>
-                <span>UptimeWatch — Website &amp; Server Monitoring</span>
+                <span>UptimeForge — Website &amp; Server Monitoring</span>
               </div>
               <div className="tos-contact-row">
                 <span className="tos-contact-label">Operated by</span>
@@ -438,7 +438,7 @@ export default function TermsOfService() {
 
         {/* ── page footer ── */}
         <div className="tos-footer-bar">
-          <p>© 2026 UptimeWatch · Operated by {OPERATOR_NAME} · All rights reserved</p>
+          <p>© 2026 UptimeForge · Operated by {OPERATOR_NAME} · All rights reserved</p>
           <div className="tos-footer-links">
             <Link to="/">Home</Link>
             <Link to="/pricing">Pricing</Link>

@@ -142,7 +142,7 @@ export default function Register({ onRegister }) {
         <div className="reg-left-inner">
           <Link to="/" className="reg-brand">
             <UWLogo size={38} />
-            <span>UptimeWatch</span>
+            <span>UptimeForge</span>
           </Link>
 
           <div className="reg-left-body">
@@ -181,7 +181,7 @@ export default function Register({ onRegister }) {
             </div>
           </div>
 
-          <div className="reg-left-footer">© 2026 UptimeWatch</div>
+          <div className="reg-left-footer">© 2026 UptimeForge</div>
         </div>
       </div>
 

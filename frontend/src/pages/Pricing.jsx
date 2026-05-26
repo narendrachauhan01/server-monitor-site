@@ -82,7 +82,7 @@ export default function Pricing() {
             <div className="pricing-hero">
                 <Link to="/" className="pricing-brand-link">
                     <UWLogo size={40} />
-                    <span className="pricing-brand-name">UptimeWatch</span>
+                    <span className="pricing-brand-name">UptimeForge</span>
                 </Link>
                 <h1 className="pricing-title">Simple, transparent pricing</h1>
                 <p className="pricing-sub">Start with a 5-day free trial. Pay ₹{planData?.verificationFee ?? 2} via Razorpay (UPI/Card/Netbanking/Wallet) to verify. Upgrade anytime — instant activation.</p>

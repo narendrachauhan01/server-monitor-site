@@ -41,7 +41,7 @@ function receiptHtml(user, plan, amount, paymentId, planEndsAt) {
       <div style="background:linear-gradient(135deg,${accent},${accent}cc);padding:32px;text-align:center">
         <div style="font-size:48px;margin-bottom:8px">${isVerification ? '🎉' : '✅'}</div>
         <h1 style="color:#fff;margin:0;font-size:22px;font-weight:800">${isVerification ? 'Trial Activated!' : 'Plan Activated!'}</h1>
-        <p style="color:rgba(255,255,255,0.85);margin:6px 0 0;font-size:14px">UptimeWatch</p>
+        <p style="color:rgba(255,255,255,0.85);margin:6px 0 0;font-size:14px">UptimeForge</p>
       </div>
       <div style="padding:32px">
         <p style="color:#475569;font-size:15px;margin:0 0 20px">
@@ -62,7 +62,7 @@ function receiptHtml(user, plan, amount, paymentId, planEndsAt) {
         <p style="color:#94a3b8;font-size:13px;margin:0;text-align:center">Keep this email as your payment receipt · Powered by Razorpay</p>
       </div>
       <div style="padding:16px 32px;background:#f8fafc;text-align:center;color:#94a3b8;font-size:12px">
-        UptimeWatch &mdash; &copy; 2026 Narendra Singh
+        UptimeForge &mdash; &copy; 2026 Narendra Singh
       </div>
     </div>`;
 }
@@ -188,8 +188,8 @@ router.post('/verify', auth, async (req, res) => {
         sendEmail(
             user.email,
             plan === 'verification'
-                ? 'Trial Activated — UptimeWatch'
-                : `${PLAN_LABEL[plan]} Plan Activated — UptimeWatch`,
+                ? 'Trial Activated — UptimeForge'
+                : `${PLAN_LABEL[plan]} Plan Activated — UptimeForge`,
             receiptHtml(user, plan, amount, razorpay_payment_id, planEndsAt)
         ).catch(() => {});
 

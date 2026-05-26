@@ -53,7 +53,7 @@ function downEmailHtml(name, url, time) {
         </div>
       </div>
       <div style="padding:16px 32px;background:#f8fafc;text-align:center;color:#94a3b8;font-size:12px">
-        UptimeWatch &mdash; &copy; 2026 Narendra Singh
+        UptimeForge &mdash; &copy; 2026 Narendra Singh
       </div>
     </div>`;
 }
@@ -77,7 +77,7 @@ function recoveredEmailHtml(name, url, time) {
         </div>
       </div>
       <div style="padding:16px 32px;background:#f8fafc;text-align:center;color:#94a3b8;font-size:12px">
-        UptimeWatch &mdash; &copy; 2026 Narendra Singh
+        UptimeForge &mdash; &copy; 2026 Narendra Singh
       </div>
     </div>`;
 }
@@ -103,7 +103,7 @@ function sslEmailHtml(name, url, daysLeft, expiry) {
         </div>
       </div>
       <div style="padding:16px 32px;background:#f8fafc;text-align:center;color:#94a3b8;font-size:12px">
-        UptimeWatch &mdash; &copy; 2026 Narendra Singh
+        UptimeForge &mdash; &copy; 2026 Narendra Singh
       </div>
     </div>`;
 }
@@ -116,7 +116,7 @@ function otpEmailHtml(name, otp) {
           <span style="font-size:26px">🔐</span>
         </div>
         <h1 style="color:#fff;margin:0;font-size:20px;font-weight:800">Verify your email</h1>
-        <p style="color:rgba(255,255,255,0.75);margin:6px 0 0;font-size:14px">UptimeWatch</p>
+        <p style="color:rgba(255,255,255,0.75);margin:6px 0 0;font-size:14px">UptimeForge</p>
       </div>
       <div style="padding:32px;text-align:center">
         <p style="color:#475569;font-size:15px;margin:0 0 24px">Hi <strong style="color:#0f172a">${name}</strong>, use the code below to complete your registration.</p>
@@ -126,7 +126,7 @@ function otpEmailHtml(name, otp) {
         <p style="color:#94a3b8;font-size:13px;margin:0">This code expires in <strong>10 minutes</strong>.<br/>If you didn't request this, you can safely ignore this email.</p>
       </div>
       <div style="padding:16px 32px;background:#f8fafc;text-align:center;color:#94a3b8;font-size:12px">
-        UptimeWatch &mdash; &copy; 2026 Narendra Singh
+        UptimeForge &mdash; &copy; 2026 Narendra Singh
       </div>
     </div>`;
 }

@@ -97,7 +97,7 @@ export default function PaymentPage({ user, onUserUpdate }) {
             key:         orderData.keyId,
             amount:      orderData.amount,
             currency:    orderData.currency,
-            name:        'UptimeWatch',
+            name:        'UptimeForge',
             description: isVerification ? 'Free Trial Verification' : `${PLAN_LABEL[plan]} Plan`,
             image:       '',
             order_id:    orderData.orderId,
