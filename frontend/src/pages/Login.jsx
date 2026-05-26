@@ -277,11 +277,6 @@ export default function Login({ onLogin }) {
                   <><span className="login-spinner" /> Signing in...</>
                 ) : 'Admin Sign In'}
               </button>
-              <div className="login-switch-row">
-                <button type="button" className="login-forgot" onClick={handleForgot} disabled={forgotLoading || forgotSent}>
-                  {forgotLoading ? 'Sending...' : forgotSent ? '✓ Reset link sent!' : 'Forgot password?'}
-                </button>
-              </div>
             </form>
           )}
 
