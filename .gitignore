@@ -16,6 +16,11 @@ frontend/node_modules/
 
 # Production build
 frontend/build/
+frontend/dist/
+
+# Lock files
+frontend/package-lock.json
+backend/package-lock.json
 
 # Logs
 *.log
