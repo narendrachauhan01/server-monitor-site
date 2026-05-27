@@ -3320,6 +3320,9 @@ tr:hover td { background: linear-gradient(135deg,#faf5ff,#f8fafc); }
 .rzp-pay-btn:hover:not(:disabled) { opacity: 0.92; transform: translateY(-1px); }
 .rzp-pay-btn:active:not(:disabled) { transform: translateY(0); }
 .rzp-pay-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.rzp-cancel-btn { display: block; width: 100%; margin-top: 10px; padding: 11px; background: none; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 13px; font-weight: 500; color: #94a3b8; cursor: pointer; transition: all 0.18s; font-family: inherit; }
+.rzp-cancel-btn:hover:not(:disabled) { border-color: #ef4444; color: #ef4444; background: #fff5f5; }
+.rzp-cancel-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* ── Plan Selection Screen ── */
 .pay-select-wrap {

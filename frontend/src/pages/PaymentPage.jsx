@@ -89,9 +89,10 @@ export default function PaymentPage({ user, onUserUpdate }) {
     const plan = params.get('plan') || 'verification';
 
     const [planData, setPlanData] = useState(null);
-    const [paying,   setPaying]   = useState(false);
-    const [success,  setSuccess]  = useState(false);
-    const [error,    setError]    = useState('');
+    const [paying,        setPaying]        = useState(false);
+    const [cancelling,    setCancelling]    = useState(false);
+    const [success,       setSuccess]       = useState(false);
+    const [error,         setError]         = useState('');
 
     const isSelect       = plan === 'select';
     const isVerification = plan === 'verification';
@@ -129,6 +130,18 @@ export default function PaymentPage({ user, onUserUpdate }) {
         return () => clearTimeout(t);
     }, [success, navigate]);
 
+    const isNewUnverified = user && user.plan === 'free_trial' && !user.trialVerified;
+
+    const handleCancel = async () => {
+        if (!isNewUnverified) return;
+        setCancelling(true);
+        try { await deleteMyAccount(); } catch (_) {}
+        localStorage.removeItem('sm_token');
+        localStorage.removeItem('sm_user');
+        localStorage.removeItem('sm_intended_plan');
+        window.location.href = '/register';
+    };
+
     const handlePay = async () => {
         setError('');
         setPaying(true);
@@ -164,18 +177,7 @@ export default function PaymentPage({ user, onUserUpdate }) {
             prefill:     orderData.prefill,
             theme:       { color: '#7c3aed' },
             modal: {
-                ondismiss: async () => {
-                    setPaying(false);
-                    // New unverified user cancelled — delete account and restart
-                    const isNewUnverified = user && user.plan === 'free_trial' && !user.trialVerified;
-                    if (isNewUnverified) {
-                        try { await deleteMyAccount(); } catch (_) {}
-                        localStorage.removeItem('sm_token');
-                        localStorage.removeItem('sm_user');
-                        localStorage.removeItem('sm_intended_plan');
-                        window.location.href = '/register';
-                    }
-                },
+                ondismiss: () => { setPaying(false); handleCancel(); },
             },
             handler: async (response) => {
                 // Payment done — verify with backend
@@ -306,6 +308,16 @@ export default function PaymentPage({ user, onUserUpdate }) {
                                 <>💳 Pay ₹{amount} Securely</>
                             )}
                         </button>
+
+                        {isNewUnverified && (
+                            <button
+                                className="rzp-cancel-btn"
+                                onClick={handleCancel}
+                                disabled={paying || cancelling}
+                            >
+                                {cancelling ? 'Cancelling...' : 'Cancel & Delete Account'}
+                            </button>
+                        )}
 
                         <div className="rzp-secure-row">
                             <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
