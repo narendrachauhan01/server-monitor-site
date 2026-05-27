@@ -19,14 +19,42 @@ function getTransporter() {
     return transporter;
 }
 
+function htmlToText(html) {
+    return html
+        .replace(/<style[\s\S]*?<\/style>/gi, '')
+        .replace(/<script[\s\S]*?<\/script>/gi, '')
+        .replace(/<br\s*\/?>/gi, '\n')
+        .replace(/<\/(p|div|tr|h\d)>/gi, '\n')
+        .replace(/<[^>]+>/g, '')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&amp;/g, '&')
+        .replace(/&mdash;/g, '—')
+        .replace(/&copy;/g, '©')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/\n{3,}/g, '\n\n')
+        .replace(/[ \t]+/g, ' ')
+        .replace(/^[ \t]+|[ \t]+$/gm, '')
+        .trim();
+}
+
 async function sendEmail(to, subject, html) {
     if (!process.env.MAIL_USER || !process.env.MAIL_PASS) return;
     try {
+        const from = process.env.MAIL_FROM || process.env.MAIL_USER;
+        const replyTo = process.env.MAIL_USER;
         await getTransporter().sendMail({
-            from: process.env.MAIL_FROM || process.env.MAIL_USER,
+            from,
             to,
+            replyTo,
             subject,
             html,
+            text: htmlToText(html),
+            headers: {
+                'List-Unsubscribe': `<mailto:${replyTo}?subject=unsubscribe>`,
+                'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+                'X-Entity-Ref-ID': `uptimeforge-${Date.now()}`,
+            },
         });
         console.log(`[Email] Sent to ${to}: ${subject}`);
     } catch (e) {

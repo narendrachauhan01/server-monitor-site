@@ -126,8 +126,8 @@ async function sendAlerts(server, recipients, type, detail) {
         : `✅ *Site Recovered!*\n\n*Site:* ${server.name}\n*URL:* ${server.url}\n*Time:* ${now()}\n\nSite is back *UP* and running! ✅`;
 
     const emailSubject = isDown
-        ? `🚨 Site Down: ${server.name}`
-        : `✅ Site Recovered: ${server.name}`;
+        ? `[UptimeForge] Site Down: ${server.name}`
+        : `[UptimeForge] Site Recovered: ${server.name}`;
     const emailHtml = isDown
         ? downEmailHtml(server.name, server.url, now())
         : recoveredEmailHtml(server.name, server.url, now());
@@ -177,7 +177,7 @@ async function checkExpiry() {
                     const waMsg = `${emoji} *SSL Certificate Alert!*\n\n*Site:* ${server.name}\n*URL:* ${server.url}\n*Expires:* ${ssl.expiry.toDateString()}\n*Days Left:* ${ssl.daysLeft} days\n\nPlease renew SSL certificate!`;
                     for (const r of eligible) {
                         if (r.phone) { try { await wa.sendMessage(r.phone, waMsg); } catch (_) {} }
-                        if (r.email) { await sendEmail(r.email, `${emoji} SSL Expiring: ${server.name} (${ssl.daysLeft} days)`, sslEmailHtml(server.name, server.url, ssl.daysLeft, ssl.expiry)); }
+                        if (r.email) { await sendEmail(r.email, `[UptimeForge] SSL Expiring: ${server.name} (${ssl.daysLeft} days)`, sslEmailHtml(server.name, server.url, ssl.daysLeft, ssl.expiry)); }
                     }
                     console.log(`[Monitor] SSL expiry alert sent for ${server.name} (${ssl.daysLeft} days left)`);
                 }
