@@ -133,7 +133,7 @@ router.post('/google-auth', async (req, res) => {
             const trialEndsAt = new Date(Date.now() + settings.trialDays * 24 * 60 * 60 * 1000);
             user = await User.create({
                 name, email: email.toLowerCase(), googleId,
-                trialEndsAt, trialVerified: true,
+                trialEndsAt,
             });
         }
 

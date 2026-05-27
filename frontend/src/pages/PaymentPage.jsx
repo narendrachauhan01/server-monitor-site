@@ -112,7 +112,7 @@ export default function PaymentPage({ user, onUserUpdate }) {
         return <PlanSelectScreen
             planData={planData}
             user={user}
-            onSelect={(p) => p === 'skip' ? navigate('/dashboard') : navigate(`/pay?plan=${p}`)}
+            onSelect={(p) => navigate(p === 'verification' ? '/pay?plan=verification' : `/pay?plan=${p}`)}
         />;
     }
 
