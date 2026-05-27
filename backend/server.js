@@ -11,8 +11,18 @@ const monitor = require('./services/monitor');
 const app        = express();
 const httpServer = http.createServer(app);
 
+const allowedOrigins = [
+    process.env.FRONTEND_URL,
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://localhost:5173',
+].filter(Boolean);
+
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3001',
+    origin: (origin, cb) => {
+        if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+        cb(new Error('CORS: not allowed'));
+    },
     credentials: true,
 }));
 app.use(express.json());

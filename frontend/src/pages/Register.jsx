@@ -78,43 +78,28 @@ export default function Register({ onRegister }) {
   const [error, setError] = useState('');
   const [canResend, setCanResend] = useState(false);
   const [resending, setResending] = useState(false);
-  const [gLoading, setGLoading] = useState(false);
+  const googleBtnRef = useRef(null);
+  const selectedPlanRef = useRef(selectedPlan);
+  useEffect(() => { selectedPlanRef.current = selectedPlan; }, [selectedPlan]);
 
   const handleGoogleResponse = async (response) => {
-    setGLoading(true); setError('');
+    setError('');
     try {
       const res = await googleAuth({ credential: response.credential });
       localStorage.setItem('sm_token', res.data.token);
       localStorage.setItem('sm_user', JSON.stringify(res.data.user));
-      onRegister(res.data.user, selectedPlan);
+      onRegister(res.data.user, selectedPlanRef.current);
     } catch (e) { setError(e.response?.data?.error || 'Google Sign-In failed'); }
-    setGLoading(false);
   };
 
-  const googleBtnRef = useRef(null);
-
-  const handleGoogleClick = () => {
+  useEffect(() => {
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-    if (!clientId || clientId.includes('your_google')) { setError('Google Sign-In not configured yet'); return; }
-    if (!window.google) { setError('Google Sign-In script not loaded'); return; }
-    setGLoading(true); setError('');
-    try { window.google.accounts.id.cancel(); } catch(_) {}
-    window.google.accounts.id.initialize({
-      client_id: clientId,
-      callback: handleGoogleResponse,
+    if (!clientId || clientId.includes('your_google') || !window.google || !googleBtnRef.current) return;
+    window.google.accounts.id.initialize({ client_id: clientId, callback: handleGoogleResponse });
+    window.google.accounts.id.renderButton(googleBtnRef.current, {
+      type: 'standard', theme: 'filled_blue', size: 'large', width: 340,
     });
-    window.google.accounts.id.prompt((notification) => {
-      if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-        setGLoading(false);
-        if (googleBtnRef.current) {
-          googleBtnRef.current.style.display = 'block';
-          window.google.accounts.id.renderButton(googleBtnRef.current, {
-            type: 'standard', theme: 'filled_blue', size: 'large', width: 300,
-          });
-        }
-      }
-    });
-  };
+  }, []);
 
   const sendOtp = async (e) => {
     e?.preventDefault(); setError('');
@@ -228,16 +213,8 @@ export default function Register({ onRegister }) {
             <>
               <h1 className="reg-title">Create your account</h1>
 
-              {/* Google button — top */}
-              <button type="button" className="google-signin-btn" onClick={handleGoogleClick} disabled={gLoading} style={{ marginBottom: 4 }}>
-                {gLoading ? <><span className="login-spinner" /> Signing up...</> : (
-                  <>
-                    <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-                    Continue with Google
-                  </>
-                )}
-              </button>
-              <div ref={googleBtnRef} style={{display:'none'}} />
+              {/* Google button — rendered by Google SDK */}
+              <div ref={googleBtnRef} style={{ display: 'flex', justifyContent: 'center', margin: '4px 0 4px' }} />
 
               <div className="login-divider"><span>or sign up with email</span></div>
 
