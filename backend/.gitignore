@@ -7,3 +7,7 @@ package-lock.json
 .ww-temp/
 *.log
 npm-debug.log*
+
+.env.bak*
+.env.backup*
+*.bak

@@ -29,14 +29,16 @@ function checkUrl(url) {
     });
 }
 
-function getEligibleRecipients(recipients, serverId) {
-    // servers.length === 0 means ALL sites (default)
-    // servers with specific IDs means only those sites
-    // If you want everyone to get all alerts, clear their site assignments
-    return recipients.filter(r =>
-        r.servers.length === 0 ||
-        r.servers.some(s => s._id.toString() === serverId.toString())
-    );
+function getEligibleRecipients(recipients, serverId, serverUserId) {
+    return recipients.filter(r => {
+        // Isolate by user: recipient must belong to the same user as the server
+        // Admin recipients (userId = null) receive alerts for all servers
+        if (r.userId && serverUserId) {
+            if (r.userId.toString() !== serverUserId.toString()) return false;
+        }
+        // Server-level filter: empty list = all sites for this user
+        return r.servers.length === 0 || r.servers.some(s => s._id.toString() === serverId.toString());
+    });
 }
 
 async function checkAll() {
@@ -71,7 +73,7 @@ async function checkAll() {
 
                 if (isNewDown && !wasAlertSent) {
                     // First time down — send alert ONCE, persist flag to DB
-                    const eligible = getEligibleRecipients(recipients, server._id);
+                    const eligible = getEligibleRecipients(recipients, server._id, server.userId);
                     console.log(`[Monitor] ${server.name} → DOWN alert to ${eligible.length} recipients`);
                     await sendAlerts(server, eligible, 'down', result.error || `HTTP ${result.code}`);
                     setFields.downAlertSent = true;
@@ -84,7 +86,7 @@ async function checkAll() {
                 if (prevStatus === 'down') {
                     setFields.lastUpAt = new Date();
                     setFields.downAlertSent = false;  // reset flag on recovery
-                    const eligible = getEligibleRecipients(recipients, server._id);
+                    const eligible = getEligibleRecipients(recipients, server._id, server.userId);
                     // Recovered — send recovery alert ONCE
                     await sendAlerts(server, eligible, 'recovered', `HTTP ${result.code}`);
                 }
@@ -168,7 +170,7 @@ async function checkExpiry() {
                 server.sslExpiry = ssl.expiry;
                 server.sslDaysLeft = ssl.daysLeft;
                 if (SSL_MILESTONES.includes(ssl.daysLeft)) {
-                    const eligible = getEligibleRecipients(recipients, server._id);
+                    const eligible = getEligibleRecipients(recipients, server._id, server.userId);
                     const emoji = ssl.daysLeft <= 7 ? '🚨' : ssl.daysLeft <= 15 ? '⚠️' : '📢';
                     const waMsg = `${emoji} *SSL Certificate Alert!*\n\n*Site:* ${server.name}\n*URL:* ${server.url}\n*Expires:* ${ssl.expiry.toDateString()}\n*Days Left:* ${ssl.daysLeft} days\n\nPlease renew SSL certificate!`;
                     for (const r of eligible) {
@@ -184,7 +186,7 @@ async function checkExpiry() {
                 server.domainExpiry = domain.expiry;
                 const domainDaysLeft = domain.daysLeft;
                 if (DOMAIN_MILESTONES.includes(domainDaysLeft)) {
-                    const eligible = getEligibleRecipients(recipients, server._id);
+                    const eligible = getEligibleRecipients(recipients, server._id, server.userId);
                     const emoji = domainDaysLeft <= 7 ? '🚨' : domainDaysLeft <= 15 ? '⚠️' : '📢';
                     const msg = `${emoji} *Domain Expiry Alert!*\n\n*Site:* ${server.name}\n*Domain:* ${rootDomain}\n*Expires:* ${domain.expiry.toDateString()}\n*Days Left:* ${domainDaysLeft} days\n\nPlease renew the domain before it expires!`;
                     for (const r of eligible) {
