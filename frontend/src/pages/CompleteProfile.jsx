@@ -22,6 +22,9 @@ export default function CompleteProfile({ user, onUserUpdate }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const digits = form.phone.replace(/\D/g, '');
+    if (!form.phone) { setError('Mobile number is required'); return; }
+    if (digits.length !== 10) { setError('Enter a valid 10-digit mobile number'); return; }
     if (!form.country) { setError('Please select your country'); return; }
     if (!form.state) { setError('Please select / enter your state'); return; }
     setError(''); setLoading(true);
@@ -48,13 +51,14 @@ export default function CompleteProfile({ user, onUserUpdate }) {
 
         <form onSubmit={handleSubmit} className="cp-form">
           <div className="cp-field">
-            <label className="cp-label">Mobile Number</label>
+            <label className="cp-label">Mobile Number <span className="reg-req">*</span></label>
             <input
               className="cp-input"
               type="tel"
-              placeholder="+91 9876543210"
+              placeholder="10-digit mobile number"
+              maxLength={10}
               value={form.phone}
-              onChange={e => setForm({ ...form, phone: e.target.value })}
+              onChange={e => setForm({ ...form, phone: e.target.value.replace(/\D/g, '').slice(0, 10) })}
             />
           </div>
 
