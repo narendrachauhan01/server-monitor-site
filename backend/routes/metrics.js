@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const ServerMetric = require('../models/ServerMetric');
+const auth = require('../middleware/auth');
 
 // API Key middleware
 function authAgent(req, res, next) {
@@ -33,8 +34,9 @@ router.post('/', authAgent, async (req, res) => {
     }
 });
 
-// GET /api/metrics/latest — latest metrics for all servers
-router.get('/latest', async (req, res) => {
+// GET /api/metrics/latest — admin only
+router.get('/latest', auth, async (req, res) => {
+    if (!req.isAdmin) return res.status(403).json({ error: 'Admin only' });
     try {
         const servers = await ServerMetric.aggregate([
             { $sort: { timestamp: -1 } },
@@ -47,8 +49,9 @@ router.get('/latest', async (req, res) => {
     }
 });
 
-// GET /api/metrics/:serverId/history — last 1 hour history
-router.get('/:serverId/history', async (req, res) => {
+// GET /api/metrics/:serverId/history — admin only
+router.get('/:serverId/history', auth, async (req, res) => {
+    if (!req.isAdmin) return res.status(403).json({ error: 'Admin only' });
     try {
         const since = new Date(Date.now() - 60 * 60 * 1000);
         const metrics = await ServerMetric.find({
