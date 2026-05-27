@@ -1,7 +1,5 @@
 const router = require('express').Router();
 const ServerMetric = require('../models/ServerMetric');
-const Server = require('../models/Server');
-const auth = require('../middleware/auth');
 
 // API Key middleware
 function authAgent(req, res, next) {
@@ -35,36 +33,23 @@ router.post('/', authAgent, async (req, res) => {
     }
 });
 
-// GET /api/metrics/latest — latest metrics for caller's servers only
-router.get('/latest', auth, async (req, res) => {
+// GET /api/metrics/latest — latest metrics for all servers
+router.get('/latest', async (req, res) => {
     try {
-        let serverIds = null;
-        if (!req.isAdmin) {
-            const userServers = await Server.find({ userId: req.userId }, '_id');
-            serverIds = userServers.map(s => s._id.toString());
-        }
-        let pipeline = [
+        const servers = await ServerMetric.aggregate([
             { $sort: { timestamp: -1 } },
             { $group: { _id: '$serverId', latest: { $first: '$$ROOT' } } },
             { $replaceRoot: { newRoot: '$latest' } },
-        ];
-        if (serverIds !== null) {
-            pipeline.unshift({ $match: { serverId: { $in: serverIds } } });
-        }
-        const servers = await ServerMetric.aggregate(pipeline);
+        ]);
         res.json(servers);
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
 });
 
-// GET /api/metrics/:serverId/history — last 1 hour history (own servers only)
-router.get('/:serverId/history', auth, async (req, res) => {
+// GET /api/metrics/:serverId/history — last 1 hour history
+router.get('/:serverId/history', async (req, res) => {
     try {
-        if (!req.isAdmin) {
-            const server = await Server.findOne({ _id: req.params.serverId, userId: req.userId }, '_id');
-            if (!server) return res.status(404).json({ error: 'Not found' });
-        }
         const since = new Date(Date.now() - 60 * 60 * 1000);
         const metrics = await ServerMetric.find({
             serverId: req.params.serverId,
