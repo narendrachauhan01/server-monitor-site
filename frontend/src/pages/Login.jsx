@@ -4,6 +4,7 @@ let gsiReady = false;
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { API_URL, loginUser, googleAuth, forgotPassword } from '../api';
+import { getGoogleClientId } from '../googleConfig';
 import Toast from '../components/Toast';
 import UWLogo from '../components/UWLogo';
 
@@ -45,16 +46,18 @@ export default function Login({ onLogin }) {
   };
 
   useEffect(() => {
-    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-    if (!clientId || clientId.includes('your_google') || !window.google || !googleBtnRef.current) return;
-    if (!gsiReady) {
-      gsiReady = true;
-      window.google.accounts.id.initialize({ client_id: clientId, callback: handleGoogleResponse });
-    }
-    window.google.accounts.id.renderButton(googleBtnRef.current, {
-      type: 'standard', theme: 'outline', size: 'large', width: 360,
-      text: 'continue_with', shape: 'rectangular', logo_alignment: 'left',
-    });
+    (async () => {
+      const clientId = await getGoogleClientId();
+      if (!clientId || !window.google || !googleBtnRef.current) return;
+      if (!gsiReady) {
+        gsiReady = true;
+        window.google.accounts.id.initialize({ client_id: clientId, callback: handleGoogleResponse });
+      }
+      window.google.accounts.id.renderButton(googleBtnRef.current, {
+        type: 'standard', theme: 'outline', size: 'large', width: 360,
+        text: 'continue_with', shape: 'rectangular', logo_alignment: 'left',
+      });
+    })();
   }, []);
 
   const handleUserForgot = async () => {

@@ -30,6 +30,11 @@ function userPayload(u) {
     };
 }
 
+// ── Public config (Google Client ID for frontend) ────────────────────────────
+router.get('/config', (req, res) => {
+    res.json({ googleClientId: process.env.GOOGLE_CLIENT_ID || '' });
+});
+
 // ── Step 1: send OTP for registration ──────────────────────────────────────
 router.post('/register/send-otp', async (req, res) => {
     try {

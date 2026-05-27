@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 let gsiReady = false;
 import { useLocation, Link } from 'react-router-dom';
 import { sendRegisterOtp, verifyRegisterOtp, googleAuth } from '../api';
+import { getGoogleClientId } from '../googleConfig';
 import UWLogo from '../components/UWLogo';
 
 const INDIAN_STATES = [
@@ -95,16 +96,18 @@ export default function Register({ onRegister }) {
   };
 
   useEffect(() => {
-    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-    if (!clientId || clientId.includes('your_google') || !window.google || !googleBtnRef.current) return;
-    if (!gsiReady) {
-      gsiReady = true;
-      window.google.accounts.id.initialize({ client_id: clientId, callback: handleGoogleResponse });
-    }
-    window.google.accounts.id.renderButton(googleBtnRef.current, {
-      type: 'standard', theme: 'outline', size: 'large', width: 360,
-      text: 'signup_with', shape: 'rectangular', logo_alignment: 'left',
-    });
+    (async () => {
+      const clientId = await getGoogleClientId();
+      if (!clientId || !window.google || !googleBtnRef.current) return;
+      if (!gsiReady) {
+        gsiReady = true;
+        window.google.accounts.id.initialize({ client_id: clientId, callback: handleGoogleResponse });
+      }
+      window.google.accounts.id.renderButton(googleBtnRef.current, {
+        type: 'standard', theme: 'outline', size: 'large', width: 360,
+        text: 'signup_with', shape: 'rectangular', logo_alignment: 'left',
+      });
+    })();
   }, []);
 
   const sendOtp = async (e) => {

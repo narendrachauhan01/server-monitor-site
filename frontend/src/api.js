@@ -31,6 +31,9 @@ export const deleteRecipient = (id) => api.delete(`/recipients/${id}`);
 export const getAlerts = () => api.get('/alerts');
 export const getWaStatus = () => api.get('/whatsapp/status');
 
+// Public config (Google Client ID from backend)
+export const getPublicConfig = () => api.get('/users/config');
+
 // User auth
 export const loginUser          = (data) => api.post('/users/login', data);
 export const googleAuth         = (data) => api.post('/users/google-auth', data);
