@@ -2031,7 +2031,7 @@ tr:hover td { background: linear-gradient(135deg,#faf5ff,#f8fafc); }
   background: #fff; border-radius: 16px; overflow: hidden;
   box-shadow: 0 4px 20px rgba(0,0,0,0.07); position: relative;
   transition: transform 0.18s, box-shadow 0.18s;
-  width: 200px; flex-shrink: 0;
+  width: 260px; flex-shrink: 0;
 }
 .acct-plan-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.12); }
 .acct-plan-card.acct-current { box-shadow: 0 0 0 2.5px #7c3aed, 0 8px 24px rgba(124,58,237,0.15); }
