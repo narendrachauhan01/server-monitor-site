@@ -4606,3 +4606,103 @@ tr:hover td { background: linear-gradient(135deg,#faf5ff,#f8fafc); }
 .am-submit { padding:11px 28px; background:linear-gradient(135deg,#7c3aed,#6d28d9); color:#fff; border:none; border-radius:10px; font-size:14px; font-weight:700; cursor:pointer; box-shadow:0 4px 14px rgba(124,58,237,0.3); }
 .am-submit:hover { opacity:0.92; }
 .am-submit:disabled { opacity:0.6; cursor:not-allowed; }
+
+/* ══════════════════════════════════════
+   MOBILE RESPONSIVE — All new pages
+══════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* Monitoring page */
+  .mon-layout { flex-direction: column; }
+  .mon-panel  { width: auto; border-left: none; border-top: 1px solid #e2e8f0; padding: 16px; }
+  .mon-panel-counts { gap: 6px; }
+  .mon-toolbar { flex-direction: column; gap: 10px; }
+  .mon-search-wrap { width: 100%; }
+  .mon-filter-tabs { width: 100%; justify-content: space-between; }
+  .mon-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .mon-header > div:last-child { width: 100%; justify-content: flex-end; display: flex; flex-wrap: wrap; gap: 8px; }
+  .mon-row { flex-wrap: wrap; gap: 10px; padding: 12px 14px; }
+  .mon-bar-wrap { width: 100%; }
+  .mon-main { padding: 14px; }
+
+  /* Site detail page */
+  .sit-layout { flex-direction: column; padding: 12px; }
+  .sit-right  { width: auto; }
+  .sit-cards-row { grid-template-columns: 1fr; gap: 10px; }
+  .sit-uptime-row { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .sit-chart-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .sit-range-bar { width: 100%; flex-wrap: wrap; }
+  .sit-resp-row { gap: 0; }
+  .sit-header { padding: 14px 14px 0; flex-direction: column; gap: 10px; }
+  .sit-topbar { padding: 12px 16px; }
+  .sit-inc-table { font-size: 12px; }
+  .sit-inc-table th, .sit-inc-table td { padding: 8px 8px; }
+
+  /* Ping monitor */
+  .pm-grid { grid-template-columns: 1fr; }
+  .pm-add-form { flex-direction: column; }
+  .pm-field, .pm-field-host, .pm-field-port { flex: 1 1 100%; }
+  .pm-stats-row { grid-template-columns: 1fr 1fr; }
+  .pm-modal { border-radius: 14px; }
+
+  /* Add monitor page */
+  .am-wrap { padding: 20px 16px 40px; }
+  .am-title { font-size: 20px; }
+
+  /* Account plan cards */
+  .acct-plans-row { flex-direction: column; align-items: stretch; }
+  .acct-plan-card { width: auto !important; }
+
+  /* Dashboard stat boxes */
+  .sd-stats { grid-template-columns: 1fr 1fr; }
+
+  /* Charts page */
+  .perf-row-2 { flex-direction: column; }
+  .chart-card-header { flex-direction: column; gap: 10px; }
+
+  /* Plan settings */
+  .pg-header { flex-direction: column; gap: 12px; }
+
+  /* Recipients form */
+  .add-form-row { flex-direction: column; }
+  .add-field { width: 100% !important; }
+
+  /* General pg-header */
+  .pg-header { flex-wrap: wrap; gap: 10px; }
+
+  /* Alert/Incident table */
+  .acct-billing-header-row, .acct-billing-row { flex-wrap: wrap; gap: 6px; }
+}
+
+@media (max-width: 480px) {
+
+  /* Monitoring */
+  .mon-title { font-size: 20px; }
+  .mon-count-num { font-size: 18px; }
+  .mon-panel-uptime { flex-direction: column; gap: 10px; }
+
+  /* Site detail */
+  .sit-uptime-row { grid-template-columns: 1fr 1fr; }
+  .sit-name { font-size: 17px; }
+  .sit-modal-title { font-size: 15px; }
+
+  /* Stats boxes */
+  .pm-stats-row { grid-template-columns: 1fr; }
+  .sd-stats { grid-template-columns: 1fr; }
+
+  /* Ping terminal */
+  .pm-terminal-body { height: 160px; font-size: 12px; }
+
+  /* Add monitor */
+  .am-footer { flex-direction: column-reverse; }
+  .am-cancel, .am-submit { width: 100%; text-align: center; justify-content: center; }
+
+  /* Mon header buttons */
+  .mon-btn-csv, .mon-btn-check { font-size: 12px; padding: 7px 12px; }
+
+  /* Filter tabs */
+  .mon-tab-count { display: none; }
+
+  /* Uptime bars on monitoring list */
+  .mon-bar-seg { width: 5px !important; height: 18px !important; }
+}
