@@ -345,13 +345,13 @@ export default function Account({ user, onUserUpdate }) {
                                 <div className="acct-plan-card-body">
                                     <ul className="acct-plan-features">
                                         {features.map(({ label, type }) => (
-                                            <li key={label} style={{ color: type === 'no' ? '#cbd5e1' : '#475569', opacity: type === 'no' ? 0.7 : 1 }}>
-                                                {type === 'ok'      && <span style={{ color:'#10b981', fontWeight:800, fontSize:13, flexShrink:0 }}>✓</span>}
-                                                {type === 'no'      && <span style={{ color:'#ef4444', fontWeight:800, fontSize:13, flexShrink:0 }}>✕</span>}
-                                                {type === 'limited' && <span style={{ color:'#f59e0b', fontWeight:800, fontSize:13, flexShrink:0 }}>😐</span>}
-                                                {type === 'soon'    && <span style={{ color:'#94a3b8', fontWeight:800, fontSize:11, flexShrink:0 }}>🔜</span>}
-                                                <span>{label}</span>
-                                                {type === 'soon' && <span style={{ fontSize:9, background:'#f1f5f9', color:'#94a3b8', borderRadius:4, padding:'1px 5px', marginLeft:4, fontWeight:700 }}>Soon</span>}
+                                            <li key={label} style={{ display:'flex', alignItems:'center', gap:7, color: type === 'no' ? '#cbd5e1' : '#475569', opacity: type === 'no' ? 0.6 : 1 }}>
+                                                {type === 'ok'      && <span style={{ color:'#10b981', fontWeight:900, fontSize:12, flexShrink:0, lineHeight:1 }}>✓</span>}
+                                                {type === 'no'      && <span style={{ color:'#ef4444', fontWeight:900, fontSize:12, flexShrink:0, lineHeight:1 }}>✕</span>}
+                                                {type === 'limited' && <span style={{ fontSize:12, flexShrink:0, lineHeight:1 }}>😐</span>}
+                                                {type === 'soon'    && <span style={{ fontSize:11, flexShrink:0, lineHeight:1 }}>🔜</span>}
+                                                <span style={{ fontSize:11 }}>{label}</span>
+                                                {type === 'soon' && <span style={{ fontSize:9, background:'#f1f5f9', color:'#94a3b8', borderRadius:4, padding:'1px 5px', fontWeight:700, flexShrink:0 }}>Soon</span>}
                                             </li>
                                         ))}
                                     </ul>
