@@ -76,6 +76,7 @@ router.get('/plans', async (req, res) => {
             verificationFee: settings.verificationFee || 2,
             trialDays: settings.trialDays || 5,
             freeTrialFeatures: settings.freeTrialFeatures || [],
+            freeTrialAccess: settings.freeTrialAccess || { domainSsl: true, charts: true },
         });
     } catch (e) {
         res.status(500).json({ error: e.message });

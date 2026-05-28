@@ -55,6 +55,10 @@ const settingsSchema = new mongoose.Schema({
     freeTrialInterval:         { type: Number, default: 300 },
     freeTrialRecipientLimit:   { type: Number, default: 2 },
     freeTrialFeatures:         { type: [String], default: () => DEFAULT_FEATURES.free_trial },
+    freeTrialAccess: {
+        domainSsl: { type: Boolean, default: true },
+        charts:    { type: Boolean, default: true },
+    },
     plans: {
         bronze: {
             price:           { type: Number, default: 499 },
@@ -101,6 +105,7 @@ settingsSchema.statics.get = async function () {
     }
     if (!s.freeTrialInterval)       { s.freeTrialInterval = 300;       dirty = true; }
     if (!s.freeTrialRecipientLimit) { s.freeTrialRecipientLimit = 2;   dirty = true; }
+    if (!s.freeTrialAccess)         { s.freeTrialAccess = { domainSsl: true, charts: true }; dirty = true; }
     const DEFAULT_INTERVALS   = { bronze: 120, silver: 60,  gold: 30 };
     const DEFAULT_REC_LIMITS  = { bronze: 10,  silver: 20,  gold: 30 };
     for (const k of ['bronze', 'silver', 'gold']) {
@@ -121,6 +126,10 @@ settingsSchema.statics.update = async function (data) {
     if (data.verificationFee !== undefined)       s.verificationFee = data.verificationFee;
     if (data.freeTrialInterval !== undefined)     s.freeTrialInterval = data.freeTrialInterval;
     if (data.freeTrialRecipientLimit !== undefined) s.freeTrialRecipientLimit = data.freeTrialRecipientLimit;
+    if (data.freeTrialAccess !== undefined) {
+        s.freeTrialAccess = { ...s.freeTrialAccess, ...data.freeTrialAccess };
+        s.markModified('freeTrialAccess');
+    }
     if (data.freeTrialFeatures !== undefined) {
         const f = sanitizeFeatures(data.freeTrialFeatures);
         if (f) s.freeTrialFeatures = f;

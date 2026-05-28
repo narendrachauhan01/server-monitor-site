@@ -13,6 +13,7 @@ import Charts from './pages/Charts';
 import EmailPage from './pages/Email';
 import Resources from './pages/Resources';
 import PlanSettings from './pages/PlanSettings';
+import FeatureAccess from './pages/FeatureAccess';
 import Login from './pages/Login';
 import ResetPassword from './pages/ResetPassword';
 import Register from './pages/Register';
@@ -24,7 +25,7 @@ import VerifyAccount from './pages/VerifyAccount';
 import PaymentPage from './pages/PaymentPage';
 import CompleteProfile from './pages/CompleteProfile';
 import TermsOfService from './pages/TermsOfService';
-import { API_URL, getNotifications, markNotificationsRead } from './api';
+import { API_URL, getNotifications, markNotificationsRead, getPlans } from './api';
 import Toast from './components/Toast';
 import NotificationPanel from './components/NotificationPanel';
 import './App.css';
@@ -46,6 +47,7 @@ const IcoPlan    = () => <svg width="18" height="18" fill="none" stroke="current
 const IcoLogout  = () => <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>;
 const IcoProfile  = () => <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>;
 const IcoSettings = () => <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>;
+const IcoToggle  = () => <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><rect x="1" y="6" width="22" height="12" rx="6"/><circle cx="16" cy="12" r="3" fill="currentColor" stroke="none"/></svg>;
 const IcoMenu    = () => <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>;
 
 function PlanBadge({ user }) {
@@ -70,7 +72,8 @@ function Sidebar({ onLogout, user, isAdmin, open, setOpen, onBell, unreadCount }
   const links = isAdmin ? [
     { to: '/admin-profile',        label: 'My Profile',    icon: <IcoProfile /> },
     { to: '/admin',                label: 'Admin Panel',   icon: <IcoAdmin /> },
-    { to: '/plan-settings',         label: 'Plan Settings', icon: <IcoSettings /> },
+    { to: '/plan-settings',         label: 'Plan Settings',    icon: <IcoSettings /> },
+    { to: '/feature-access',        label: 'Feature Access',   icon: <IcoToggle /> },
     { to: '/server-resources',     label: 'Infra',         icon: <IcoServer /> },
     { to: '/email',                label: 'Email',         icon: <IcoMail /> },
     { to: '/whatsapp',             label: 'WhatsApp',      icon: <IcoWa /> },
@@ -185,6 +188,7 @@ function AppInner() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [freeAccess, setFreeAccess] = useState({ domainSsl: true, charts: true });
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -203,6 +207,10 @@ function AppInner() {
   };
 
   const showToast = (message, type = 'success') => setToast({ message, type });
+
+  useEffect(() => {
+    getPlans().then(r => { if (r.data.freeTrialAccess) setFreeAccess(r.data.freeTrialAccess); }).catch(() => {});
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem('sm_token');
@@ -432,14 +440,15 @@ function AppInner() {
             <Route path="/recipients" element={<Recipients />} />
             <Route path="/alerts" element={<Alerts />} />
             <Route path="/server-resources" element={isAdmin ? <Resources /> : <Dashboard />} />
-            <Route path="/domain-ssl" element={<DomainSSL />} />
-            <Route path="/charts" element={<Charts />} />
+            <Route path="/domain-ssl" element={!user || user.plan !== 'free_trial' || freeAccess.domainSsl ? <DomainSSL /> : <UpgradeGate user={user} feature="Domain & SSL Monitoring"><DomainSSL /></UpgradeGate>} />
+            <Route path="/charts"     element={!user || user.plan !== 'free_trial' || freeAccess.charts    ? <Charts />   : <UpgradeGate user={user} feature="Performance Charts"><Charts /></UpgradeGate>} />
             <Route path="/email" element={isAdmin ? <EmailPage /> : <Dashboard />} />
             <Route path="/whatsapp" element={isAdmin ? <WhatsAppPage /> : <Dashboard />} />
             <Route path="/account" element={<Account user={user} onUserUpdate={handleUserUpdate} />} />
             {isAdmin && <Route path="/admin" element={<AdminPanel />} />}
             {isAdmin && <Route path="/admin-profile" element={<AdminPanel initialTab="profile" />} />}
             {isAdmin && <Route path="/plan-settings" element={<PlanSettings />} />}
+            {isAdmin && <Route path="/feature-access" element={<FeatureAccess />} />}
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="*" element={<Dashboard />} />
           </Routes>
