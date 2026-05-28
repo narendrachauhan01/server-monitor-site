@@ -632,7 +632,7 @@ export default function AdminPanel({ initialTab = 'overview' }) {
                             : payments;
                         return filteredPay.length === 0 ? (
                             <div className="ap-empty">{paySearch ? 'No payments match your search.' : 'No payments yet.'}</div>
-                        ) : filteredPay.map(pr => {
+                        ) : <div style={{ maxHeight: '60vh', overflowY: 'auto', paddingRight: 4 }}>{filteredPay.map(pr => {
                         const planColor = { bronze:'#b45309', silver:'#475569', gold:'#ca8a04' }[pr.plan] || '#64748b';
                         return (
                             <div key={pr._id} className="ap-pay-card">
@@ -671,7 +671,7 @@ export default function AdminPanel({ initialTab = 'overview' }) {
                                 </div>
                             </div>
                         );
-                        })
+                        })}</div>;
                     })()}
                 </div>
             )}
