@@ -53,6 +53,7 @@ const settingsSchema = new mongoose.Schema({
     trialDays:         { type: Number, default: 5 },
     verificationFee:   { type: Number, default: 2 },
     freeTrialInterval:         { type: Number, default: 300 },
+    freeTrialPingInterval:     { type: Number, default: 180 }, // 3 min
     freeTrialRecipientLimit:   { type: Number, default: 2 },
     freeTrialFeatures:         { type: [String], default: () => DEFAULT_FEATURES.free_trial },
     freeTrialAccess: {
@@ -65,6 +66,7 @@ const settingsSchema = new mongoose.Schema({
             price:           { type: Number, default: 499 },
             sites:           { type: Number, default: 5 },
             interval:        { type: Number, default: 120 },
+            pingInterval:    { type: Number, default: 120 }, // 2 min
             recipientLimit:  { type: Number, default: 10 },
             label:           { type: String, default: 'Bronze' },
             features:        { type: [String], default: () => DEFAULT_FEATURES.bronze },
@@ -73,6 +75,7 @@ const settingsSchema = new mongoose.Schema({
             price:           { type: Number, default: 999 },
             sites:           { type: Number, default: 15 },
             interval:        { type: Number, default: 60 },
+            pingInterval:    { type: Number, default: 60 }, // 1 min
             recipientLimit:  { type: Number, default: 20 },
             label:           { type: String, default: 'Silver' },
             features:        { type: [String], default: () => DEFAULT_FEATURES.silver },
@@ -81,6 +84,7 @@ const settingsSchema = new mongoose.Schema({
             price:           { type: Number, default: 1499 },
             sites:           { type: Number, default: 30 },
             interval:        { type: Number, default: 30 },
+            pingInterval:    { type: Number, default: 30 }, // 30 sec
             recipientLimit:  { type: Number, default: 30 },
             label:           { type: String, default: 'Gold' },
             features:        { type: [String], default: () => DEFAULT_FEATURES.gold },
@@ -105,6 +109,7 @@ settingsSchema.statics.get = async function () {
         s.freeTrialFeatures = DEFAULT_FEATURES.free_trial; dirty = true;
     }
     if (!s.freeTrialInterval)       { s.freeTrialInterval = 300;       dirty = true; }
+    if (!s.freeTrialPingInterval)   { s.freeTrialPingInterval = 180;   dirty = true; }
     if (!s.freeTrialRecipientLimit) { s.freeTrialRecipientLimit = 2;   dirty = true; }
     if (!s.freeTrialAccess)         { s.freeTrialAccess = { domainSsl: true, charts: true, pingMonitor: true }; dirty = true; }
     if (s.freeTrialAccess && s.freeTrialAccess.pingMonitor === undefined) { s.freeTrialAccess.pingMonitor = true; s.markModified('freeTrialAccess'); dirty = true; }
@@ -115,6 +120,7 @@ settingsSchema.statics.get = async function () {
             s.plans[k].features = DEFAULT_FEATURES[k]; dirty = true;
         }
         if (!s.plans[k].interval)       { s.plans[k].interval = DEFAULT_INTERVALS[k];  dirty = true; }
+        if (!s.plans[k].pingInterval)   { s.plans[k].pingInterval = DEFAULT_INTERVALS[k]; dirty = true; }
         if (!s.plans[k].recipientLimit) { s.plans[k].recipientLimit = DEFAULT_REC_LIMITS[k]; dirty = true; }
     }
     if (dirty) { s.markModified('plans'); await s.save(); }
@@ -127,6 +133,7 @@ settingsSchema.statics.update = async function (data) {
     if (data.trialDays !== undefined)             s.trialDays = data.trialDays;
     if (data.verificationFee !== undefined)       s.verificationFee = data.verificationFee;
     if (data.freeTrialInterval !== undefined)     s.freeTrialInterval = data.freeTrialInterval;
+    if (data.freeTrialPingInterval !== undefined) s.freeTrialPingInterval = data.freeTrialPingInterval;
     if (data.freeTrialRecipientLimit !== undefined) s.freeTrialRecipientLimit = data.freeTrialRecipientLimit;
     if (data.freeTrialAccess !== undefined) {
         s.freeTrialAccess = { ...s.freeTrialAccess, ...data.freeTrialAccess };
@@ -141,8 +148,9 @@ settingsSchema.statics.update = async function (data) {
             if (data.plans[key]) {
                 if (data.plans[key].price           !== undefined) s.plans[key].price          = data.plans[key].price;
                 if (data.plans[key].sites           !== undefined) s.plans[key].sites          = data.plans[key].sites;
-                if (data.plans[key].interval        !== undefined) s.plans[key].interval       = data.plans[key].interval;
-                if (data.plans[key].recipientLimit  !== undefined) s.plans[key].recipientLimit = data.plans[key].recipientLimit;
+                if (data.plans[key].interval        !== undefined) s.plans[key].interval        = data.plans[key].interval;
+                if (data.plans[key].pingInterval    !== undefined) s.plans[key].pingInterval    = data.plans[key].pingInterval;
+                if (data.plans[key].recipientLimit  !== undefined) s.plans[key].recipientLimit  = data.plans[key].recipientLimit;
                 if (data.plans[key].label           !== undefined) s.plans[key].label          = data.plans[key].label;
                 if (data.plans[key].features !== undefined) {
                     const f = sanitizeFeatures(data.plans[key].features);

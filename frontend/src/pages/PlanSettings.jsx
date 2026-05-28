@@ -19,12 +19,13 @@ export default function PlanSettings() {
                 trialDays: d.trialDays,
                 verificationFee: d.verificationFee ?? 2,
                 freeTrialInterval: d.freeTrialInterval ?? 300,
+                freeTrialPingInterval: d.freeTrialPingInterval ?? 180,
                 freeTrialRecipientLimit: d.freeTrialRecipientLimit ?? 2,
                 freeTrialFeatures: (d.freeTrialFeatures || []).join('\n'),
                 plans: {
-                    bronze: { price: d.plans.bronze.price, sites: d.plans.bronze.sites, interval: d.plans.bronze.interval ?? 120, recipientLimit: d.plans.bronze.recipientLimit ?? 10, features: (d.plans.bronze.features || []).join('\n') },
-                    silver: { price: d.plans.silver.price, sites: d.plans.silver.sites, interval: d.plans.silver.interval ?? 60,  recipientLimit: d.plans.silver.recipientLimit ?? 20, features: (d.plans.silver.features || []).join('\n') },
-                    gold:   { price: d.plans.gold.price,   sites: d.plans.gold.sites,   interval: d.plans.gold.interval   ?? 30,  recipientLimit: d.plans.gold.recipientLimit   ?? 30, features: (d.plans.gold.features   || []).join('\n') },
+                    bronze: { price: d.plans.bronze.price, sites: d.plans.bronze.sites, interval: d.plans.bronze.interval ?? 120, pingInterval: d.plans.bronze.pingInterval ?? 120, recipientLimit: d.plans.bronze.recipientLimit ?? 10, features: (d.plans.bronze.features || []).join('\n') },
+                    silver: { price: d.plans.silver.price, sites: d.plans.silver.sites, interval: d.plans.silver.interval ?? 60,  pingInterval: d.plans.silver.pingInterval ?? 60,  recipientLimit: d.plans.silver.recipientLimit ?? 20, features: (d.plans.silver.features || []).join('\n') },
+                    gold:   { price: d.plans.gold.price,   sites: d.plans.gold.sites,   interval: d.plans.gold.interval   ?? 30,  pingInterval: d.plans.gold.pingInterval   ?? 30,  recipientLimit: d.plans.gold.recipientLimit   ?? 30, features: (d.plans.gold.features   || []).join('\n') },
                 },
             });
         }).catch(() => showToast('Failed to load settings'));
@@ -43,12 +44,13 @@ export default function PlanSettings() {
                 trialDays: form.trialDays,
                 verificationFee: form.verificationFee,
                 freeTrialInterval: Number(form.freeTrialInterval),
+                freeTrialPingInterval: Number(form.freeTrialPingInterval),
                 freeTrialRecipientLimit: Number(form.freeTrialRecipientLimit),
                 freeTrialFeatures: form.freeTrialFeatures.split('\n').map(s => s.trim()).filter(Boolean),
                 plans: {
-                    bronze: { price: form.plans.bronze.price, sites: form.plans.bronze.sites, interval: Number(form.plans.bronze.interval), recipientLimit: Number(form.plans.bronze.recipientLimit), features: form.plans.bronze.features.split('\n').map(s => s.trim()).filter(Boolean) },
-                    silver: { price: form.plans.silver.price, sites: form.plans.silver.sites, interval: Number(form.plans.silver.interval), recipientLimit: Number(form.plans.silver.recipientLimit), features: form.plans.silver.features.split('\n').map(s => s.trim()).filter(Boolean) },
-                    gold:   { price: form.plans.gold.price,   sites: form.plans.gold.sites,   interval: Number(form.plans.gold.interval),   recipientLimit: Number(form.plans.gold.recipientLimit),   features: form.plans.gold.features.split('\n').map(s => s.trim()).filter(Boolean) },
+                    bronze: { price: form.plans.bronze.price, sites: form.plans.bronze.sites, interval: Number(form.plans.bronze.interval), pingInterval: Number(form.plans.bronze.pingInterval), recipientLimit: Number(form.plans.bronze.recipientLimit), features: form.plans.bronze.features.split('\n').map(s => s.trim()).filter(Boolean) },
+                    silver: { price: form.plans.silver.price, sites: form.plans.silver.sites, interval: Number(form.plans.silver.interval), pingInterval: Number(form.plans.silver.pingInterval), recipientLimit: Number(form.plans.silver.recipientLimit), features: form.plans.silver.features.split('\n').map(s => s.trim()).filter(Boolean) },
+                    gold:   { price: form.plans.gold.price,   sites: form.plans.gold.sites,   interval: Number(form.plans.gold.interval),   pingInterval: Number(form.plans.gold.pingInterval),   recipientLimit: Number(form.plans.gold.recipientLimit),   features: form.plans.gold.features.split('\n').map(s => s.trim()).filter(Boolean) },
                 },
             });
             showToast('✅ Settings saved!');
@@ -98,10 +100,16 @@ export default function PlanSettings() {
                             style={{ width:'100%', padding:'9px 12px', border:'1.5px solid #e2e8f0', borderRadius:8, fontSize:14 }} />
                     </div>
                     <div>
-                        <label style={{ fontSize:12, fontWeight:600, color:'#374151', display:'block', marginBottom:6 }}>Check Interval (sec)</label>
+                        <label style={{ fontSize:12, fontWeight:600, color:'#374151', display:'block', marginBottom:6 }}>Site Check Interval (sec)</label>
                         <input type="number" min="60" step="30" value={form.freeTrialInterval} onChange={e => setForm({...form, freeTrialInterval: Number(e.target.value)})}
                             style={{ width:'100%', padding:'9px 12px', border:'1.5px solid #e2e8f0', borderRadius:8, fontSize:14 }} />
                         <span style={{ fontSize:11, color:'#94a3b8', marginTop:3, display:'block' }}>{Math.floor(form.freeTrialInterval/60)} min per check</span>
+                    </div>
+                    <div>
+                        <label style={{ fontSize:12, fontWeight:600, color:'#374151', display:'block', marginBottom:6 }}>Ping Interval (sec)</label>
+                        <input type="number" min="30" step="30" value={form.freeTrialPingInterval} onChange={e => setForm({...form, freeTrialPingInterval: Number(e.target.value)})}
+                            style={{ width:'100%', padding:'9px 12px', border:'1.5px solid #e2e8f0', borderRadius:8, fontSize:14 }} />
+                        <span style={{ fontSize:11, color:'#94a3b8', marginTop:3, display:'block' }}>{Math.floor(form.freeTrialPingInterval/60)} min per ping</span>
                     </div>
                     <div>
                         <label style={{ fontSize:12, fontWeight:600, color:'#374151', display:'block', marginBottom:6 }}>Max Recipients</label>
@@ -137,11 +145,19 @@ export default function PlanSettings() {
                                     style={{ width:'100%', padding:'9px 12px', border:'1.5px solid #e2e8f0', borderRadius:8, fontSize:14, boxSizing:'border-box' }} />
                             </div>
                             <div>
-                                <label style={{ fontSize:12, fontWeight:600, color:'#374151', display:'block', marginBottom:6 }}>Check Interval (sec)</label>
+                                <label style={{ fontSize:12, fontWeight:600, color:'#374151', display:'block', marginBottom:6 }}>Site Check Interval (sec)</label>
                                 <input type="number" min="30" step="30" value={form.plans[pk].interval} onChange={e => setPlanField(pk, 'interval', e.target.value)}
                                     style={{ width:'100%', padding:'9px 12px', border:'1.5px solid #e2e8f0', borderRadius:8, fontSize:14, boxSizing:'border-box' }} />
                                 <span style={{ fontSize:11, color:'#94a3b8', marginTop:3, display:'block' }}>
-                                    {form.plans[pk].interval >= 60 ? `${form.plans[pk].interval/60} min` : `${form.plans[pk].interval} sec`} per check
+                                    {form.plans[pk].interval >= 60 ? `${form.plans[pk].interval/60}m` : `${form.plans[pk].interval}s`} per check
+                                </span>
+                            </div>
+                            <div>
+                                <label style={{ fontSize:12, fontWeight:600, color:'#374151', display:'block', marginBottom:6 }}>Ping Interval (sec)</label>
+                                <input type="number" min="30" step="30" value={form.plans[pk].pingInterval} onChange={e => setPlanField(pk, 'pingInterval', e.target.value)}
+                                    style={{ width:'100%', padding:'9px 12px', border:'1.5px solid #e2e8f0', borderRadius:8, fontSize:14, boxSizing:'border-box' }} />
+                                <span style={{ fontSize:11, color:'#94a3b8', marginTop:3, display:'block' }}>
+                                    {form.plans[pk].pingInterval >= 60 ? `${form.plans[pk].pingInterval/60}m` : `${form.plans[pk].pingInterval}s`} per ping
                                 </span>
                             </div>
                             <div>

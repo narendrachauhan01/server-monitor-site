@@ -273,10 +273,21 @@ async function pingCheck(host, port) {
 // ── Check all ping targets ───────────────────────────────────────────────────
 async function checkPingTargets() {
     try {
+        const settings  = await Settings.get();
         const targets   = await PingTarget.find({ active: true }).populate('userId', 'plan');
         const recipients = await Recipient.find({ active: true }).populate('servers');
 
         for (const target of targets) {
+            // Plan-based ping interval
+            if (target.userId) {
+                const plan = target.userId.plan || 'free_trial';
+                const pingInterval = plan === 'free_trial'
+                    ? (settings.freeTrialPingInterval || 180)
+                    : (settings.plans?.[plan]?.pingInterval || 60);
+                const lastChecked = target.lastChecked ? new Date(target.lastChecked).getTime() : 0;
+                if (lastChecked && (Date.now() - lastChecked) < pingInterval * 1000) continue;
+            }
+
             const result = await pingCheck(target.host, target.port);
             const prevStatus = target.status;
             const wasAlertSent = target.downAlertSent;
@@ -329,8 +340,8 @@ function start() {
     checkPingTargets();
     setInterval(checkAll, 30 * 1000);
     setInterval(checkExpiry, 6 * 60 * 60 * 1000);
-    setInterval(checkPingTargets, 60 * 1000); // ping check every 60s
-    console.log('[Monitor] Started - ticker every 30s | Ping every 60s | Expiry check every 6h');
+    setInterval(checkPingTargets, 30 * 1000); // ticker 30s, each target checked per plan interval
+    console.log('[Monitor] Started - ticker every 30s | Ping plan-based | Expiry check every 6h');
 }
 
 module.exports = { start, checkAll };
