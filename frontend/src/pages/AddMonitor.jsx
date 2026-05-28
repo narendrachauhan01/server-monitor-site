@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { addServer, getPlans, getRecipients, getServers, API_URL } from '../api';
 
@@ -10,7 +10,18 @@ const authHeaders = () => {
 
 export default function AddMonitor() {
     const navigate = useNavigate();
-    const [form, setForm] = useState({ name: '', url: 'https://', timeout: 10, followRedirects: true, httpMethod: 'GET', upCodes: [200, 301, 302] });
+    const location = useLocation();
+    const editServer = location.state?.editServer || null;
+    const isEdit = !!editServer;
+
+    const [form, setForm] = useState(() => isEdit ? {
+        name: editServer.name || '',
+        url: editServer.url || 'https://',
+        timeout: editServer.timeout || 10,
+        followRedirects: editServer.followRedirects !== false,
+        httpMethod: editServer.httpMethod || 'GET',
+        upCodes: editServer.upCodes?.length ? editServer.upCodes : [200, 301, 302],
+    } : { name: '', url: 'https://', timeout: 10, followRedirects: true, httpMethod: 'GET', upCodes: [200, 301, 302] });
     const [showAdvanced, setShowAdvanced] = useState(false);
     const [codeInput, setCodeInput] = useState('');
     const [saving, setSaving] = useState(false);
@@ -67,10 +78,16 @@ export default function AddMonitor() {
         if (!form.url.trim() || form.url === 'https://') { setError('URL is required'); return; }
         setSaving(true);
         try {
-            const serverRes = await addServer(form);
-            const serverId = serverRes.data._id;
+            let serverId;
+            if (isEdit) {
+                await axios.put(`${API_URL}/api/servers/${editServer._id}`, form, { headers: authHeaders() });
+                serverId = editServer._id;
+            } else {
+                const serverRes = await addServer(form);
+                serverId = serverRes.data._id;
+            }
 
-            // Assign server to selected recipients + apply their site maps
+            // Assign server to selected recipients
             if (!allRecipients && selectedRecipients.length > 0) {
                 await Promise.all(selectedRecipients.map(rid => {
                     const rec = recipients.find(r => r._id === rid);
@@ -81,9 +98,9 @@ export default function AddMonitor() {
                 }));
             }
 
-            navigate('/dashboard');
+            navigate(isEdit ? `/site/${serverId}` : '/dashboard');
         } catch (err) {
-            setError(err.response?.data?.error || 'Failed to add monitor');
+            setError(err.response?.data?.error || (isEdit ? 'Failed to update monitor' : 'Failed to add monitor'));
         }
         setSaving(false);
     };
@@ -95,7 +112,7 @@ export default function AddMonitor() {
             </div>
 
             <div className="am-wrap">
-                <h1 className="am-title">Add single monitor <span style={{color:'#7c3aed'}}>.</span></h1>
+                <h1 className="am-title">{isEdit ? 'Edit monitor' : 'Add single monitor'} <span style={{color:'#7c3aed'}}>.</span></h1>
 
                 <form onSubmit={handleSubmit}>
 
@@ -417,7 +434,7 @@ export default function AddMonitor() {
                     <div className="am-footer">
                         <button type="button" className="am-cancel" onClick={() => navigate('/dashboard')}>Cancel</button>
                         <button type="submit" className="am-submit" disabled={saving}>
-                            {saving ? 'Creating...' : 'Create monitor →'}
+                            {saving ? (isEdit ? 'Saving...' : 'Creating...') : (isEdit ? 'Save changes →' : 'Create monitor →')}
                         </button>
                     </div>
                 </form>

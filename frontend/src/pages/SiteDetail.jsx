@@ -139,6 +139,9 @@ export default function SiteDetail() {
                     <button className={`sit-action-btn${server.active ? '' : ' resume-btn'}`} onClick={togglePause} disabled={pausing}>
                         {server.active ? '⏸ Pause' : '▶ Resume'}
                     </button>
+                    <button className="sit-action-btn" style={{background:'#7c3aed'}} onClick={() => navigate('/add-monitor', { state: { editServer: server } })}>
+                        ✏️ Edit
+                    </button>
                 </div>
             </div>
 
