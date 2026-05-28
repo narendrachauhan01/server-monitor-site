@@ -87,16 +87,14 @@ export default function AddMonitor() {
                 serverId = serverRes.data._id;
             }
 
-            // Assign server to selected recipients
-            if (!allRecipients && selectedRecipients.length > 0) {
-                await Promise.all(selectedRecipients.map(rid => {
-                    const rec = recipients.find(r => r._id === rid);
-                    if (!rec) return Promise.resolve();
-                    const existingSites = recipSiteMap[rid] || [];
-                    const newSites = existingSites.length > 0 ? [...existingSites, serverId] : [];
-                    return axios.put(`${API_URL}/api/recipients/${rid}`, { servers: newSites }, { headers: authHeaders() });
-                }));
-            }
+            // Save site assignments — if recipient has specific sites selected, save them
+            await Promise.all(recipients.map(rec => {
+                const sites = recipSiteMap[rec._id] || [];
+                if (sites.length > 0) {
+                    return axios.put(`${API_URL}/api/recipients/${rec._id}`, { servers: sites }, { headers: authHeaders() });
+                }
+                return Promise.resolve();
+            }));
 
             navigate(isEdit ? `/site/${serverId}` : '/dashboard');
         } catch (err) {
@@ -153,11 +151,9 @@ export default function AddMonitor() {
                             )}
                         </div>
                         <div className="am-recip-box">
-                            {/* Header with clear explanation */}
-                            <div style={{padding:'10px 16px', background:'#f8fafc', borderBottom:'1px solid #f1f5f9', display:'flex', alignItems:'center', justifyContent:'space-between'}}>
+                            <div style={{padding:'10px 16px', background:'#f8fafc', borderBottom:'1px solid #f1f5f9'}}>
                                 <span style={{fontSize:12, color:'#64748b'}}>
-                                    ☑️ <strong>Tick</strong> = only selected get alerts &nbsp;|&nbsp;
-                                    ⬜ <strong>Untick all</strong> = everyone gets alerts
+                                    🌐 <strong>Sites button</strong> — select which sites notify this recipient. Empty = all sites.
                                 </span>
                             </div>
 
@@ -197,8 +193,7 @@ export default function AddMonitor() {
                                                     </div>
                                                 </div>
                                             ) : (
-                                                <div className={`am-recip-item ${isSelected?'am-recip-selected':''}`} style={{cursor:'default'}} title={isSelected ? 'Only this recipient gets alerts for this monitor' : 'Click to assign only this recipient'}>
-                                                    <input type="checkbox" checked={isSelected} onChange={()=>toggleRecipient(r._id)} style={{cursor:'pointer'}} title={isSelected ? '✓ Will get alerts' : 'Click to select'} />
+                                                <div className="am-recip-item" style={{cursor:'default'}}>
                                                     <div className="am-recip-avatar" style={{background:avatarColor}}>{(r.name||'?')[0].toUpperCase()}</div>
                                                     <div style={{flex:1,minWidth:0}}>
                                                         <div style={{fontWeight:600,fontSize:13,color:'#1e1b4b'}}>{r.name}</div>
@@ -321,12 +316,9 @@ export default function AddMonitor() {
                                 )}
                             </div>
                         </div>
-                        {selectedRecipients.length > 0 && (
-                            <div style={{fontSize:12,color:'#7c3aed',marginTop:6,fontWeight:600}}>✓ {selectedRecipients.length} recipient{selectedRecipients.length>1?'s':''} selected</div>
-                        )}
-                        {selectedRecipients.length === 0 && recipients.length > 0 && (
-                            <div style={{fontSize:12,color:'#94a3b8',marginTop:6}}>No selection = all recipients will get alerts</div>
-                        )}
+                        <div style={{fontSize:12,color:'#94a3b8',marginTop:6}}>
+                            Use the <strong>🌐 Sites</strong> button per recipient to assign specific sites. Leave empty = all sites.
+                        </div>
                     </div>
 
                     {/* Monitor interval */}
