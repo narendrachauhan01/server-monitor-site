@@ -15,6 +15,7 @@ import FeatureAccess from './pages/FeatureAccess';
 import PingMonitor from './pages/PingMonitor';
 import SiteDetail from './pages/SiteDetail';
 import AddMonitor from './pages/AddMonitor';
+import Recipients from './pages/Recipients';
 import Login from './pages/Login';
 import ResetPassword from './pages/ResetPassword';
 import Register from './pages/Register';
@@ -437,6 +438,7 @@ function AppInner() {
           <Routes>
             <Route path="/verify-account" element={<VerifyAccount user={user} />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/recipients" element={<Recipients />} />
             <Route path="/alerts" element={<Alerts />} />
             <Route path="/server-resources" element={isAdmin ? <Resources /> : <Dashboard />} />
             <Route path="/domain-ssl" element={!user || user.plan !== 'free_trial' || freeAccess.domainSsl ? <DomainSSL /> : <UpgradeGate user={user} feature="Domain & SSL Monitoring"><DomainSSL /></UpgradeGate>} />
