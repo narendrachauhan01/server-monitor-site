@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, ResponsiveContainer } from 'recharts';
 import { getServers, getAlerts, getExpiry, API_URL } from '../api';
 import axios from 'axios';
 
@@ -236,9 +236,12 @@ export default function SiteDetail() {
                         )}
 
                         {chartData.length > 1 ? (
-                            <div style={{width:'100%', overflowX:'auto'}}>
-                            <ResponsiveContainer width="100%" minWidth={280} height={200}>
-                                <AreaChart data={chartData} margin={{top:10,right:10,left:0,bottom:0}}>
+                            <div style={{width:'100%', height:200}}>
+                            <ResponsiveContainer width="100%" height={200}>
+                            <AreaChart
+                                data={chartData}
+                                margin={{top:10,right:10,left:0,bottom:0}}
+                            >
                                     <defs>
                                         <linearGradient id="sitGrad" x1="0" y1="0" x2="0" y2="1">
                                             <stop offset="5%" stopColor="#7c3aed" stopOpacity={0.2}/>
