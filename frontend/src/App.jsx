@@ -432,8 +432,8 @@ function AppInner() {
             <Route path="/recipients" element={<Recipients />} />
             <Route path="/alerts" element={<Alerts />} />
             <Route path="/server-resources" element={isAdmin ? <Resources /> : <Dashboard />} />
-            <Route path="/domain-ssl" element={<UpgradeGate user={user} feature="SSL & Domain Expiry"><DomainSSL /></UpgradeGate>} />
-            <Route path="/charts" element={<UpgradeGate user={user} feature="Performance Charts"><Charts /></UpgradeGate>} />
+            <Route path="/domain-ssl" element={<DomainSSL />} />
+            <Route path="/charts" element={<Charts />} />
             <Route path="/email" element={isAdmin ? <EmailPage /> : <Dashboard />} />
             <Route path="/whatsapp" element={isAdmin ? <WhatsAppPage /> : <Dashboard />} />
             <Route path="/account" element={<Account user={user} onUserUpdate={handleUserUpdate} />} />
