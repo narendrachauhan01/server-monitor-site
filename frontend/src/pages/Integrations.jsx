@@ -119,7 +119,9 @@ const INTEGRATIONS = [
     { key:'discord',  iconEl:<IcoDiscord />,  name:'Discord',  color:'#7c3aed', desc:'Post status updates to your Discord server.', status:'active',
       fields:[{key:'url',label:'Discord Webhook URL',placeholder:'https://discord.com/api/webhooks/...',hint:'Create from Discord Channel → Edit → Integrations → Webhooks'},
               {key:'events',label:'Events',type:'select',default:'all',options:[{value:'all',label:'All events'},{value:'down',label:'Down only'}]}]},
-    { key:'email',    iconEl:<IcoGmail />,    name:'Email',    color:'#7c3aed', desc:'Email alerts are sent automatically. Configure SMTP in Admin Panel.', status:'email', fields:[] },
+    { key:'email',       iconEl:<IcoGmail />,    name:'Email',       color:'#7c3aed', desc:'Email alerts are sent automatically. Configure SMTP in Admin Panel.', status:'email', fields:[] },
+    { key:'rocketchat',  iconEl:(<svg width="26" height="26" viewBox="0 0 24 24" fill="#f5455c"><path d="M12 0C5.373 0 0 4.925 0 11c0 3.077 1.333 5.852 3.471 7.836L2 24l5.291-1.585A12.44 12.44 0 0 0 12 23c6.627 0 12-4.925 12-11S18.627 0 12 0zm5.889 15.484c-.247.697-1.464 1.33-2.044 1.415-.527.077-1.196.109-1.93-.12-.445-.14-1.016-.326-1.747-.64-3.067-1.322-5.07-4.408-5.225-4.614-.153-.205-1.25-1.663-1.25-3.174 0-1.51.793-2.254 1.073-2.56.28-.304.612-.38.815-.38.204 0 .408.002.586.01.188.009.44-.071.688.526.253.613.861 2.119.936 2.272.076.153.127.331.026.536-.102.204-.153.33-.305.51-.153.179-.321.4-.458.537-.153.152-.312.318-.134.623.178.305.79 1.302 1.696 2.108 1.165 1.04 2.148 1.361 2.453 1.514.304.153.482.127.66-.076.178-.204.764-.892 .968-1.197.203-.304.407-.254.686-.152.28.102 1.783.84 2.087.993.305.153.509.229.585.356.077.127.077.737-.17 1.434z"/></svg>),
+      name:'Rocket.Chat', color:'#7c3aed', desc:'Send alerts to your Rocket.Chat workspace via webhook.', status:'soon', fields:[] },
 ];
 
 // ── Main Page ──────────────────────────────────────────────────────────────
