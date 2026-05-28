@@ -171,13 +171,22 @@ export default function Integrations() {
 
             {/* Platform-managed (admin configures) */}
             <div style={{ fontSize:11, fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:0.6, marginBottom:10 }}>Platform Alerts</div>
-            <div style={{ background:'#f5f3ff', border:'1px solid #ddd6fe', borderRadius:12, padding:'14px 18px', marginBottom:16 }}>
-                <div style={{ fontWeight:700, fontSize:13, color:'#7c3aed', marginBottom:6 }}>How users receive alerts:</div>
-                <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
-                    <div style={{ fontSize:13, color:'#475569' }}>📧 <strong>Email</strong> — User adds their email address when creating a monitor (Add Monitor → Who will we notify)</div>
-                    <div style={{ fontSize:13, color:'#475569' }}>💬 <strong>WhatsApp</strong> — User adds their phone number as a recipient in the same step</div>
-                    <div style={{ fontSize:13, color:'#475569' }}>⚙️ Admin configures SMTP & Green API once → alerts fire automatically for all users</div>
+            <div style={{ background:'#f5f3ff', border:'1px solid #ddd6fe', borderRadius:12, padding:'16px 18px', marginBottom:16 }}>
+                <div style={{ fontWeight:700, fontSize:13, color:'#7c3aed', marginBottom:10 }}>📌 Where to add your Email & WhatsApp number?</div>
+                <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+                    <div style={{ fontSize:13, color:'#475569', display:'flex', alignItems:'center', gap:8 }}>
+                        <span>➊</span> Click <strong style={{color:'#7c3aed'}}>+ New</strong> on the Monitoring page to add a monitor
+                    </div>
+                    <div style={{ fontSize:13, color:'#475569', display:'flex', alignItems:'center', gap:8 }}>
+                        <span>➋</span> Scroll to <strong style={{color:'#7c3aed'}}>"How will we notify you?"</strong> section
+                    </div>
+                    <div style={{ fontSize:13, color:'#475569', display:'flex', alignItems:'center', gap:8 }}>
+                        <span>➌</span> Add your <strong>Email</strong> and/or <strong>WhatsApp number</strong> there
+                    </div>
                 </div>
+                <a href="/add-monitor" style={{ display:'inline-flex', alignItems:'center', gap:6, marginTop:14, padding:'8px 18px', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', borderRadius:9, fontSize:13, fontWeight:700, textDecoration:'none' }}>
+                    + Add New Monitor →
+                </a>
             </div>
             {platform.map(intg => (
                 <div key={intg.key} style={{ background:'#fff', border:'1.5px solid #e2e8f0', borderRadius:14, padding:'16px 20px', marginBottom:10, display:'flex', alignItems:'center', gap:14 }}>
