@@ -153,9 +153,12 @@ export default function AddMonitor() {
                             )}
                         </div>
                         <div className="am-recip-box">
-                            {/* Tick recipients to assign — unselected = all by default */}
-                            <div style={{padding:'10px 16px 6px', fontSize:12, color:'#94a3b8', borderBottom:'1px solid #f1f5f9'}}>
-                                Tick recipients to assign. Leave all unticked = every recipient gets alerts.
+                            {/* Header with clear explanation */}
+                            <div style={{padding:'10px 16px', background:'#f8fafc', borderBottom:'1px solid #f1f5f9', display:'flex', alignItems:'center', justifyContent:'space-between'}}>
+                                <span style={{fontSize:12, color:'#64748b'}}>
+                                    ☑️ <strong>Tick</strong> = only selected get alerts &nbsp;|&nbsp;
+                                    ⬜ <strong>Untick all</strong> = everyone gets alerts
+                                </span>
                             </div>
 
                             {/* Individual recipients — scrollable */}
@@ -194,8 +197,8 @@ export default function AddMonitor() {
                                                     </div>
                                                 </div>
                                             ) : (
-                                                <div className={`am-recip-item ${isSelected?'am-recip-selected':''}`} style={{cursor:'default'}}>
-                                                    <input type="checkbox" checked={isSelected} onChange={()=>toggleRecipient(r._id)} style={{cursor:'pointer'}} />
+                                                <div className={`am-recip-item ${isSelected?'am-recip-selected':''}`} style={{cursor:'default'}} title={isSelected ? 'Only this recipient gets alerts for this monitor' : 'Click to assign only this recipient'}>
+                                                    <input type="checkbox" checked={isSelected} onChange={()=>toggleRecipient(r._id)} style={{cursor:'pointer'}} title={isSelected ? '✓ Will get alerts' : 'Click to select'} />
                                                     <div className="am-recip-avatar" style={{background:avatarColor}}>{(r.name||'?')[0].toUpperCase()}</div>
                                                     <div style={{flex:1,minWidth:0}}>
                                                         <div style={{fontWeight:600,fontSize:13,color:'#1e1b4b'}}>{r.name}</div>
