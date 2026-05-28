@@ -47,13 +47,13 @@ body {
 .app-layout { display: flex; min-height: 100vh; }
 
 .sidebar {
-  width: 240px; min-height: 100vh;
+  width: 240px; height: 100vh;
   background: #0f172a;
   display: flex; flex-direction: column;
   position: fixed; left: 0; top: 0; bottom: 0;
   z-index: 200;
   transition: transform 0.3s cubic-bezier(.4,0,.2,1);
-  overflow-y: auto; overflow-x: hidden;
+  overflow: hidden;
 }
 
 .sb-overlay {
@@ -79,7 +79,7 @@ body {
   letter-spacing: -0.3px; line-height: 1;
 }
 
-.sb-nav { flex: 1; padding: 12px 10px; display: flex; flex-direction: column; gap: 2px; }
+.sb-nav { flex: 1; padding: 12px 10px; display: flex; flex-direction: column; gap: 2px; overflow-y: auto; overflow-x: hidden; }
 
 .sb-link {
   display: flex; align-items: center; gap: 11px;
@@ -127,13 +127,13 @@ body {
 .sb-user-email { font-size: 11px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .sb-logout {
-  display: flex; align-items: center; gap: 8px;
-  width: 100%; padding: 9px 12px; border-radius: 10px;
-  background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2);
-  color: #f87171; font-size: 13px; font-weight: 600; cursor: pointer;
-  transition: all 0.18s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 11px 12px; border-radius: 10px;
+  background: rgba(239,68,68,0.15); border: 1.5px solid rgba(239,68,68,0.35);
+  color: #f87171; font-size: 14px; font-weight: 700; cursor: pointer;
+  transition: all 0.18s; letter-spacing: 0.2px;
 }
-.sb-logout:hover { background: rgba(239,68,68,0.2); color: #fca5a5; }
+.sb-logout:hover { background: rgba(239,68,68,0.28); color: #fff; border-color: #ef4444; }
 .sb-logout svg { flex-shrink: 0; }
 
 /* Main area */
