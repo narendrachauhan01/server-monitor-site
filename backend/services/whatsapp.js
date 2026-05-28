@@ -49,15 +49,16 @@ function formatPhone(phone) {
     return `${digits}@c.us`;
 }
 
-function httpPost(url, body) {
+function httpPost(url, body, extraHeaders = {}) {
     return new Promise((resolve, reject) => {
         const u       = new URL(url);
-        const payload = JSON.stringify(body);
+        const payload = typeof body === 'string' ? body : JSON.stringify(body);
+        const ct      = typeof body === 'string' ? 'application/x-www-form-urlencoded' : 'application/json';
         const req     = https.request({
             hostname: u.hostname,
-            path:     u.pathname,
+            path:     u.pathname + (u.search || ''),
             method:   'POST',
-            headers:  { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(payload) },
+            headers:  { 'Content-Type': ct, 'Content-Length': Buffer.byteLength(payload), ...extraHeaders },
         }, (res) => {
             let data = '';
             res.on('data', c => data += c);
@@ -74,19 +75,49 @@ async function sendMessage(phone, message) {
         console.log('[WhatsApp] Not configured — skipping alert');
         return;
     }
-    const { GREEN_API_INSTANCE: id, GREEN_API_TOKEN: token } = process.env;
-    const url    = `https://api.green-api.com/waInstance${id}/sendMessage/${token}`;
-    const chatId = formatPhone(phone);
+
+    const provider = process.env.WA_PROVIDER || 'greenapi';
+
     try {
-        const result = await httpPost(url, { chatId, message });
-        if (result.idMessage) {
-            console.log(`[WhatsApp] Sent to ${phone} ✓ (${result.idMessage})`);
+        if (provider === 'twilio') {
+            // Twilio WhatsApp
+            const { TWILIO_ACCOUNT_SID: sid, TWILIO_AUTH_TOKEN: authToken, TWILIO_WHATSAPP_FROM: from } = process.env;
+            if (!sid || !authToken || !from) { console.warn('[WhatsApp] Twilio not configured'); return; }
+            const digits = phone.replace(/\D/g, '');
+            const to = digits.startsWith('91') ? `+${digits}` : `+91${digits}`;
+            const creds = Buffer.from(`${sid}:${authToken}`).toString('base64');
+            const body = new URLSearchParams({ From: `whatsapp:${from}`, To: `whatsapp:${to}`, Body: message });
+            const url = `https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`;
+            const res = await httpPost(url, body.toString(), { 'Authorization': `Basic ${creds}`, 'Content-Type': 'application/x-www-form-urlencoded' });
+            console.log(`[WhatsApp] Twilio sent to ${to} ✓`);
+            return res;
+
+        } else if (provider === 'aisensy') {
+            // AiSensy
+            const { AISENSY_API_KEY: key, AISENSY_API_URL: apiUrl = 'https://backend.aisensy.com/campaign/t1/api/v2' } = process.env;
+            if (!key) { console.warn('[WhatsApp] AiSensy not configured'); return; }
+            const digits = phone.replace(/\D/g, '');
+            const to = digits.startsWith('91') ? digits : `91${digits}`;
+            const body = { apiKey: key, campaignName: 'UptimeForge Alert', destination: to, userName: 'UptimeForge', source: 'UptimeForge', media: {}, templateParams: [message], tags: [], attributes: {} };
+            const res = await httpPost(apiUrl, body);
+            console.log(`[WhatsApp] AiSensy sent to ${to} ✓`);
+            return res;
+
         } else {
-            console.warn('[WhatsApp] Send failed:', JSON.stringify(result));
+            // Default: Green API
+            const { GREEN_API_INSTANCE: id, GREEN_API_TOKEN: token } = process.env;
+            const url    = `https://api.green-api.com/waInstance${id}/sendMessage/${token}`;
+            const chatId = formatPhone(phone);
+            const result = await httpPost(url, { chatId, message });
+            if (result.idMessage) {
+                console.log(`[WhatsApp] Green API sent to ${phone} ✓ (${result.idMessage})`);
+            } else {
+                console.warn('[WhatsApp] Green API send failed:', JSON.stringify(result));
+            }
+            return result;
         }
-        return result;
     } catch (e) {
-        console.error('[WhatsApp] HTTP error:', e.message);
+        console.error(`[WhatsApp] ${provider} error:`, e.message);
     }
 }
 

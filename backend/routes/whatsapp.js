@@ -26,26 +26,44 @@ const adminOnly = (req, res, next) => {
 
 // Status
 router.get('/status', auth, async (req, res) => {
-    const base  = wa.getStatus();
-    const state = await wa.getInstanceState();
+    const provider = process.env.WA_PROVIDER || 'greenapi';
+    const base     = wa.getStatus();
+    const state    = provider === 'greenapi' ? await wa.getInstanceState() : null;
     res.json({
         ...base,
+        provider,
         instanceState: state?.stateInstance || null,
-        instanceId: process.env.GREEN_API_INSTANCE || '',
-        hasToken: !!(process.env.GREEN_API_TOKEN && process.env.GREEN_API_TOKEN !== 'your_token_here'),
+        instanceId:    process.env.GREEN_API_INSTANCE || '',
+        hasToken:      !!(process.env.GREEN_API_TOKEN && process.env.GREEN_API_TOKEN !== 'your_token_here'),
+        twilioSid:     process.env.TWILIO_ACCOUNT_SID ? process.env.TWILIO_ACCOUNT_SID.slice(0,8)+'...' : '',
+        aisensyKey:    process.env.AISENSY_API_KEY ? process.env.AISENSY_API_KEY.slice(0,8)+'...' : '',
     });
 });
 
-// Save credentials (admin only)
+// Save credentials (admin only) — multi-provider
 router.post('/config', auth, adminOnly, async (req, res) => {
     try {
-        const { instanceId, apiToken } = req.body;
-        if (!instanceId || !apiToken) return res.status(400).json({ error: 'Instance ID and API Token required' });
-        updateEnv('GREEN_API_INSTANCE', instanceId);
-        updateEnv('GREEN_API_TOKEN', apiToken);
-        // Re-init WhatsApp service with new credentials
-        wa.reinit && wa.reinit();
-        res.json({ success: true, instanceId });
+        const { provider, instanceId, apiToken, accountSid, authToken, fromNumber, apiKey, apiUrl } = req.body;
+        if (!provider) return res.status(400).json({ error: 'Provider required' });
+
+        updateEnv('WA_PROVIDER', provider);
+
+        if (provider === 'greenapi') {
+            if (!instanceId || !apiToken) return res.status(400).json({ error: 'Instance ID and API Token required' });
+            updateEnv('GREEN_API_INSTANCE', instanceId);
+            updateEnv('GREEN_API_TOKEN', apiToken);
+        } else if (provider === 'twilio') {
+            if (!accountSid || !authToken || !fromNumber) return res.status(400).json({ error: 'Account SID, Auth Token and From Number required' });
+            updateEnv('TWILIO_ACCOUNT_SID', accountSid);
+            updateEnv('TWILIO_AUTH_TOKEN', authToken);
+            updateEnv('TWILIO_WHATSAPP_FROM', fromNumber);
+        } else if (provider === 'aisensy') {
+            if (!apiKey) return res.status(400).json({ error: 'API Key required' });
+            updateEnv('AISENSY_API_KEY', apiKey);
+            if (apiUrl) updateEnv('AISENSY_API_URL', apiUrl);
+        }
+
+        res.json({ success: true, provider });
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
