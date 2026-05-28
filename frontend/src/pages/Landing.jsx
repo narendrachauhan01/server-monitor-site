@@ -4,10 +4,10 @@ import UWLogo from '../components/UWLogo';
 import { getPlans } from '../api';
 
 const PLAN_META = {
-  free_trial: { name: 'Free Trial', period: 'one-time', gradient: 'linear-gradient(135deg,#64748b,#475569)', cta: 'Start Free Trial', popular: false },
-  bronze:     { name: 'Bronze',     period: '/month',   gradient: 'linear-gradient(135deg,#b45309,#d97706)', cta: 'Get Bronze',       popular: false },
-  silver:     { name: 'Silver',     period: '/month',   gradient: 'linear-gradient(135deg,#7c3aed,#6d28d9)', cta: 'Get Silver',       popular: true  },
-  gold:       { name: 'Gold',       period: '/month',   gradient: 'linear-gradient(135deg,#b45309,#ca8a04)', cta: 'Get Gold',         popular: false },
+  free_trial: { name: 'Free Trial', emoji: '🆓', period: 'one-time', gradient: 'linear-gradient(135deg,#6366f1,#7c3aed)', cta: 'Start Free Trial', popular: false },
+  bronze:     { name: 'Bronze',     emoji: '🥉', period: '/month',   gradient: 'linear-gradient(135deg,#b45309,#d97706)', cta: 'Get Bronze',       popular: false },
+  silver:     { name: 'Silver',     emoji: '🥈', period: '/month',   gradient: 'linear-gradient(135deg,#475569,#334155)', cta: 'Get Silver',       popular: true  },
+  gold:       { name: 'Gold',       emoji: '🥇', period: '/month',   gradient: 'linear-gradient(135deg,#ca8a04,#eab308)', cta: 'Get Gold',         popular: false },
 };
 
 export default function Landing() {
@@ -277,8 +277,9 @@ export default function Landing() {
           <div className="lp-plans">
             {plans.map(p => (
               <div key={p.key} className={`lp-plan ${p.popular ? 'lp-plan-popular' : ''}`}>
-                {p.popular && <div className="lp-plan-pop-badge">Most Popular</div>}
+                {p.popular && <div className="lp-plan-pop-badge">⭐ Most Popular</div>}
                 <div className="lp-plan-top" style={{ background: p.gradient }}>
+                  <div className="lp-plan-emoji">{p.emoji}</div>
                   <div className="lp-plan-name">{p.name}</div>
                   <div className="lp-plan-price-row">
                     <span className="lp-plan-price">{p.price}</span>
@@ -295,7 +296,7 @@ export default function Landing() {
                         {type === 'limited' && <span style={{flexShrink:0, fontSize:13}}>😐</span>}
                         {type === 'soon'    && <span style={{flexShrink:0, fontSize:12}}>🔜</span>}
                         <span>{label}</span>
-                        {type === 'soon' && <span style={{ fontSize:9, background:'rgba(255,255,255,0.2)', color:'rgba(255,255,255,0.9)', borderRadius:4, padding:'1px 6px', marginLeft:4, fontWeight:700 }}>Soon</span>}
+                        {type === 'soon' && <span style={{ fontSize:9, background:'#f1f5f9', color:'#94a3b8', borderRadius:4, padding:'1px 6px', marginLeft:2, fontWeight:700, flexShrink:0 }}>Soon</span>}
                       </li>
                     ))}
                   </ul>
