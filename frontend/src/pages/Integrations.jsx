@@ -124,25 +124,30 @@ const INTEGRATIONS = [
     { key:'discord',  iconEl:<IcoDiscord />,  name:'Discord',  color:'#7c3aed', desc:'Post status updates to your Discord server.', status:'active',
       fields:[{key:'url',label:'Discord Webhook URL',placeholder:'https://discord.com/api/webhooks/...',hint:'Create from Discord Channel → Edit → Integrations → Webhooks'},
               {key:'events',label:'Events',type:'select',default:'all',options:[{value:'all',label:'All events'},{value:'down',label:'Down only'}]}]},
-    { key:'email',    iconEl:<IcoGmail />,    name:'Email',    color:'#7c3aed', desc:'Email alerts are sent automatically. Configure SMTP in Admin Panel.', status:'configured', fields:[] },
+    { key:'email',    iconEl:<IcoGmail />,    name:'Email',    color:'#7c3aed', desc:'Email alerts are sent automatically. Configure SMTP in Admin Panel.', status:'email', fields:[] },
 ];
 
 // ── Main Page ──────────────────────────────────────────────────────────────
 export default function Integrations() {
     const [activeModal, setActiveModal] = useState(null);
-    const [saved, setSaved] = useState({}); // {type: true/false}
+    const [saved, setSaved] = useState({});
+    const [emailActive, setEmailActive] = useState(false);
     const [toast, setToast] = useState('');
 
     const showToast = (msg) => { setToast(msg); setTimeout(()=>setToast(''), 3000); };
 
-    // Load existing integrations on mount
     useEffect(() => {
+        // Load user integrations
         axios.get(`${API_URL}/api/integrations`, { headers: authHeaders() })
             .then(r => {
                 const map = {};
                 r.data.forEach(i => { map[i.type] = true; });
                 setSaved(map);
             }).catch(() => {});
+        // Check if email SMTP is configured
+        axios.get(`${API_URL}/api/email-config/status`, { headers: authHeaders() })
+            .then(r => setEmailActive(r.data?.configured === true))
+            .catch(() => {});
     }, []);
 
     const handleSave = async (key, form) => {
@@ -158,7 +163,7 @@ export default function Integrations() {
         showToast(`${key} integration removed`);
     };
 
-    const active = INTEGRATIONS.filter(i => i.status === 'active' || i.status === 'configured');
+    const active = INTEGRATIONS.filter(i => i.status === 'active' || i.status === 'email');
     const coming = INTEGRATIONS.filter(i => i.status === 'soon');
     const modal  = INTEGRATIONS.find(i => i.key === activeModal);
 
@@ -187,7 +192,8 @@ export default function Integrations() {
                     </div>
                     <div style={{ display:'flex', alignItems:'center', gap:8 }}>
                         {saved[intg.key] && <span style={{ fontSize:11, fontWeight:700, background:'#dcfce7', color:'#16a34a', padding:'3px 10px', borderRadius:20 }}>✓ Active</span>}
-                        {intg.status === 'configured' && <span style={{ fontSize:11, fontWeight:700, background:'#dcfce7', color:'#16a34a', padding:'3px 10px', borderRadius:20 }}>✓ Active</span>}
+                        {intg.status === 'email' && emailActive && <span style={{ fontSize:11, fontWeight:700, background:'#dcfce7', color:'#16a34a', padding:'3px 10px', borderRadius:20 }}>✓ Active</span>}
+                        {intg.status === 'email' && !emailActive && <span style={{ fontSize:11, fontWeight:700, background:'#f1f5f9', color:'#94a3b8', padding:'3px 10px', borderRadius:20 }}>Not configured</span>}
                         {intg.status === 'active' && intg.fields.length > 0 && (
                             <button onClick={() => setActiveModal(intg.key)}
                                 style={{ padding:'8px 16px', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', border:'none', borderRadius:9, fontSize:13, fontWeight:700, cursor:'pointer' }}>
