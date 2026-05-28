@@ -177,8 +177,8 @@ export default function SiteDetail() {
 
                         <div className="sit-card">
                             <div className="sit-card-label">Last 24 hours</div>
-                            <div className="sit-24-bar">
-                                {hist24.map((h,i) => (
+                            <div className="sit-24-bar" style={{overflow:'hidden', maxWidth:'100%'}}>
+                                {hist24.slice(-36).map((h,i) => (
                                     <div key={i} className={`sit-bar-seg sit-bar-${h.status}`} title={`${fmtTime(h.time)} — ${h.status} ${h.responseTime?h.responseTime+'ms':''}`} />
                                 ))}
                             </div>

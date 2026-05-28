@@ -4851,3 +4851,53 @@ tr:hover td { background: linear-gradient(135deg,#faf5ff,#f8fafc); }
   .sit-header { padding: 10px; }
   .sit-name   { font-size: 15px; }
 }
+
+/* ══ SITE DETAIL — Mobile Critical Fix ══ */
+.sit-page { overflow-x: hidden; }
+.sit-main { overflow-x: hidden; min-width: 0; }
+.sit-layout { overflow-x: hidden; }
+
+/* Force cards to stack on mobile */
+@media (max-width: 500px) {
+  .sit-cards-row {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+  .sit-uptime-row {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+  .sit-24-bar {
+    max-width: 100%;
+    overflow: hidden;
+  }
+  .sit-bar-seg {
+    width: 5px !important;
+    height: 14px !important;
+  }
+  .sit-chart-card { padding: 12px !important; }
+  .sit-range-bar { width: 100%; }
+  .sit-range-btn { flex: 1; text-align: center; padding: 5px 6px !important; font-size: 11px !important; }
+  .sit-resp-row { flex-direction: column; gap: 10px; }
+  .sit-resp-stat { border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; }
+  .sit-resp-stat:last-child { border-bottom: none; }
+  .sit-right { display: flex !important; flex-direction: column !important; }
+  .sit-topbar-right { gap: 6px; }
+  .sit-action-btn { padding: 6px 10px !important; font-size: 12px !important; }
+  .sit-header { padding: 10px 12px 0 !important; }
+  .sit-name { font-size: 16px !important; }
+  .sit-inc-table { font-size: 11px; }
+  .sit-inc-table th, .sit-inc-table td { padding: 6px 8px !important; }
+  .sit-stat-box-val { font-size: 15px !important; }
+}
+
+@media (min-width: 501px) and (max-width: 768px) {
+  .sit-cards-row {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+  .sit-uptime-row {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  .sit-right { display: flex !important; flex-direction: column !important; }
+}
