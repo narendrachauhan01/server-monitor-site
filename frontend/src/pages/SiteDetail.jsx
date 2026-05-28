@@ -55,15 +55,13 @@ export default function SiteDetail() {
     };
 
     const loadBackground = async () => {
-        // Stage 2: Load alerts + expiry in background (slow external APIs)
+        // Stage 2: Load alerts (server-filtered) + expiry in background
         try {
             const [alertsRes, expiryRes] = await Promise.allSettled([
-                getAlerts(),
+                axios.get(`${API_URL}/api/alerts?server=${id}&limit=10`, { headers: headers() }),
                 getExpiry(id),
             ]);
-            if (alertsRes.status === 'fulfilled') {
-                setIncidents(alertsRes.value.data.filter(a => a.server === id || a.server?._id === id).slice(0, 10));
-            }
+            if (alertsRes.status === 'fulfilled') setIncidents(alertsRes.value.data.slice(0, 10));
             if (expiryRes.status === 'fulfilled') setExpiry(expiryRes.value.data);
         } catch {}
     };

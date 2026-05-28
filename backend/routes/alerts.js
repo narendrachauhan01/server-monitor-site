@@ -13,7 +13,12 @@ router.get('/', async (req, res) => {
             const serverIds = userServers.map(s => s._id);
             filter = { server: { $in: serverIds } };
         }
-        const alerts = await Alert.find(filter).sort('-createdAt').limit(100);
+        // Optional: filter by specific server ID
+        if (req.query.server) {
+            filter.server = req.query.server;
+        }
+        const limit = req.query.limit ? parseInt(req.query.limit) : 100;
+        const alerts = await Alert.find(filter).sort('-createdAt').limit(limit);
         res.json(alerts);
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
