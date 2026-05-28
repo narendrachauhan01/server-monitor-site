@@ -4901,3 +4901,42 @@ tr:hover td { background: linear-gradient(135deg,#faf5ff,#f8fafc); }
   }
   .sit-right { display: flex !important; flex-direction: column !important; }
 }
+
+/* ══ GLOBAL OVERFLOW FIX — Phone ══ */
+* { box-sizing: border-box; }
+.app-main { overflow-x: hidden; max-width: 100vw; }
+.content   { overflow-x: hidden; }
+.pg-wrap   { overflow-x: hidden; max-width: 100%; }
+
+@media (max-width: 500px) {
+  /* SiteDetail complete fix */
+  .sit-page, .sit-layout, .sit-main, .sit-body { overflow-x: hidden; width: 100%; }
+  .sit-page * { max-width: 100%; }
+  .sit-cards-row { grid-template-columns: 1fr !important; }
+  .sit-uptime-row { grid-template-columns: 1fr 1fr !important; }
+  .sit-stats-row  { grid-template-columns: 1fr 1fr !important; }
+  .sit-inc-table  { display: block; overflow-x: auto; white-space: nowrap; }
+  .sit-chart-header { flex-direction: column; }
+  .sit-range-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; width: 100%; }
+  .sit-range-btn { text-align: center; }
+  .sit-right { width: 100% !important; }
+  .sit-layout { padding: 8px !important; }
+
+  /* Monitoring page */
+  .mon-layout { flex-direction: column; }
+  .mon-main { padding: 10px !important; }
+  .mon-header { flex-direction: column; gap: 10px; }
+  .mon-toolbar { flex-direction: column; }
+  .mon-search-wrap { width: 100%; }
+  .mon-row { flex-wrap: wrap; }
+
+  /* Add Monitor */
+  .am-wrap { padding: 14px !important; }
+  .am-method-row { flex-wrap: wrap; }
+  .am-footer { flex-direction: column-reverse; }
+  .am-cancel, .am-submit { width: 100%; }
+
+  /* Recipients */
+  .add-form-row { flex-direction: column; }
+  .rcp-fields-grid { grid-template-columns: 1fr !important; }
+}
