@@ -25,7 +25,7 @@ export default function Landing() {
       price: `₹${planData?.verificationFee ?? 2}`,
       note: '5-day trial · one-time verification',
       features: planData?.freeTrialFeatures?.length ? planData.freeTrialFeatures
-        : ['2 sites monitored', 'WhatsApp & Email alerts', 'SSL & Domain expiry tracking', '60s uptime checks'],
+        : ['2 sites monitored', 'WhatsApp & Email alerts', 'SSL & Domain expiry tracking', '5 min check interval'],
     },
     {
       key: 'bronze', ...PLAN_META.bronze,
@@ -108,7 +108,7 @@ export default function Landing() {
               <span className="lp-hero-gradient">website outage again.</span>
             </h1>
             <p className="lp-hero-p">
-              UptimeForge is a 24/7 website monitoring platform built for businesses. It watches your sites every 60 seconds, tracks SSL &amp; domain expiry, measures response time, and instantly alerts you on WhatsApp &amp; Email — so downtime never catches you off guard.
+              UptimeForge is a 24/7 website monitoring platform built for businesses. It watches your sites every 30 seconds to 5 minutes (based on your plan), tracks SSL &amp; domain expiry, measures response time, and instantly alerts you on WhatsApp &amp; Email — so downtime never catches you off guard.
             </p>
             <div className="lp-hero-actions">
               <button className="lp-btn-primary" onClick={() => { localStorage.removeItem('sm_intended_plan'); navigate('/register'); }}>
@@ -118,7 +118,7 @@ export default function Landing() {
               <a href="#pricing" className="lp-btn-outline">View Plans</a>
             </div>
             <div className="lp-hero-trust">
-              {['5-day free trial', 'Alerts in under 60 sec', 'WhatsApp + Email', 'No hidden charges'].map(t => (
+              {['5-day free trial', 'Alerts in under 1 min', 'WhatsApp + Email', 'No hidden charges'].map(t => (
                 <div key={t} className="lp-trust-item"><span className="lp-trust-check">✓</span>{t}</div>
               ))}
             </div>
@@ -172,7 +172,7 @@ export default function Landing() {
 
       {/* ── STATS BAR ── */}
       <div className="lp-stats-bar">
-        {[['60s', 'Check Interval'], ['24/7', 'Always On'], ['< 1 min', 'Alert Speed'], ['Email', '+ WhatsApp Alerts'], ['₹2', 'Trial Cost'], ['SSL & Domain', 'Expiry Tracking']].map(([v, l]) => (
+        {[['30s–5m', 'Check Interval'], ['24/7', 'Always On'], ['< 1 min', 'Alert Speed'], ['Email', '+ WhatsApp Alerts'], ['₹2', 'Trial Cost'], ['SSL & Domain', 'Expiry Tracking']].map(([v, l]) => (
           <div key={l} className="lp-stat-item">
             <div className="lp-stat-val">{v}</div>
             <div className="lp-stat-label">{l}</div>
@@ -188,7 +188,7 @@ export default function Landing() {
           <p className="lp-section-sub">Paste your URL and we handle the rest — no complex setup required.</p>
           <div className="lp-feat4-grid">
             {[
-              { icon: '⏱️', color: '#7c3aed', bg: '#ede9fe', title: 'Uptime Monitoring', desc: 'We check your site every 60 seconds. If it goes down, you get a WhatsApp message and email within a minute.' },
+              { icon: '⏱️', color: '#7c3aed', bg: '#ede9fe', title: 'Uptime Monitoring', desc: 'We check your site every 30 seconds to 5 minutes based on your plan. If it goes down, you get alerted instantly via Email.' },
               { icon: '🔒', color: '#0891b2', bg: '#e0f2fe', title: 'SSL Expiry Alerts', desc: 'Get warned 30, 15 and 7 days before your SSL certificate expires. Never wake up to a broken padlock again.' },
               { icon: '🌐', color: '#059669', bg: '#d1fae5', title: 'Domain Expiry Tracking', desc: 'We watch your domain renewal date and alert you in advance so you never lose a domain you own.' },
               { icon: '📊', color: '#d97706', bg: '#fef3c7', title: 'Performance Charts', desc: 'See response time graphs, uptime history and alert logs. Spot slow trends before they become outages.' },
@@ -211,7 +211,7 @@ export default function Landing() {
           <div className="lp-how3-grid">
             {[
               { icon: '📝', step: '01', title: 'Create Account', desc: 'Sign up with your name, email and mobile. Verify via OTP — takes 30 seconds.' },
-              { icon: '🌐', step: '02', title: 'Add Your Sites', desc: 'Paste your website URLs. We start monitoring every 60 seconds immediately.' },
+              { icon: '🌐', step: '02', title: 'Add Your Sites', desc: 'Paste your website URLs. We start monitoring immediately — every 30s to 5 min based on your plan.' },
               { icon: '🔔', step: '03', title: 'Get Instant Alerts', desc: 'If anything goes wrong — site down, SSL expiring, domain renewal — you get a WhatsApp + email alert right away.' },
             ].map((s, i) => (
               <div key={s.step} className="lp-how3-card">
@@ -232,6 +232,23 @@ export default function Landing() {
           <div className="lp-section-eyebrow">Pricing</div>
           <h2 className="lp-section-h2">Simple, honest pricing</h2>
           <p className="lp-section-sub">Start free for 5 days. Pay just ₹2 to verify. Upgrade anytime — plans activate instantly via UPI, Card or Netbanking.</p>
+
+          {/* Interval comparison */}
+          <div style={{ display:'flex', justifyContent:'center', gap:12, flexWrap:'wrap', marginBottom:32 }}>
+            {[
+              { plan:'Free Trial', interval:'5 min', color:'#64748b' },
+              { plan:'Bronze',     interval:'2 min', color:'#b45309' },
+              { plan:'Silver',     interval:'1 min', color:'#7c3aed' },
+              { plan:'Gold',       interval:'30 sec', color:'#ca8a04' },
+            ].map(({ plan, interval, color }) => (
+              <div key={plan} style={{ background:'#fff', border:`2px solid ${color}20`, borderRadius:12, padding:'10px 18px', textAlign:'center', minWidth:110, boxShadow:'0 2px 8px rgba(0,0,0,0.06)' }}>
+                <div style={{ fontSize:11, color:'#94a3b8', fontWeight:600, textTransform:'uppercase', letterSpacing:0.5 }}>{plan}</div>
+                <div style={{ fontSize:20, fontWeight:900, color, marginTop:4 }}>⏱ {interval}</div>
+                <div style={{ fontSize:10, color:'#94a3b8', marginTop:2 }}>check interval</div>
+              </div>
+            ))}
+          </div>
+
           <div className="lp-plans">
             {plans.map(p => (
               <div key={p.key} className={`lp-plan ${p.popular ? 'lp-plan-popular' : ''}`}>

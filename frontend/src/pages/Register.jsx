@@ -145,7 +145,7 @@ export default function Register({ onRegister }) {
 
             <div className="reg-features">
               {[
-                { icon: '⚡', text: 'Checks every 60 seconds' },
+                { icon: '⚡', text: 'Checks every 30s – 5min (plan-based)' },
                 { icon: '🔔', text: 'WhatsApp & Email alerts' },
                 { icon: '🔒', text: 'SSL & Domain expiry tracking' },
                 { icon: '📊', text: 'Performance charts & history' },

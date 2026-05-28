@@ -141,7 +141,7 @@ export default function Login({ onLogin }) {
                 ['🔔', 'Instant down alerts — WhatsApp & Email'],
                 ['🔒', 'SSL & Domain expiry warnings'],
                 ['📊', 'Performance charts & history'],
-                ['⚡', 'Checks every 60 seconds'],
+                ['⚡', 'Checks every 30s – 5min (plan-based)'],
               ].map(([icon, text]) => (
                 <div key={text} className="login-left-feat">
                   <div className="login-left-feat-icon">{icon}</div>

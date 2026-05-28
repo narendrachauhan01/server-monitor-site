@@ -24,10 +24,10 @@ const PLAN_ACCENT = {
     custom:       '#2dd4bf',
 };
 const PLAN_FEATURES_FALLBACK = {
-    verification: ['2 sites monitored', 'Email + WhatsApp alerts', 'SSL & Domain expiry checks', '60s uptime checks', '5-day full access'],
-    bronze:       ['5 sites monitored', 'Email + WhatsApp alerts', 'SSL & Domain tracking', 'Performance charts', 'Multi-recipient alerts'],
-    silver:       ['15 sites monitored', 'Email + WhatsApp alerts', 'SSL & Domain tracking', 'Full analytics & charts', 'Server resource monitoring'],
-    gold:         ['30 sites monitored', 'Email + WhatsApp alerts', 'SSL & Domain tracking', 'Priority support', 'Advanced analytics'],
+    verification: ['2 sites monitored', 'Email + WhatsApp alerts', 'SSL & Domain expiry checks', '5 min check interval', '5-day full access'],
+    bronze:       ['5 sites monitored', '2 min check interval', 'Email + WhatsApp alerts', 'SSL & Domain tracking', 'Performance charts'],
+    silver:       ['15 sites monitored', '1 min check interval', 'Email + WhatsApp alerts', 'SSL & Domain tracking', 'Full analytics & charts'],
+    gold:         ['30 sites monitored', '30 sec check interval', 'Email + WhatsApp alerts', 'SSL & Domain tracking', 'Priority support'],
     custom:       ['Unlimited sites', 'Dedicated account manager', 'Custom alert integrations', 'SLA guarantee', 'White-label options'],
 };
 

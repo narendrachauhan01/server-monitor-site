@@ -4,27 +4,28 @@ const mongoose = require('mongoose');
 const DEFAULT_FEATURES = {
     free_trial: [
         '2 sites monitored',
+        '5 min check interval',
         'Email + WhatsApp alerts',
         'SSL & Domain expiry checks',
-        '60s uptime checks',
         '5-day full access',
     ],
     bronze: [
         '5 sites monitored',
+        '2 min check interval',
         'Email + WhatsApp alerts',
         'SSL & Domain tracking',
         'Performance charts',
-        'Multi-recipient alerts',
     ],
     silver: [
         '15 sites monitored',
+        '1 min check interval',
         'Email + WhatsApp alerts',
         'SSL & Domain tracking',
         'Full analytics & charts',
-        'Server resource monitoring',
     ],
     gold: [
         '30 sites monitored',
+        '30 sec check interval',
         'Email + WhatsApp alerts',
         'SSL & Domain tracking',
         'Advanced analytics',

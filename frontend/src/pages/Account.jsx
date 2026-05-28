@@ -278,10 +278,10 @@ export default function Account({ user, onUserUpdate }) {
             {tab === 'plan' && (
                 <div className="acct-plans-row">
                     {[
-                        { pk: 'free_trial', emoji: '🆓', features: ['2 sites monitored', '60s check interval', 'Email alerts', 'SSL & Domain tracking', '5-day trial period'] },
-                        { pk: 'bronze', emoji: '🥉', features: ['5 sites monitored', '60s check interval', 'Email alerts', 'SSL & Domain tracking', 'Performance charts'] },
-                        { pk: 'silver', emoji: '🥈', features: ['15 sites monitored', '60s check interval', 'Email alerts', 'SSL & Domain tracking', 'Performance charts', 'Priority support'] },
-                        { pk: 'gold',   emoji: '🥇', features: ['30 sites monitored', '60s check interval', 'Email alerts', 'SSL & Domain tracking', 'Performance charts', 'Priority support', 'Server monitoring'] },
+                        { pk: 'free_trial', emoji: '🆓', features: ['2 sites monitored', '5 min check interval', 'Email alerts', 'SSL & Domain tracking', '5-day trial period'] },
+                        { pk: 'bronze', emoji: '🥉', features: ['5 sites monitored', '2 min check interval', 'Email alerts', 'SSL & Domain tracking', 'Performance charts'] },
+                        { pk: 'silver', emoji: '🥈', features: ['15 sites monitored', '1 min check interval', 'Email alerts', 'SSL & Domain tracking', 'Performance charts', 'Priority support'] },
+                        { pk: 'gold',   emoji: '🥇', features: ['30 sites monitored', '30 sec check interval', 'Email alerts', 'SSL & Domain tracking', 'Performance charts', 'Priority support', 'Server monitoring'] },
                     ].map(({ pk, emoji, features }) => {
                         const cfg   = plans[pk] || {};
                         const price = pk === 'free_trial' ? 'Free' : (cfg.price || (pk === 'bronze' ? 499 : pk === 'silver' ? 999 : 1499));
