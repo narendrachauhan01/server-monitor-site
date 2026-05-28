@@ -158,6 +158,22 @@ function TrialBanner({ user }) {
   return null;
 }
 
+function UpgradeGate({ user, feature, children }) {
+  if (!user || user.plan !== 'free_trial') return children;
+  return (
+    <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:320, padding:40, textAlign:'center' }}>
+      <div style={{ fontSize:48, marginBottom:16 }}>🔒</div>
+      <h2 style={{ fontSize:20, fontWeight:800, color:'#1e1b4b', margin:'0 0 8px' }}>{feature} — Paid Plans Only</h2>
+      <p style={{ fontSize:14, color:'#64748b', maxWidth:360, lineHeight:1.7, margin:'0 0 24px' }}>
+        This feature is not available on the Free Trial. Upgrade to Bronze, Silver, or Gold to unlock it.
+      </p>
+      <Link to="/account" style={{ background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', padding:'12px 28px', borderRadius:12, fontWeight:700, fontSize:14, textDecoration:'none' }}>
+        Upgrade Plan →
+      </Link>
+    </div>
+  );
+}
+
 function AppInner() {
   const [authed, setAuthed] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -413,8 +429,8 @@ function AppInner() {
             <Route path="/recipients" element={<Recipients />} />
             <Route path="/alerts" element={<Alerts />} />
             <Route path="/server-resources" element={isAdmin ? <Resources /> : <Dashboard />} />
-            <Route path="/domain-ssl" element={<DomainSSL />} />
-            <Route path="/charts" element={<Charts />} />
+            <Route path="/domain-ssl" element={<UpgradeGate user={user} feature="SSL & Domain Expiry"><DomainSSL /></UpgradeGate>} />
+            <Route path="/charts" element={<UpgradeGate user={user} feature="Performance Charts"><Charts /></UpgradeGate>} />
             <Route path="/email" element={isAdmin ? <EmailPage /> : <Dashboard />} />
             <Route path="/whatsapp" element={isAdmin ? <WhatsAppPage /> : <Dashboard />} />
             <Route path="/account" element={<Account user={user} onUserUpdate={handleUserUpdate} />} />
