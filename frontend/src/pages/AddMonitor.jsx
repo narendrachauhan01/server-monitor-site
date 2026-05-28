@@ -165,19 +165,24 @@ export default function AddMonitor() {
                                         <div key={r._id}>
                                             {/* Recipient row */}
                                             {editRecipId === r._id ? (
-                                                <div style={{padding:'12px 16px', background:'#f8fafc', borderBottom:'1px solid #f1f5f9'}}>
-                                                    <div style={{display:'flex',gap:8,marginBottom:8}}>
-                                                        <input value={editRecipForm.name} onChange={e=>setEditRecipForm({...editRecipForm,name:e.target.value})} placeholder="Name" style={{flex:1,padding:'7px 10px',border:'1.5px solid #e2e8f0',borderRadius:7,fontSize:13}} />
-                                                        <input value={editRecipForm.email} onChange={e=>setEditRecipForm({...editRecipForm,email:e.target.value})} placeholder="Email" style={{flex:2,padding:'7px 10px',border:'1.5px solid #e2e8f0',borderRadius:7,fontSize:13}} />
+                                                <div style={{padding:'14px 16px', background:'#f8fafc', borderBottom:'1px solid #f1f5f9'}}>
+                                                    <div style={{display:'flex',gap:8,marginBottom:8,flexWrap:'wrap'}}>
+                                                        <input value={editRecipForm.name} onChange={e=>setEditRecipForm({...editRecipForm,name:e.target.value})} placeholder="Name *" style={{flex:'1 1 100px',padding:'8px 10px',border:'1.5px solid #e2e8f0',borderRadius:7,fontSize:13,outline:'none'}} />
+                                                        <input value={editRecipForm.email} onChange={e=>setEditRecipForm({...editRecipForm,email:e.target.value})} placeholder="Email" style={{flex:'2 1 140px',padding:'8px 10px',border:'1.5px solid #e2e8f0',borderRadius:7,fontSize:13,outline:'none'}} />
+                                                        <div style={{display:'flex',flex:'1 1 130px',alignItems:'center',border:'1.5px solid #e2e8f0',borderRadius:7,overflow:'hidden',background:'#fff'}}>
+                                                            <span style={{padding:'0 8px',fontSize:12,color:'#64748b',background:'#f8fafc',borderRight:'1px solid #e2e8f0',height:'100%',display:'flex',alignItems:'center'}}>💬 +91</span>
+                                                            <input value={(editRecipForm.phone||'').replace(/^91/,'')} onChange={e=>setEditRecipForm({...editRecipForm,phone:e.target.value.replace(/\D/g,'').slice(0,10)})} placeholder="WhatsApp" maxLength={10} style={{flex:1,padding:'8px 8px',border:'none',fontSize:13,outline:'none'}} />
+                                                        </div>
                                                     </div>
                                                     <div style={{display:'flex',gap:8}}>
                                                         <button type="button" onClick={async()=>{
-                                                            await axios.put(`${API_URL}/api/recipients/${r._id}`,{name:editRecipForm.name,email:editRecipForm.email||null},{headers:authHeaders()});
+                                                            const phone = (editRecipForm.phone||'').length>=10 ? '91'+(editRecipForm.phone||'').replace(/^91/,'') : null;
+                                                            await axios.put(`${API_URL}/api/recipients/${r._id}`,{name:editRecipForm.name,email:editRecipForm.email||null,phone},{headers:authHeaders()});
                                                             setEditRecipId(null);
                                                             const res = await getRecipients();
                                                             setRecipients(res.data.recipients??res.data);
-                                                        }} style={{padding:'6px 16px',background:'#7c3aed',color:'#fff',border:'none',borderRadius:7,fontSize:12,fontWeight:700,cursor:'pointer'}}>Save</button>
-                                                        <button type="button" onClick={()=>setEditRecipId(null)} style={{padding:'6px 14px',background:'#f1f5f9',border:'none',borderRadius:7,fontSize:12,cursor:'pointer',color:'#64748b'}}>Cancel</button>
+                                                        }} style={{padding:'7px 18px',background:'#7c3aed',color:'#fff',border:'none',borderRadius:7,fontSize:13,fontWeight:700,cursor:'pointer'}}>Save</button>
+                                                        <button type="button" onClick={()=>setEditRecipId(null)} style={{padding:'7px 14px',background:'#f1f5f9',border:'none',borderRadius:7,fontSize:13,cursor:'pointer',color:'#64748b'}}>Cancel</button>
                                                     </div>
                                                 </div>
                                             ) : (
@@ -188,13 +193,13 @@ export default function AddMonitor() {
                                                         <div style={{fontWeight:600,fontSize:13,color:'#1e1b4b'}}>{r.name}</div>
                                                         <div style={{fontSize:11,color:'#94a3b8',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{r.email||r.phone||'—'}</div>
                                                     </div>
-                                                    <div style={{display:'flex',gap:4,alignItems:'center',flexShrink:0}}>
-                                                        {r.email && <span style={{fontSize:10,background:'#f1f5f9',color:'#64748b',padding:'2px 6px',borderRadius:4,fontWeight:600}}>✉️ Email</span>}
-                                                        {r.phone && <span style={{fontSize:10,background:'#f0fdf4',color:'#16a34a',padding:'2px 6px',borderRadius:4,fontWeight:600}}>💬 WA</span>}
-                                                        <button type="button" title="Edit recipient" onClick={()=>{setEditRecipId(r._id);setEditRecipForm({name:r.name,email:r.email||'',phone:r.phone||''});}}
-                                                            style={{padding:'3px 8px',background:'#f5f3ff',border:'1px solid #ddd6fe',borderRadius:6,fontSize:11,color:'#7c3aed',cursor:'pointer',fontWeight:600}}>✏️</button>
+                                                    <div style={{display:'flex',gap:5,alignItems:'center',flexShrink:0,flexWrap:'wrap'}}>
+                                                        {r.email && <span style={{fontSize:12,background:'#f1f5f9',color:'#64748b',padding:'4px 8px',borderRadius:6,fontWeight:600}}>✉️ Email</span>}
+                                                        {r.phone && <span style={{fontSize:12,background:'#f0fdf4',color:'#16a34a',padding:'4px 8px',borderRadius:6,fontWeight:600}}>💬 WA</span>}
+                                                        <button type="button" title="Edit" onClick={()=>{setEditRecipId(r._id);setEditRecipForm({name:r.name,email:r.email||'',phone:r.phone||''});}}
+                                                            style={{padding:'5px 10px',background:'#f5f3ff',border:'1.5px solid #ddd6fe',borderRadius:7,fontSize:12,color:'#7c3aed',cursor:'pointer',fontWeight:700}}>✏️ Edit</button>
                                                         <button type="button" title="Sites" onClick={()=>setExpandedSites(sitesExpanded?null:r._id)}
-                                                            style={{padding:'3px 8px',background:'#f0f9ff',border:'1px solid #bae6fd',borderRadius:6,fontSize:11,color:'#0369a1',cursor:'pointer',fontWeight:600}}>
+                                                            style={{padding:'5px 10px',background:'#f0f9ff',border:'1.5px solid #bae6fd',borderRadius:7,fontSize:12,color:'#0369a1',cursor:'pointer',fontWeight:700}}>
                                                             🌐 {recipSites.length===0?'All':recipSites.length} {sitesExpanded?'▲':'▼'}
                                                         </button>
                                                     </div>
@@ -226,23 +231,30 @@ export default function AddMonitor() {
 
                                 {/* Add recipient inline */}
                                 {showAddRecip ? (
-                                    <div style={{padding:'12px 16px',background:'#f0fdf4',borderTop:'1px solid #dcfce7'}}>
-                                        <div style={{fontSize:12,fontWeight:700,color:'#16a34a',marginBottom:8}}>➕ New Recipient</div>
-                                        <div style={{display:'flex',gap:8,marginBottom:8}}>
-                                            <input value={newRecip.name} onChange={e=>setNewRecip({...newRecip,name:e.target.value})} placeholder="Full Name *" style={{flex:1,padding:'7px 10px',border:'1.5px solid #e2e8f0',borderRadius:7,fontSize:13}} />
-                                            <input value={newRecip.email} onChange={e=>setNewRecip({...newRecip,email:e.target.value})} placeholder="Email" style={{flex:2,padding:'7px 10px',border:'1.5px solid #e2e8f0',borderRadius:7,fontSize:13}} />
+                                    <div style={{padding:'14px 16px',background:'#f0fdf4',borderTop:'1px solid #dcfce7'}}>
+                                        <div style={{fontSize:12,fontWeight:700,color:'#16a34a',marginBottom:10}}>➕ New Recipient</div>
+                                        <div style={{display:'flex',gap:8,marginBottom:8,flexWrap:'wrap'}}>
+                                            <input value={newRecip.name} onChange={e=>setNewRecip({...newRecip,name:e.target.value})} placeholder="Full Name *" style={{flex:'2 1 120px',padding:'8px 10px',border:'1.5px solid #e2e8f0',borderRadius:7,fontSize:13,outline:'none'}} />
+                                            <input value={newRecip.email} onChange={e=>setNewRecip({...newRecip,email:e.target.value})} placeholder="Email address" style={{flex:'3 1 160px',padding:'8px 10px',border:'1.5px solid #e2e8f0',borderRadius:7,fontSize:13,outline:'none'}} />
+                                        </div>
+                                        <div style={{display:'flex',gap:8,marginBottom:10}}>
+                                            <div style={{display:'flex',flex:1,alignItems:'center',border:'1.5px solid #e2e8f0',borderRadius:7,overflow:'hidden',background:'#fff'}}>
+                                                <span style={{padding:'0 10px',color:'#64748b',fontSize:13,fontWeight:600,background:'#f8fafc',borderRight:'1px solid #e2e8f0',height:'100%',display:'flex',alignItems:'center'}}>💬 +91</span>
+                                                <input value={newRecip.phone} onChange={e=>setNewRecip({...newRecip,phone:e.target.value.replace(/\D/g,'').slice(0,10)})} placeholder="WhatsApp number (optional)" maxLength={10} style={{flex:1,padding:'8px 10px',border:'none',fontSize:13,outline:'none'}} />
+                                            </div>
                                         </div>
                                         <div style={{display:'flex',gap:8}}>
                                             <button type="button" onClick={async()=>{
                                                 if(!newRecip.name.trim()) return;
-                                                const res = await axios.post(`${API_URL}/api/recipients`,{name:newRecip.name.trim(),email:newRecip.email||null,servers:[]},{headers:authHeaders()});
+                                                const phone = newRecip.phone.length===10 ? '91'+newRecip.phone : null;
+                                                const res = await axios.post(`${API_URL}/api/recipients`,{name:newRecip.name.trim(),email:newRecip.email||null,phone,servers:[]},{headers:authHeaders()});
                                                 const rec = res.data;
                                                 setRecipients(prev=>[...prev,rec]);
                                                 setRecipSiteMap(prev=>({...prev,[rec._id]:[]}));
                                                 setNewRecip({name:'',email:'',phone:''});
                                                 setShowAddRecip(false);
-                                            }} style={{padding:'6px 16px',background:'#10b981',color:'#fff',border:'none',borderRadius:7,fontSize:12,fontWeight:700,cursor:'pointer'}}>Add</button>
-                                            <button type="button" onClick={()=>setShowAddRecip(false)} style={{padding:'6px 14px',background:'#f1f5f9',border:'none',borderRadius:7,fontSize:12,cursor:'pointer',color:'#64748b'}}>Cancel</button>
+                                            }} style={{padding:'7px 18px',background:'#10b981',color:'#fff',border:'none',borderRadius:7,fontSize:13,fontWeight:700,cursor:'pointer'}}>Add</button>
+                                            <button type="button" onClick={()=>setShowAddRecip(false)} style={{padding:'7px 14px',background:'#f1f5f9',border:'none',borderRadius:7,fontSize:13,cursor:'pointer',color:'#64748b'}}>Cancel</button>
                                         </div>
                                     </div>
                                 ) : (
