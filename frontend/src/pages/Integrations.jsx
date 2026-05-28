@@ -113,6 +113,98 @@ function WhatsAppModal({ servers, onClose, onSaved }) {
     );
 }
 
+// ── Email Add Modal ───────────────────────────────────────────────────────────
+function EmailModal({ servers, onClose, onSaved }) {
+    const [name,       setName]       = useState('');
+    const [email,      setEmail]      = useState('');
+    const [selected,   setSelected]   = useState([]);
+    const [allSites,   setAllSites]   = useState(true);
+    const [saving,     setSaving]     = useState(false);
+    const [error,      setError]      = useState('');
+    const [siteSearch, setSiteSearch] = useState('');
+
+    const toggle = (id) => setSelected(p => p.includes(id) ? p.filter(x=>x!==id) : [...p, id]);
+
+    const save = async () => {
+        if (!name.trim()) { setError('Name is required'); return; }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setError('Enter valid email address'); return; }
+        setSaving(true);
+        try {
+            await addRecipient({ name: name.trim(), email: email.trim(), servers: allSites ? [] : selected });
+            onSaved();
+            onClose();
+        } catch (e) { setError(e.response?.data?.error || 'Failed to add'); }
+        setSaving(false);
+    };
+
+    return (
+        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.55)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center', padding:16 }}
+            onClick={e => e.target===e.currentTarget && onClose()}>
+            <div style={{ background:'#1e1b4b', borderRadius:20, width:'100%', maxWidth:460, padding:28, boxShadow:'0 24px 80px rgba(0,0,0,0.4)', position:'relative' }}>
+                <button onClick={onClose} style={{ position:'absolute', top:14, right:14, background:'rgba(255,255,255,0.12)', border:'none', color:'#fff', width:28, height:28, borderRadius:7, cursor:'pointer', fontSize:14 }}>✕</button>
+
+                <div style={{ textAlign:'center', marginBottom:22 }}>
+                    <div style={{ marginBottom:10 }}>
+                        <svg width="44" height="44" viewBox="0 0 24 24" style={{ display:'block', margin:'0 auto' }}>
+                            <path fill="#EA4335" d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/>
+                        </svg>
+                    </div>
+                    <h2 style={{ color:'#fff', margin:0, fontSize:18, fontWeight:800 }}>Add <span style={{color:'#EA4335'}}>Email</span> Recipient</h2>
+                    <p style={{ color:'rgba(255,255,255,0.5)', fontSize:12, margin:'6px 0 0' }}>You will receive email alerts when your sites go down</p>
+                </div>
+
+                <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+                    <div>
+                        <label style={{ fontSize:12, fontWeight:700, color:'#e2e8f0', display:'block', marginBottom:6 }}>Full Name *</label>
+                        <input value={name} onChange={e=>setName(e.target.value)} placeholder="Your name"
+                            style={{ width:'100%', padding:'10px 14px', border:'1.5px solid rgba(255,255,255,0.15)', borderRadius:9, fontSize:14, background:'#2d2466', color:'#e2e8f0', outline:'none', boxSizing:'border-box' }} />
+                    </div>
+                    <div>
+                        <label style={{ fontSize:12, fontWeight:700, color:'#e2e8f0', display:'block', marginBottom:6 }}>Email Address *</label>
+                        <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="name@example.com"
+                            style={{ width:'100%', padding:'10px 14px', border:'1.5px solid rgba(255,255,255,0.15)', borderRadius:9, fontSize:14, background:'#2d2466', color:'#e2e8f0', outline:'none', boxSizing:'border-box' }} />
+                    </div>
+                    <div>
+                        <label style={{ fontSize:12, fontWeight:700, color:'#e2e8f0', display:'block', marginBottom:8 }}>Notify for sites</label>
+                        <label style={{ display:'flex', alignItems:'center', gap:10, marginBottom:10, cursor:'pointer' }}>
+                            <input type="checkbox" checked={allSites} onChange={e=>{setAllSites(e.target.checked);setSelected([]);}} style={{ width:16, height:16, accentColor:'#7c3aed' }} />
+                            <span style={{ color:'#e2e8f0', fontSize:13, fontWeight:600 }}>All sites (current + future)</span>
+                        </label>
+                        {!allSites && (
+                            <div>
+                                <div style={{ position:'relative', marginBottom:8 }}>
+                                    <svg style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)' }} width="13" height="13" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                                    <input value={siteSearch} onChange={e=>setSiteSearch(e.target.value)} placeholder="Search sites..."
+                                        style={{ width:'100%', padding:'8px 10px 8px 30px', border:'1.5px solid rgba(255,255,255,0.15)', borderRadius:8, fontSize:13, background:'rgba(255,255,255,0.07)', color:'#e2e8f0', outline:'none', boxSizing:'border-box' }} />
+                                </div>
+                                <div style={{ display:'flex', flexDirection:'column', gap:6, maxHeight:160, overflowY:'auto' }}>
+                                    {servers.filter(s => !siteSearch || s.name.toLowerCase().includes(siteSearch.toLowerCase())).map(s => (
+                                        <label key={s._id} style={{ display:'flex', alignItems:'center', gap:10, cursor:'pointer', padding:'8px 12px', borderRadius:8, background:'rgba(255,255,255,0.05)' }}>
+                                            <input type="checkbox" checked={selected.includes(s._id)} onChange={()=>toggle(s._id)} style={{ width:15, height:15, accentColor:'#7c3aed' }} />
+                                            <span style={{ width:8, height:8, borderRadius:'50%', background:s.status==='up'?'#10b981':s.status==='down'?'#ef4444':'#f59e0b', flexShrink:0 }} />
+                                            <span style={{ color:'#e2e8f0', fontSize:13 }}>{s.name}</span>
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {error && <div style={{ background:'#fef2f2', color:'#dc2626', borderRadius:8, padding:'8px 12px', fontSize:13, fontWeight:600, marginTop:12 }}>⚠️ {error}</div>}
+
+                <div style={{ display:'flex', gap:10, marginTop:20 }}>
+                    <button onClick={onClose} style={{ flex:1, padding:'11px', border:'1.5px solid rgba(255,255,255,0.15)', borderRadius:10, background:'transparent', color:'#94a3b8', fontSize:14, fontWeight:600, cursor:'pointer' }}>Cancel</button>
+                    <button onClick={save} disabled={saving}
+                        style={{ flex:2, padding:'11px', border:'none', borderRadius:10, background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', fontSize:14, fontWeight:700, cursor:'pointer', opacity:saving?0.7:1 }}>
+                        {saving ? 'Saving...' : '✓ Save Recipient'}
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 // ── Icons ─────────────────────────────────────────────────────────────────────
 const IcoWhatsApp = () => (<svg width="26" height="26" viewBox="0 0 24 24" fill="#25d366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>);
 const IcoGmail    = () => (<svg width="26" height="26" viewBox="0 0 24 24"><path fill="#EA4335" d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/></svg>);
@@ -127,6 +219,7 @@ export default function Integrations() {
     const [servers,     setServers]     = useState([]);
     const [emailActive, setEmailActive] = useState(false);
     const [waModal,     setWaModal]     = useState(false);
+    const [emailModal,  setEmailModal]  = useState(false);
     const [saved,       setSaved]       = useState({});
     const [toast,       setToast]       = useState('');
 
@@ -173,8 +266,8 @@ export default function Integrations() {
 
             {[
                 { iconEl:<IcoWhatsApp/>, name:'WhatsApp', desc:'Receive WhatsApp alerts when your site goes down or recovers.', onAdd:()=>setWaModal(true), badge: null },
-                { iconEl:<IcoGmail/>,    name:'Email',    desc:'Receive email alerts automatically. Admin configures SMTP.',  onAdd: null,
-                  badge: emailActive ? {label:'✓ Active',bg:'#dcfce7',color:'#16a34a'} : {label:'⚠ Not configured',bg:'#fef3c7',color:'#d97706'} },
+                { iconEl:<IcoGmail/>,    name:'Email',    desc:'Receive email alerts when your site goes down or recovers.', onAdd:()=>setEmailModal(true),
+                  badge: emailActive ? null : {label:'⚠ SMTP not configured',bg:'#fef3c7',color:'#d97706'} },
             ].map(intg => (
                 <div key={intg.name} style={{ background:'#fff', border:'1.5px solid #e2e8f0', borderRadius:14, padding:'16px 20px', marginBottom:10, display:'flex', alignItems:'center', gap:14 }}>
                     <div style={{ width:46, height:46, borderRadius:12, background:'#f8fafc', border:'1px solid #e2e8f0', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
@@ -228,7 +321,8 @@ export default function Integrations() {
             ))}
 
             {/* WhatsApp Modal */}
-            {waModal && <WhatsAppModal servers={servers} onClose={()=>setWaModal(false)} onSaved={()=>showToast('✅ WhatsApp recipient added!')} />}
+            {waModal    && <WhatsAppModal servers={servers} onClose={()=>setWaModal(false)}    onSaved={()=>showToast('✅ WhatsApp recipient added!')} />}
+            {emailModal && <EmailModal    servers={servers} onClose={()=>setEmailModal(false)} onSaved={()=>showToast('✅ Email recipient added!')} />}
 
             {/* Webhook Modal */}
             {webhookModal && (
