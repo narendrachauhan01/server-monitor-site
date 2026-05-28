@@ -11,8 +11,9 @@ function Toggle({ checked, onChange, disabled }) {
 }
 
 const FEATURES = [
-    { key: 'domainSsl', label: 'Domain & SSL Monitoring', desc: 'View SSL certificate expiry and domain expiry dates', icon: '🔒' },
-    { key: 'charts',    label: 'Performance Charts',       desc: 'View response time charts, uptime stats and alert history', icon: '📊' },
+    { key: 'domainSsl',    label: 'Domain & SSL Monitoring', desc: 'View SSL certificate expiry and domain expiry dates', icon: '🔒' },
+    { key: 'charts',       label: 'Performance Charts',       desc: 'View response time charts, uptime stats and alert history', icon: '📊' },
+    { key: 'pingMonitor',  label: 'Ping Monitor',             desc: 'Monitor connectivity for any host, IP or URL with live ping', icon: '📡' },
 ];
 
 export default function FeatureAccess() {

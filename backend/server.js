@@ -40,6 +40,7 @@ app.use('/api/expiry',       require('./routes/expiry'));
 app.use('/api/email-config', require('./routes/emailConfig'));
 app.use('/api/metrics',      require('./routes/metrics'));
 app.use('/api/ping',         require('./routes/ping'));
+app.use('/api/ping-targets', require('./routes/pingTargets'));
 
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => {

@@ -1,6 +1,8 @@
 const https = require('https');
 const http = require('http');
+const net = require('net');
 const Server = require('../models/Server');
+const PingTarget = require('../models/PingTarget');
 const Recipient = require('../models/Recipient');
 const Alert = require('../models/Alert');
 const Settings = require('../models/Settings');
@@ -241,12 +243,89 @@ async function checkExpiry() {
     }
 }
 
+// ── TCP Ping check ──────────────────────────────────────────────────────────
+function tcpPing(host, port) {
+    return new Promise((resolve) => {
+        const start = Date.now();
+        const sock = new net.Socket();
+        sock.setTimeout(5000);
+        sock.connect(port, host, () => {
+            const ms = Date.now() - start;
+            sock.destroy();
+            resolve({ alive: true, ms });
+        });
+        sock.on('error', () => { sock.destroy(); resolve({ alive: false, ms: null }); });
+        sock.on('timeout', () => { sock.destroy(); resolve({ alive: false, ms: null }); });
+    });
+}
+
+async function pingCheck(host, port) {
+    let r = await tcpPing(host, port || 443);
+    if (!r.alive) r = await tcpPing(host, 80);
+    return r;
+}
+
+// ── Check all ping targets ───────────────────────────────────────────────────
+async function checkPingTargets() {
+    try {
+        const targets   = await PingTarget.find({ active: true }).populate('userId', 'plan');
+        const recipients = await Recipient.find({ active: true }).populate('servers');
+
+        for (const target of targets) {
+            const result = await pingCheck(target.host, target.port);
+            const prevStatus = target.status;
+            const wasAlertSent = target.downAlertSent;
+
+            console.log(`[Ping] ${target.name} (${target.host}) → ${result.alive ? 'UP' : 'DOWN'} | ${result.ms || '—'}ms`);
+
+            const setFields = {
+                lastChecked: new Date(),
+                responseTime: result.ms,
+                status: result.alive ? 'up' : 'down',
+            };
+
+            if (!result.alive) {
+                if (prevStatus !== 'down') setFields.lastDownAt = new Date();
+                if (prevStatus !== 'down' && !wasAlertSent) {
+                    const eligible = getEligibleRecipients(recipients, target._id, target.userId?._id);
+                    const waMsg = `🚨 *Ping Alert!*\n\n*Target:* ${target.name}\n*Host:* ${target.host}\n*Time:* ${now()}\n\nHost is *DOWN* ❌`;
+                    for (const r of eligible) {
+                        if (r.phone) { try { await wa.sendMessage(r.phone, waMsg); } catch (_) {} }
+                        if (r.email) { await sendEmail(r.email, `[UptimeForge] Host Down: ${target.name}`, downEmailHtml(target.name, target.host, now())); }
+                    }
+                    setFields.downAlertSent = true;
+                }
+            } else {
+                if (prevStatus === 'down') {
+                    setFields.lastUpAt = new Date();
+                    setFields.downAlertSent = false;
+                    const eligible = getEligibleRecipients(recipients, target._id, target.userId?._id);
+                    const waMsg = `✅ *Host Recovered!*\n\n*Target:* ${target.name}\n*Host:* ${target.host}\n*Time:* ${now()}\n\nHost is back *UP* ✅`;
+                    for (const r of eligible) {
+                        if (r.phone) { try { await wa.sendMessage(r.phone, waMsg); } catch (_) {} }
+                        if (r.email) { await sendEmail(r.email, `[UptimeForge] Host Recovered: ${target.name}`, recoveredEmailHtml(target.name, target.host, now())); }
+                    }
+                }
+            }
+
+            await PingTarget.findByIdAndUpdate(target._id, {
+                $set: setFields,
+                $push: { history: { $each: [{ time: new Date(), responseTime: result.ms, status: result.alive ? 'up' : 'down' }], $slice: -1440 } },
+            });
+        }
+    } catch (err) {
+        console.error('[Ping] checkPingTargets error:', err.message);
+    }
+}
+
 function start() {
     checkAll();
     checkExpiry();
-    setInterval(checkAll, 30 * 1000); // run every 30s, each server checked per its plan interval
-    setInterval(checkExpiry, 6 * 60 * 60 * 1000); // every 6 hours
-    console.log('[Monitor] Started - ticker every 30s (plan-based intervals) | Expiry check every 6h');
+    checkPingTargets();
+    setInterval(checkAll, 30 * 1000);
+    setInterval(checkExpiry, 6 * 60 * 60 * 1000);
+    setInterval(checkPingTargets, 60 * 1000); // ping check every 60s
+    console.log('[Monitor] Started - ticker every 30s | Ping every 60s | Expiry check every 6h');
 }
 
 module.exports = { start, checkAll };

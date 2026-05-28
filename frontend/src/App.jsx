@@ -191,7 +191,7 @@ function AppInner() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [notifOpen, setNotifOpen] = useState(false);
-  const [freeAccess, setFreeAccess] = useState({ domainSsl: true, charts: true });
+  const [freeAccess, setFreeAccess] = useState({ domainSsl: true, charts: true, pingMonitor: true });
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -452,7 +452,7 @@ function AppInner() {
             {isAdmin && <Route path="/admin-profile" element={<AdminPanel initialTab="profile" />} />}
             {isAdmin && <Route path="/plan-settings" element={<PlanSettings />} />}
             {isAdmin && <Route path="/feature-access" element={<FeatureAccess />} />}
-            <Route path="/ping" element={<PingMonitor />} />
+            <Route path="/ping" element={!user || user.plan !== 'free_trial' || freeAccess.pingMonitor ? <PingMonitor /> : <UpgradeGate user={user} feature="Ping Monitor"><PingMonitor /></UpgradeGate>} />
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="*" element={<Dashboard />} />
           </Routes>

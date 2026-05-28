@@ -56,8 +56,9 @@ const settingsSchema = new mongoose.Schema({
     freeTrialRecipientLimit:   { type: Number, default: 2 },
     freeTrialFeatures:         { type: [String], default: () => DEFAULT_FEATURES.free_trial },
     freeTrialAccess: {
-        domainSsl: { type: Boolean, default: true },
-        charts:    { type: Boolean, default: true },
+        domainSsl:   { type: Boolean, default: true },
+        charts:      { type: Boolean, default: true },
+        pingMonitor: { type: Boolean, default: true },
     },
     plans: {
         bronze: {
@@ -105,7 +106,8 @@ settingsSchema.statics.get = async function () {
     }
     if (!s.freeTrialInterval)       { s.freeTrialInterval = 300;       dirty = true; }
     if (!s.freeTrialRecipientLimit) { s.freeTrialRecipientLimit = 2;   dirty = true; }
-    if (!s.freeTrialAccess)         { s.freeTrialAccess = { domainSsl: true, charts: true }; dirty = true; }
+    if (!s.freeTrialAccess)         { s.freeTrialAccess = { domainSsl: true, charts: true, pingMonitor: true }; dirty = true; }
+    if (s.freeTrialAccess && s.freeTrialAccess.pingMonitor === undefined) { s.freeTrialAccess.pingMonitor = true; s.markModified('freeTrialAccess'); dirty = true; }
     const DEFAULT_INTERVALS   = { bronze: 120, silver: 60,  gold: 30 };
     const DEFAULT_REC_LIMITS  = { bronze: 10,  silver: 20,  gold: 30 };
     for (const k of ['bronze', 'silver', 'gold']) {
