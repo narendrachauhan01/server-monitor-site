@@ -14,10 +14,10 @@ function NewDropdown({ onNavigate }) {
   return (
     <div style={{ position:'relative' }} ref={ref}>
       <div style={{ display:'flex', borderRadius:10, overflow:'hidden', boxShadow:'0 2px 12px rgba(124,58,237,0.25)' }}>
-        <button onClick={() => go('/servers')} style={{ padding:'9px 18px', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', border:'none', fontSize:13, fontWeight:700, cursor:'pointer', display:'flex', alignItems:'center', gap:6 }}>
+        <button onClick={() => go('/servers')} style={{ padding:'9px 18px', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', border:'none', fontSize:13, fontWeight:700, cursor:'pointer', display:'flex', alignItems:'center', gap:6, height:38 }}>
           + New
         </button>
-        <button onClick={() => setOpen(o=>!o)} style={{ padding:'9px 10px', background:'linear-gradient(135deg,#6d28d9,#5b21b6)', color:'#fff', border:'none', borderLeft:'1px solid rgba(255,255,255,0.15)', cursor:'pointer', display:'flex', alignItems:'center' }}>
+        <button onClick={() => setOpen(o=>!o)} style={{ padding:'9px 13px', background:'linear-gradient(135deg,#6d28d9,#5b21b6)', color:'#fff', border:'none', borderLeft:'1px solid rgba(255,255,255,0.15)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', height:38 }}>
           <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ transform: open?'rotate(180deg)':'none', transition:'0.2s' }}><polyline points="6 9 12 15 18 9"/></svg>
         </button>
       </div>
