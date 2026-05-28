@@ -102,18 +102,28 @@ export default function Dashboard() {
     URL.revokeObjectURL(url);
   };
 
-  // Uptime bar: last 48 historyBar entries as colored segments
+  // Uptime bar: fixed 40 slots, pad with grey if fewer entries
   const UptimeBar = ({ history = [] }) => {
-    if (history.length === 0) return <div className="mon-bar-empty" style={{fontSize:12,color:'#94a3b8'}}>—</div>;
-    const upPct = Math.round((history.filter(h=>h.status==='up').length/history.length)*100);
+    const SLOTS = 40;
+    const upPct = history.length ? Math.round((history.filter(h=>h.status==='up').length/history.length)*100) : null;
+    // Pad left with empty slots if fewer than SLOTS entries
+    const padded = history.length >= SLOTS ? history.slice(-SLOTS) : [
+      ...Array(SLOTS - history.length).fill({ status: 'empty' }),
+      ...history,
+    ];
     return (
       <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-end', gap:4 }}>
-        <div style={{ display:'flex', gap:1 }}>
-          {history.map((h,i) => (
-            <div key={i} style={{ width:4, height:24, borderRadius:2, background: h.status==='up' ? '#10b981' : h.status==='down' ? '#ef4444' : '#d1d5db' }} title={`${new Date(h.time).toLocaleTimeString('en-IN')} — ${h.status}`} />
+        <div style={{ display:'flex', gap:1.5, width: SLOTS * 5.5 + 'px' }}>
+          {padded.map((h,i) => (
+            <div key={i} style={{ flex:'1 0 0', height:24, borderRadius:2,
+              background: h.status==='up' ? '#10b981' : h.status==='down' ? '#ef4444' : '#e2e8f0',
+              opacity: h.status==='empty' ? 0.3 : 0.85,
+            }} title={h.time ? `${new Date(h.time).toLocaleTimeString('en-IN')} — ${h.status}` : ''} />
           ))}
         </div>
-        <span style={{ fontSize:11, fontWeight:700, color: upPct===100?'#10b981':upPct>=95?'#f59e0b':'#ef4444' }}>{upPct}%</span>
+        <span style={{ fontSize:11, fontWeight:700, color: upPct===100?'#10b981':upPct>=95?'#f59e0b':upPct===null?'#94a3b8':'#ef4444' }}>
+          {upPct !== null ? `${upPct}%` : '—'}
+        </span>
       </div>
     );
   };
