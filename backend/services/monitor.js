@@ -386,13 +386,11 @@ async function checkPingTargets() {
                 status: result.alive ? 'up' : 'down',
             };
 
-            // Get eligible recipients — use notifyRecipients if set, else all eligible
+            // Get eligible recipients — MUST have notifyRecipients selected, empty = no alerts
             const getPingEligible = () => {
-                if (target.notifyRecipients?.length > 0) {
-                    const ids = target.notifyRecipients.map(id => id.toString());
-                    return recipients.filter(r => ids.includes(r._id.toString()));
-                }
-                return getEligibleRecipients(recipients, target._id, target.userId?._id);
+                if (!target.notifyRecipients || target.notifyRecipients.length === 0) return []; // no selection = no alerts
+                const ids = target.notifyRecipients.map(id => id.toString());
+                return recipients.filter(r => ids.includes(r._id.toString()));
             };
 
             if (!result.alive) {

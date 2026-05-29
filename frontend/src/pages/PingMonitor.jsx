@@ -91,7 +91,7 @@ function TargetModal({ target, onClose, onSave }) {
                     <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
                         <label style={{ fontSize:12, fontWeight:700, color:'#e2e8f0' }}>🔔 Notify Recipients</label>
                         <span style={{ fontSize:11, color:'#94a3b8' }}>
-                            {selected.length===0 ? 'All will be notified' : `${selected.length} selected`}
+                            {selected.length===0 ? '⚠️ No one selected — tick at least one' : `${selected.length} selected`}
                         </span>
                     </div>
                     {loadingR ? (
@@ -144,7 +144,7 @@ function TargetModal({ target, onClose, onSave }) {
                             </div>
                             {selected.length === 0 && (
                                 <div style={{ padding:'8px 14px', fontSize:11, color:'#94a3b8', borderTop:'1px solid rgba(255,255,255,0.06)' }}>
-                                    ℹ️ No selection = all active recipients will be notified
+                                    ⚠️ No one selected — no alerts will be sent. Tick at least one recipient.
                                 </div>
                             )}
                         </div>
@@ -292,7 +292,7 @@ function DetailModal({ target, onClose, onDelete, onToggle, onEdit }) {
                     <div style={{ background:'#f5f3ff', border:'1px solid #ddd6fe', borderRadius:12, padding:'12px 16px', fontSize:13, color:'#475569', display:'flex', alignItems:'center', gap:10 }}>
                         <span style={{ fontSize:20 }}>🔔</span>
                         <div>
-                            <strong style={{ color:'#7c3aed' }}>Alerts active</strong> — When this target goes DOWN or recovers UP, all your configured recipients (Email + WhatsApp) will be notified automatically.
+                            <strong style={{ color:'#7c3aed' }}>Alerts active</strong> — When this target goes DOWN or recovers UP, selected recipients will be notified via Email &amp; WhatsApp. Webhooks also fire automatically.
                         </div>
                     </div>
 
