@@ -259,6 +259,18 @@ export default function Integrations() {
     const [rcSelected,  setRcSelected]  = useState([]);
     const [rcSearch,    setRcSearch]    = useState('');
 
+    const validateWebhookUrl = (url) => {
+        if (!url) return '⚠️ Webhook URL required';
+        try { new URL(url); } catch { return '⚠️ Invalid URL format'; }
+        const blocked = ['docs.google.com','drive.google.com','google.com','youtube.com','facebook.com','instagram.com','twitter.com','linkedin.com'];
+        const host = new URL(url).hostname;
+        if (blocked.some(d => host.includes(d))) return `❌ "${host}" is not a webhook URL. Use a Rocket.Chat / Slack / Discord webhook URL.`;
+        if (!url.includes('/hook') && !url.includes('/webhook') && !url.includes('/trigger') && !url.includes('/integrations')) {
+            // Warn but don't block — custom APIs may have any path
+        }
+        return null;
+    };
+
     const deleteIntegration = async (type) => {
         if (!window.confirm(`Remove ${type} integration?`)) return;
         try {
@@ -283,7 +295,8 @@ export default function Integrations() {
     };
 
     const saveRc = async () => {
-        if (!rcForm.url) return;
+        const err = validateWebhookUrl(rcForm.url);
+        if (err) { showToast(err); return; }
         setRcSaving(true);
         try {
             await axios.post(`${API_URL}/api/integrations/rocketchat`, { config: { url: rcForm.url }, events: rcForm.events||'all', servers: rcAllSites ? [] : rcSelected }, { withCredentials: true });
@@ -321,7 +334,8 @@ export default function Integrations() {
     };
 
     const saveWebhook = async () => {
-        if (!webhookForm.url) return;
+        const err = validateWebhookUrl(webhookForm.url);
+        if (err) { showToast(err); return; }
         setWebhookSaving(true);
         try {
             await axios.post(`${API_URL}/api/integrations/webhook`, { config: webhookForm, events: webhookForm.events||'all', servers: webhookAllSites ? [] : webhookSelected }, { withCredentials: true });
@@ -333,7 +347,8 @@ export default function Integrations() {
     };
 
     const testWebhook = async () => {
-        if (!webhookForm.url) { showToast('⚠️ Enter webhook URL first'); return; }
+        const err = validateWebhookUrl(webhookForm.url);
+        if (err) { showToast(err); return; }
         setWebhookTesting(true);
         try {
             const t = new Date().toLocaleString('en-IN',{timeZone:'Asia/Kolkata',day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true});
