@@ -250,11 +250,18 @@ export default function PaymentPage({ user, onUserUpdate }) {
                         razorpay_signature:  response.razorpay_signature,
                         plan,
                     });
-                    if (res.data.token) {
-                        // token now in httpOnly cookie;
-                        localStorage.setItem('sm_user', JSON.stringify(res.data.user));
+                    // Fetch fresh user data so profile gate doesn't trigger
+                    try {
+                        const { getMe } = await import('../api');
+                        const meRes = await getMe();
+                        localStorage.setItem('sm_user', JSON.stringify(meRes.data));
                         localStorage.removeItem('sm_intended_plan');
-                        onUserUpdate?.(res.data.user);
+                        onUserUpdate?.(meRes.data);
+                    } catch {
+                        if (res.data.user) {
+                            localStorage.setItem('sm_user', JSON.stringify(res.data.user));
+                            onUserUpdate?.(res.data.user);
+                        }
                     }
                     paymentDone.current = true;
                     setSuccess(true);
