@@ -398,6 +398,33 @@ function AppInner() {
     );
   }
 
+  // ── Expired plan gate — show Access Denied ──
+  const allowedWhenExpired = ['/account', '/pay', '/pricing', '/complete-profile'];
+  const planExpired = authed && !isAdmin && user && user.plan === 'free_trial' && user.trialVerified === true && user.isActive === false;
+  if (planExpired && !allowedWhenExpired.includes(location.pathname)) {
+    return (
+      <div style={{ minHeight:'100vh', background:'#f8fafc', display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
+        <div style={{ background:'#fff', borderRadius:24, border:'2px solid #fecdd3', padding:48, maxWidth:460, width:'100%', textAlign:'center', boxShadow:'0 20px 60px rgba(0,0,0,0.08)' }}>
+          <div style={{ fontSize:60, marginBottom:16 }}>🔒</div>
+          <h2 style={{ fontSize:24, fontWeight:800, color:'#1e1b4b', margin:'0 0 8px' }}>Access Denied</h2>
+          <p style={{ fontSize:15, color:'#64748b', marginBottom:8 }}>Your <strong>Free Trial</strong> has expired.</p>
+          <p style={{ fontSize:13, color:'#94a3b8', marginBottom:32 }}>Upgrade your plan to continue monitoring your sites and receive alerts.</p>
+          <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+            <a href="/pricing" style={{ display:'block', padding:'13px 28px', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', borderRadius:12, fontSize:15, fontWeight:700, textDecoration:'none' }}>
+              🚀 Upgrade Plan
+            </a>
+            <a href="/account" style={{ display:'block', padding:'11px 28px', background:'#f1f5f9', color:'#475569', borderRadius:12, fontSize:14, fontWeight:600, textDecoration:'none' }}>
+              My Account
+            </a>
+            <button onClick={handleLogout} style={{ padding:'11px 28px', background:'transparent', border:'1.5px solid #e2e8f0', color:'#94a3b8', borderRadius:12, fontSize:14, fontWeight:600, cursor:'pointer' }}>
+              Logout
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // ── Verification gate for unverified free-trial users ──
   const needsVerification = authed && !isAdmin && user && user.plan === 'free_trial' && user.trialVerified === false;
   if (needsVerification && location.pathname !== '/pay') {
