@@ -167,14 +167,23 @@ function WhatsAppModal({ onClose }) {
                 {msg && <div style={{ background:msg.startsWith('✅')?'rgba(16,185,129,0.15)':'rgba(239,68,68,0.15)', borderRadius:8, padding:'8px 12px', fontSize:13, color:msg.startsWith('✅')?'#34d399':'#f87171', marginBottom:14 }}>{msg}</div>}
 
                 {/* Provider tabs */}
-                <div style={{ display:'flex', gap:6, marginBottom:16, background:'rgba(255,255,255,0.07)', borderRadius:10, padding:4 }}>
-                    {PROVIDERS.map(p => (
-                        <button key={p.key} type="button" onClick={()=>setProvider(p.key)}
-                            style={{ flex:1, padding:'8px', border:'none', borderRadius:7, fontSize:12, fontWeight:700, cursor:'pointer',
-                                background:provider===p.key?'#7c3aed':'transparent', color:provider===p.key?'#fff':'rgba(255,255,255,0.5)', transition:'all 0.15s' }}>
-                            {p.name}
-                        </button>
-                    ))}
+                <div style={{ display:'flex', gap:8, marginBottom:16 }}>
+                    {PROVIDERS.map(p => {
+                        const active = provider === p.key;
+                        const colors = { greenapi:['#25d366','#128c7e'], twilio:['#f22f46','#c0392b'], aisensy:['#6c47ff','#5235cc'] };
+                        const [c1, c2] = colors[p.key] || ['#7c3aed','#6d28d9'];
+                        return (
+                            <button key={p.key} type="button" onClick={()=>setProvider(p.key)}
+                                style={{ flex:1, padding:'10px 8px', border:`2px solid ${active ? c1 : 'rgba(255,255,255,0.12)'}`,
+                                    borderRadius:10, fontSize:12, fontWeight:800, cursor:'pointer', transition:'all 0.2s',
+                                    background: active ? `linear-gradient(135deg,${c1},${c2})` : 'rgba(255,255,255,0.05)',
+                                    color: active ? '#fff' : 'rgba(255,255,255,0.5)',
+                                    boxShadow: active ? `0 4px 12px ${c1}55` : 'none',
+                                    transform: active ? 'translateY(-1px)' : 'none' }}>
+                                {p.name}
+                            </button>
+                        );
+                    })}
                 </div>
 
                 {provider === 'greenapi' && <InfoBox steps={[
