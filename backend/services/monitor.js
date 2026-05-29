@@ -249,7 +249,8 @@ async function sendAlerts(server, recipients, type, detail) {
             catch (e) { console.error(`[Monitor] WA failed to ${r.phone}:`, e.message); }
         }
         if (r.email) {
-            await sendEmail(r.email, emailSubject, emailHtml);
+            try { await sendEmail(r.email, emailSubject, emailHtml); }
+            catch (e) { console.error(`[Monitor] Email failed to ${r.email}:`, e.message); }
         }
         sentTo.push({ name: r.name, phone: r.phone || '', email: r.email || '' });
     }
