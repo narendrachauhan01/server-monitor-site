@@ -75,13 +75,12 @@ function Sidebar({ onLogout, user, isAdmin, open, setOpen, onBell, unreadCount }
   useEffect(() => setOpen(false), [location]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const links = isAdmin ? [
-    { to: '/admin-profile',        label: 'My Profile',    icon: <IcoProfile /> },
-    { to: '/admin',                label: 'Admin Panel',   icon: <IcoAdmin /> },
-    { to: '/plan-settings',         label: 'Plan Settings',    icon: <IcoSettings /> },
-    { to: '/feature-access',        label: 'Feature Access',   icon: <IcoToggle /> },
-    { to: '/server-resources',     label: 'Infra',         icon: <IcoServer /> },
-    { to: '/email',                label: 'Email',         icon: <IcoMail /> },
-    { to: '/whatsapp',             label: 'WhatsApp',      icon: <IcoWa /> },
+    { to: '/admin-profile',        label: 'My Profile',          icon: <IcoProfile /> },
+    { to: '/admin',                label: 'Admin Panel',         icon: <IcoAdmin /> },
+    { to: '/plan-settings',        label: 'Plan Settings',       icon: <IcoSettings /> },
+    { to: '/feature-access',       label: 'Feature Access',      icon: <IcoToggle /> },
+    { to: '/server-resources',     label: 'Infra',               icon: <IcoServer /> },
+    { to: '/admin?tab=integrations', label: '🔗 Integration Backend', icon: <IcoMail /> },
   ] : [
     { to: '/performance',  label: 'Performance',  icon: <IcoChart /> },
     { to: '/monitoring',   label: 'Monitoring',   icon: <IcoDash /> },
