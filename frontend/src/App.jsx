@@ -410,7 +410,7 @@ function AppInner() {
           <p style={{ fontSize:15, color:'#64748b', marginBottom:8 }}>Your <strong>Free Trial</strong> has expired.</p>
           <p style={{ fontSize:13, color:'#94a3b8', marginBottom:32 }}>Upgrade your plan to continue monitoring your sites and receive alerts.</p>
           <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
-            <a href="/pricing" style={{ display:'block', padding:'13px 28px', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', borderRadius:12, fontSize:15, fontWeight:700, textDecoration:'none' }}>
+            <a href="/pay?plan=select" style={{ display:'block', padding:'13px 28px', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', borderRadius:12, fontSize:15, fontWeight:700, textDecoration:'none' }}>
               🚀 Upgrade Plan
             </a>
             <a href="/account" style={{ display:'block', padding:'11px 28px', background:'#f1f5f9', color:'#475569', borderRadius:12, fontSize:14, fontWeight:600, textDecoration:'none' }}>
