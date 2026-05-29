@@ -263,9 +263,19 @@ async function checkOne(server, settings, recipients) {
     const sid = server._id.toString();
     if (serverLocks.has(sid)) return; // already being checked this cycle
 
-    // Plan-based interval check
+    // Plan-based interval + expiry check
     if (server.userId) {
-        const plan        = server.userId.plan || 'free_trial';
+        const u    = server.userId;
+        const plan = u.plan || 'free_trial';
+
+        // Stop monitoring if plan expired
+        if (plan === 'free_trial') {
+            if (!u.trialVerified) return; // not yet verified
+            if (u.trialEndsAt && new Date() > new Date(u.trialEndsAt)) return; // trial expired
+        } else {
+            if (u.planEndsAt && new Date() > new Date(u.planEndsAt)) return; // paid plan expired
+        }
+
         const interval    = await getPlanInterval(plan, settings);
         const lastChecked = server.lastChecked ? new Date(server.lastChecked).getTime() : 0;
         if (lastChecked && (Date.now() - lastChecked) < interval * 1000) return;
@@ -344,7 +354,7 @@ async function checkAll() {
     try {
         const [settings, servers, recipients] = await Promise.all([
             Settings.get(),
-            Server.find({ active: true }).populate('userId', 'plan'),
+            Server.find({ active: true }).populate('userId', 'plan trialEndsAt planEndsAt trialVerified'),
             Recipient.find({ active: true }).populate('servers'),
         ]);
         // Fire all checks in parallel — per-server lock prevents duplicates
@@ -407,7 +417,7 @@ async function sendAlerts(server, recipients, type, detail) {
 
 async function checkExpiry() {
     try {
-        const servers    = await Server.find({ active: true }).populate('userId', 'plan');
+        const servers    = await Server.find({ active: true }).populate('userId', 'plan trialEndsAt planEndsAt trialVerified');
         const recipients = await Recipient.find({ active: true }).populate('servers');
 
         for (const server of servers) {
@@ -498,10 +508,21 @@ async function pingCheck(host, port) {
 async function checkPingTargets() {
     try {
         const settings  = await Settings.get();
-        const targets   = await PingTarget.find({ active: true }).populate('userId', 'plan');
+        const targets   = await PingTarget.find({ active: true }).populate('userId', 'plan trialEndsAt planEndsAt trialVerified');
         const recipients = await Recipient.find({ active: true }).populate('servers');
 
         for (const target of targets) {
+            if (target.userId) {
+                const u = target.userId;
+                const plan = u.plan || 'free_trial';
+                // Stop ping if plan expired
+                if (plan === 'free_trial') {
+                    if (!u.trialVerified) continue;
+                    if (u.trialEndsAt && new Date() > new Date(u.trialEndsAt)) continue;
+                } else {
+                    if (u.planEndsAt && new Date() > new Date(u.planEndsAt)) continue;
+                }
+            }
             // Plan-based ping interval
             if (target.userId) {
                 const plan = target.userId.plan || 'free_trial';
