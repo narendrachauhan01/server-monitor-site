@@ -108,7 +108,7 @@ function WhatsAppModal({ servers, onClose, onSaved }) {
                 <div style={{ display:'flex', gap:10, marginTop:20 }}>
                     <button onClick={onClose} style={{ flex:1, padding:'11px', border:'1.5px solid rgba(255,255,255,0.15)', borderRadius:10, background:'transparent', color:'#94a3b8', fontSize:14, fontWeight:600, cursor:'pointer' }}>Cancel</button>
                     <button onClick={save} disabled={saving}
-                        style={{ flex:2, padding:'11px', border:'none', borderRadius:10, background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', fontSize:14, fontWeight:700, cursor:'pointer', opacity:saving?0.7:1 }}>
+                        style={{ flex:2, padding:'11px', border:'none', borderRadius:10, background:'linear-gradient(135deg,#f5455c,#e11d48)', color:'#fff', fontSize:14, fontWeight:700, cursor:'pointer', opacity:saving?0.7:1 }}>
                         {saving ? 'Saving...' : '✓ Save Recipient'}
                     </button>
                 </div>
@@ -200,7 +200,7 @@ function EmailModal({ servers, onClose, onSaved }) {
                 <div style={{ display:'flex', gap:10, marginTop:20 }}>
                     <button onClick={onClose} style={{ flex:1, padding:'11px', border:'1.5px solid rgba(255,255,255,0.15)', borderRadius:10, background:'transparent', color:'#94a3b8', fontSize:14, fontWeight:600, cursor:'pointer' }}>Cancel</button>
                     <button onClick={save} disabled={saving}
-                        style={{ flex:2, padding:'11px', border:'none', borderRadius:10, background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', fontSize:14, fontWeight:700, cursor:'pointer', opacity:saving?0.7:1 }}>
+                        style={{ flex:2, padding:'11px', border:'none', borderRadius:10, background:'linear-gradient(135deg,#f5455c,#e11d48)', color:'#fff', fontSize:14, fontWeight:700, cursor:'pointer', opacity:saving?0.7:1 }}>
                         {saving ? 'Saving...' : '✓ Save Recipient'}
                     </button>
                 </div>
@@ -350,7 +350,7 @@ export default function Integrations() {
                     </div>
                     <div style={{ display:'flex', gap:8, alignItems:'center' }}>
                         {intg.badge && <span style={{ fontSize:11, fontWeight:700, background:intg.badge.bg, color:intg.badge.color, padding:'3px 10px', borderRadius:20 }}>{intg.badge.label}</span>}
-                        {intg.onAdd && <button onClick={intg.onAdd} style={{ padding:'8px 18px', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', border:'none', borderRadius:9, fontSize:13, fontWeight:700, cursor:'pointer' }}>+ Add</button>}
+                        {intg.onAdd && <button onClick={intg.onAdd} style={{ padding:'8px 18px', background:'linear-gradient(135deg,#f5455c,#e11d48)', color:'#fff', border:'none', borderRadius:9, fontSize:13, fontWeight:700, cursor:'pointer' }}>+ Add</button>}
                     </div>
                 </div>
             ))}
@@ -367,7 +367,7 @@ export default function Integrations() {
                 </div>
                 <div style={{ display:'flex', gap:8 }}>
                     {saved.webhook && <span style={{ fontSize:11, fontWeight:700, background:'#dcfce7', color:'#16a34a', padding:'3px 10px', borderRadius:20 }}>✓ Active</span>}
-                    <button onClick={openWebhookModal} style={{ padding:'8px 18px', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', border:'none', borderRadius:9, fontSize:13, fontWeight:700, cursor:'pointer' }}>
+                    <button onClick={openWebhookModal} style={{ padding:'8px 18px', background:'linear-gradient(135deg,#f5455c,#e11d48)', color:'#fff', border:'none', borderRadius:9, fontSize:13, fontWeight:700, cursor:'pointer' }}>
                         {saved.webhook ? '✏️ Edit' : '+ Add'}
                     </button>
                 </div>
@@ -484,7 +484,7 @@ export default function Integrations() {
                                 {webhookTesting ? '...' : '📨 Test'}
                             </button>
                             <button onClick={saveWebhook} disabled={webhookSaving||!webhookForm.url}
-                                style={{ flex:2, padding:'11px', border:'none', borderRadius:10, background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', fontSize:14, fontWeight:700, cursor:'pointer', opacity:(!webhookForm.url||webhookSaving)?0.6:1 }}>
+                                style={{ flex:2, padding:'11px', border:'none', borderRadius:10, background:'linear-gradient(135deg,#f5455c,#e11d48)', color:'#fff', fontSize:14, fontWeight:700, cursor:'pointer', opacity:(!webhookForm.url||webhookSaving)?0.6:1 }}>
                                 {webhookSaving ? 'Saving...' : '💾 Save'}
                             </button>
                         </div>
