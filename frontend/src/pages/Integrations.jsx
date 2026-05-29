@@ -257,7 +257,7 @@ export default function Integrations() {
         try {
             const r = await axios.get(`${API_URL}/api/integrations`, { headers: authHeaders() });
             const wh = r.data.find(i => i.type === 'webhook');
-            if (wh?.config) setWebhookForm({ url: wh.config.url||'', secret: wh.config.secret||'', events: wh.events||'all' });
+            if (wh) setWebhookForm({ url: wh.config?.url||'', secret: wh.config?.secret||'', events: wh.events||'all' });
         } catch {}
         setWebhookModal(true);
     };
