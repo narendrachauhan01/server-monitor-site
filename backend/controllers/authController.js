@@ -28,11 +28,19 @@ function updateEnvField(key, value) {
     process.env[key] = value;
 }
 
+const COOKIE_OPTS = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+};
+
 // POST /api/auth/login
 exports.login = (req, res) => {
     const { username, password } = req.body;
     if (username === process.env.ADMIN_USERNAME && password === process.env.ADMIN_PASSWORD) {
         const token = jwt.sign({ username }, process.env.JWT_SECRET, { expiresIn: '7d' });
+        res.cookie('sm_token', token, COOKIE_OPTS);
         res.json({ success: true, token });
     } else {
         res.status(401).json({ error: 'Invalid username or password' });
@@ -41,14 +49,21 @@ exports.login = (req, res) => {
 
 // GET /api/auth/verify
 exports.verify = (req, res) => {
-    const token = req.headers.authorization?.split(' ')[1];
+    const token = req.cookies?.sm_token || req.headers.authorization?.split(' ')[1];
     if (!token) return res.status(401).json({ valid: false });
     try {
-        jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        if (!decoded.username) return res.status(401).json({ valid: false });
         res.json({ valid: true });
     } catch {
         res.status(401).json({ valid: false });
     }
+};
+
+// POST /api/auth/logout
+exports.logout = (req, res) => {
+    res.clearCookie('sm_token', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax' });
+    res.json({ success: true });
 };
 
 // POST /api/auth/forgot-password

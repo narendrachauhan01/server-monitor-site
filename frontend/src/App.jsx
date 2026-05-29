@@ -276,7 +276,10 @@ function AppInner() {
   };
 
   const handleLogout = async () => {
-    try { await axios.post(`${API_URL}/api/users/logout`, {}, { withCredentials: true }); } catch (_) {}
+    try {
+      if (isAdmin) await axios.post(`${API_URL}/api/auth/logout`, {}, { withCredentials: true });
+      else await axios.post(`${API_URL}/api/users/logout`, {}, { withCredentials: true });
+    } catch (_) {}
     localStorage.removeItem('sm_user');
     setAuthed(false); setUser(null); setIsAdmin(false);
     showToast('Logged out successfully.');
