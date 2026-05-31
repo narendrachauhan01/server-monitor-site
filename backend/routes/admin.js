@@ -53,6 +53,7 @@ router.post('/support-tickets/:id/reply',   auth, adminOnly, upload.array('image
     t.replies.push({ from: 'admin', message: req.body.message, images });
     if (t.status === 'open') t.status = 'in_progress';
     t.adminUnread = false; // admin replied = seen
+    t.userUnread  = true;  // notify user of new reply
     await t.save();
     res.json(t);
 });

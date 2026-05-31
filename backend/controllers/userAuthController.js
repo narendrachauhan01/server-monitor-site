@@ -301,6 +301,18 @@ exports.myTickets = async (req, res) => {
     } catch (e) { res.status(500).json({ error: e.message }); }
 };
 
+// POST /api/users/support/:id/mark-read
+exports.markTicketRead = async (req, res) => {
+    try {
+        const SupportTicket = require('../models/SupportTicket');
+        await SupportTicket.findOneAndUpdate(
+            { _id: req.params.id, $or: [{ userId: req.userId }, { email: req.user?.email }] },
+            { userUnread: false }
+        );
+        res.json({ ok: true });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+};
+
 // POST /api/users/support/:id/reply
 exports.replyTicket = async (req, res) => {
     try {
@@ -312,7 +324,8 @@ exports.replyTicket = async (req, res) => {
         if (!t) return res.status(404).json({ error: 'Ticket not found' });
         const images = (req.files||[]).map(f => `/uploads/support/${f.filename}`);
         t.replies.push({ from: 'user', message: req.body.message, images });
-        t.adminUnread = true; // notify admin
+        t.adminUnread = true;  // notify admin
+        t.userUnread  = false; // user replied = they saw it
         await t.save();
         res.json(t);
     } catch (e) { res.status(500).json({ error: e.message }); }

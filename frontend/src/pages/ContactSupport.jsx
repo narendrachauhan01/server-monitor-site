@@ -86,16 +86,31 @@ export default function ContactSupport({ user }) {
     const [replyFiles,setReplyFiles]= useState([]);
     const [error,     setError]     = useState('');
 
-    const load = async () => {
-        setLoading(true);
+    const [notif,      setNotif]      = useState(null);
+    const prevUnread = React.useRef([]);
+
+    const load = async (silent=false) => {
+        if (!silent) setLoading(true);
         try {
             const r = await axios.get(`${API_URL}/api/users/support/my-tickets`, { withCredentials: true });
-            setTickets(r.data);
+            const fresh = r.data;
+            // Detect newly unread tickets (admin replied)
+            const newUnread = fresh.filter(t => t.userUnread && !prevUnread.current.includes(t._id));
+            if (newUnread.length > 0) {
+                setNotif({ id: newUnread[0]._id, subject: newUnread[0].subject });
+                setTimeout(() => setNotif(null), 6000);
+            }
+            prevUnread.current = fresh.filter(t=>t.userUnread).map(t=>t._id);
+            setTickets(fresh);
         } catch {}
-        setLoading(false);
+        if (!silent) setLoading(false);
     };
 
-    useEffect(() => { load(); }, []);
+    useEffect(() => {
+        load();
+        const t = setInterval(() => load(true), 15000);
+        return () => clearInterval(t);
+    }, []);
 
     const submit = async (e) => {
         e.preventDefault();
@@ -331,6 +346,19 @@ export default function ContactSupport({ user }) {
     // ── Ticket list ──────────────────────────────────────────────────────────
     return (
         <div className="pg-wrap">
+            {/* New reply notification popup */}
+            {notif && (
+                <div onClick={()=>{ const t=tickets.find(x=>x._id===notif.id); if(t){ setSelected(t); setView('detail'); if(t.userUnread){ axios.post(`${API_URL}/api/users/support/${t._id}/mark-read`,{},{withCredentials:true}).catch(()=>{}); setTickets(p=>p.map(x=>x._id===t._id?{...x,userUnread:false}:x)); }} setNotif(null); }}
+                    style={{ position:'fixed', bottom:24, right:24, zIndex:9999, background:'#7c3aed', color:'#fff', borderRadius:16, padding:'16px 20px', boxShadow:'0 8px 32px rgba(124,58,237,0.4)', cursor:'pointer', maxWidth:320, display:'flex', gap:12, alignItems:'center' }}>
+                    <div style={{ fontSize:28 }}>🛡</div>
+                    <div>
+                        <div style={{ fontWeight:800, fontSize:14 }}>Support team replied!</div>
+                        <div style={{ fontSize:12, opacity:0.85, marginTop:2 }}>{notif.subject}</div>
+                        <div style={{ fontSize:11, opacity:0.7, marginTop:4 }}>Click to view reply →</div>
+                    </div>
+                    <button onClick={e=>{e.stopPropagation();setNotif(null);}} style={{ background:'rgba(255,255,255,0.2)', border:'none', borderRadius:'50%', width:22, height:22, color:'#fff', cursor:'pointer', fontSize:12, flexShrink:0 }}>✕</button>
+                </div>
+            )}
             {/* Header */}
             <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:20 }}>
                 <h1 style={{ margin:0, fontSize:22, fontWeight:800, color:'#1e1b4b' }}>Support tickets</h1>
@@ -373,15 +401,27 @@ export default function ContactSupport({ user }) {
                         <button onClick={()=>setView('new')} style={{ padding:'9px 22px', background:'#7c3aed', color:'#fff', border:'none', borderRadius:8, fontWeight:700, cursor:'pointer' }}>+ New ticket</button>
                     </div>
                 ) : displayed.map((t,i) => (
-                    <div key={t._id} onClick={()=>{ setSelected(t); setView('detail'); }}
-                        style={{ display:'grid', gridTemplateColumns:'80px 100px 1fr 120px 100px', padding:'14px 20px', borderBottom: i<displayed.length-1?'1px solid #f1f5f9':'none', cursor:'pointer', transition:'background 0.1s' }}
-                        onMouseEnter={e=>e.currentTarget.style.background='#f8fafc'}
-                        onMouseLeave={e=>e.currentTarget.style.background='#fff'}>
+                    <div key={t._id} onClick={()=>{
+                        setSelected(t); setView('detail');
+                        if (t.userUnread) {
+                            axios.post(`${API_URL}/api/users/support/${t._id}/mark-read`, {}, { withCredentials: true }).catch(()=>{});
+                            setTickets(p => p.map(x => x._id===t._id ? {...x, userUnread:false} : x));
+                        }
+                    }}
+                        style={{ display:'grid', gridTemplateColumns:'80px 100px 1fr 120px 100px', padding:'14px 20px', borderBottom: i<displayed.length-1?'1px solid #f1f5f9':'none', cursor:'pointer', transition:'background 0.1s', background: t.userUnread?'#faf5ff':'#fff' }}
+                        onMouseEnter={e=>e.currentTarget.style.background='#f5f3ff'}
+                        onMouseLeave={e=>e.currentTarget.style.background=t.userUnread?'#faf5ff':'#fff'}>
                         <div style={{ fontSize:13, color:'#94a3b8', fontFamily:'monospace' }}>#{t._id.slice(-6).toUpperCase()}</div>
                         <div style={{ fontSize:13, fontWeight:600, color: PRIO_COLOR[t.priority] }}>{PRIO_LABEL[t.priority]}</div>
                         <div>
-                            <div style={{ fontSize:14, color:'#1d4ed8', fontWeight:500 }}>{t.subject}</div>
-                            {t.replies?.length > 0 && <div style={{ fontSize:11, color:'#94a3b8', marginTop:2 }}>{t.replies.length} repl{t.replies.length===1?'y':'ies'}</div>}
+                            <div style={{ fontSize:14, color:'#1d4ed8', fontWeight: t.userUnread?800:500, display:'flex', alignItems:'center', gap:8 }}>
+                                {t.subject}
+                                {t.userUnread && <span style={{ width:8, height:8, borderRadius:'50%', background:'#7c3aed', display:'inline-block', flexShrink:0 }}/>}
+                            </div>
+                            {t.userUnread
+                                ? <div style={{ fontSize:11, color:'#7c3aed', fontWeight:700, marginTop:2 }}>🛡 Support team replied!</div>
+                                : t.replies?.length > 0 && <div style={{ fontSize:11, color:'#94a3b8', marginTop:2 }}>{t.replies.length} repl{t.replies.length===1?'y':'ies'}</div>
+                            }
                         </div>
                         <div style={{ fontSize:13, color:'#64748b' }}>{timeAgo(t.updatedAt||t.createdAt)}</div>
                         <div>

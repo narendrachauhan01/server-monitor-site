@@ -30,6 +30,7 @@ router.post('/logout',               ctrl.logout);
 router.post('/support',                           upload.array('images', 5), ctrl.contactSupport);
 router.get('/support/my-tickets',                 auth, ctrl.myTickets);
 router.post('/support/:id/reply',                 auth, upload.array('images', 5), ctrl.replyTicket);
+router.post('/support/:id/mark-read',             auth, ctrl.markTicketRead);
 router.post('/support/upload',                    auth, upload.array('images', 5), (req, res) => {
     const files = (req.files||[]).map(f => `/uploads/support/${f.filename}`);
     res.json({ urls: files });
