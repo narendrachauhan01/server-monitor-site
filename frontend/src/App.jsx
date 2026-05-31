@@ -81,7 +81,7 @@ function Sidebar({ onLogout, user, isAdmin, open, setOpen, onBell, unreadCount }
 
   const links = isAdmin ? [
     { to: '/admin-profile',        label: 'My Profile',          icon: <IcoProfile /> },
-    { to: '/admin',                label: 'Admin Panel',         icon: <IcoAdmin /> },
+    { to: '/admin',                label: 'Payment Admin Panel', icon: <IcoAdmin /> },
     { to: '/plan-settings',        label: 'Plan Settings',       icon: <IcoSettings /> },
     { to: '/feature-access',       label: 'Feature Access',      icon: <IcoToggle /> },
     { to: '/server-resources',     label: 'Infra',               icon: <IcoServer /> },
