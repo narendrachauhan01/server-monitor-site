@@ -387,12 +387,29 @@ export default function AdminPanel({ initialTab = 'overview' }) {
     const refundedPayments = payments.filter(p => p.status === 'refunded');
     const totalRefunded    = refundedPayments.reduce((s, p) => s + (p.amount || 0), 0);
 
+    const [tickets, setTickets] = useState([]);
+    const loadTickets = async () => {
+        try { const r = await axios.get(`${API_URL}/api/admin/support-tickets`, { withCredentials: true }); setTickets(r.data); } catch {}
+    };
+    useEffect(() => { if (tab === 'support') loadTickets(); }, [tab]);
+
+    const updateTicket = async (id, data) => {
+        await axios.put(`${API_URL}/api/admin/support-tickets/${id}`, data, { withCredentials: true });
+        loadTickets();
+    };
+    const deleteTicket = async (id) => {
+        if (!window.confirm('Delete this ticket?')) return;
+        await axios.delete(`${API_URL}/api/admin/support-tickets/${id}`, { withCredentials: true });
+        loadTickets();
+    };
+
     const TABS = [
         { id: 'overview',      label: 'Overview' },
         { id: 'users',         label: `Users (${users.length})` },
         { id: 'payments',      label: `Payments (${payments.length})` },
         { id: 'transactions',  label: `Payments & Refund (${payments.length})` },
         { id: 'canceling',     label: `❌ Plan Canceling (${refundedPayments.length})` },
+        { id: 'support',       label: `🎧 Support Tickets` },
     ];
 
     // Filtered payments for the payments tab
@@ -1133,6 +1150,69 @@ export default function AdminPanel({ initialTab = 'overview' }) {
                             </div>
                         )}
                     </div>
+                </div>
+            )}
+
+            {/* ══════════════════════════════════════
+                SUPPORT TICKETS TAB
+            ══════════════════════════════════════ */}
+            {tab === 'support' && (
+                <div>
+                    <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20 }}>
+                        <div>
+                            <div style={{ fontWeight:800, fontSize:16, color:'#1e1b4b' }}>Support Tickets</div>
+                            <div style={{ fontSize:13, color:'#64748b' }}>Messages from users via Contact Support page</div>
+                        </div>
+                        <button onClick={loadTickets} style={{ padding:'8px 16px', background:'#f1f5f9', border:'1.5px solid #e2e8f0', borderRadius:9, fontSize:13, fontWeight:600, cursor:'pointer' }}>🔄 Refresh</button>
+                    </div>
+
+                    {tickets.length === 0 ? (
+                        <div style={{ background:'#fff', borderRadius:16, border:'1.5px solid #e2e8f0', padding:60, textAlign:'center' }}>
+                            <div style={{ fontSize:48, marginBottom:12 }}>🎧</div>
+                            <div style={{ fontWeight:700, color:'#1e1b4b', fontSize:16 }}>No support tickets yet</div>
+                            <div style={{ fontSize:13, color:'#94a3b8', marginTop:6 }}>Tickets from users will appear here</div>
+                        </div>
+                    ) : tickets.map(t => (
+                        <div key={t._id} style={{ background:'#fff', borderRadius:16, border:`1.5px solid ${t.status==='open'?'#bfdbfe':t.status==='replied'?'#bbf7d0':'#e2e8f0'}`, padding:22, marginBottom:12, borderLeft:`4px solid ${t.status==='open'?'#3b82f6':t.status==='replied'?'#16a34a':'#94a3b8'}` }}>
+                            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:12 }}>
+                                <div style={{ flex:1 }}>
+                                    <div style={{ display:'flex', gap:10, alignItems:'center', marginBottom:6 }}>
+                                        <span style={{ fontWeight:800, fontSize:15, color:'#1e1b4b' }}>{t.subject}</span>
+                                        <span style={{ padding:'2px 10px', borderRadius:20, fontSize:11, fontWeight:700,
+                                            background: t.status==='open'?'#eff6ff':t.status==='replied'?'#f0fdf4':'#f1f5f9',
+                                            color: t.status==='open'?'#1d4ed8':t.status==='replied'?'#15803d':'#64748b' }}>
+                                            {t.status==='open'?'🔵 Open':t.status==='replied'?'✅ Replied':'✓ Closed'}
+                                        </span>
+                                    </div>
+                                    <div style={{ fontSize:13, color:'#64748b', marginBottom:4 }}>
+                                        <strong>{t.name}</strong> · <a href={`mailto:${t.email}`} style={{ color:'#7c3aed' }}>{t.email}</a> · {new Date(t.createdAt).toLocaleString('en-IN', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })}
+                                    </div>
+                                    <div style={{ fontSize:13, color:'#374151', background:'#f8fafc', borderRadius:8, padding:'10px 14px', marginTop:8, lineHeight:1.7, whiteSpace:'pre-wrap' }}>{t.message}</div>
+
+                                    {t.adminReply && (
+                                        <div style={{ marginTop:10, background:'#f0fdf4', border:'1px solid #bbf7d0', borderRadius:8, padding:'10px 14px' }}>
+                                            <div style={{ fontSize:11, fontWeight:700, color:'#16a34a', marginBottom:4 }}>YOUR REPLY</div>
+                                            <div style={{ fontSize:13, color:'#15803d', lineHeight:1.7 }}>{t.adminReply}</div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div style={{ display:'flex', gap:6, flexShrink:0 }}>
+                                    <select value={t.status} onChange={e=>updateTicket(t._id,{status:e.target.value})}
+                                        style={{ padding:'5px 10px', border:'1.5px solid #e2e8f0', borderRadius:8, fontSize:12, fontWeight:600, cursor:'pointer', background:'#fff' }}>
+                                        <option value="open">Open</option>
+                                        <option value="replied">Replied</option>
+                                        <option value="closed">Closed</option>
+                                    </select>
+                                    <a href={`mailto:${t.email}?subject=Re: ${encodeURIComponent(t.subject)}`}
+                                        style={{ padding:'5px 12px', background:'#7c3aed', color:'#fff', borderRadius:8, fontSize:12, fontWeight:700, textDecoration:'none', display:'flex', alignItems:'center', gap:4 }}>
+                                        ✉️ Reply
+                                    </a>
+                                    <button onClick={()=>deleteTicket(t._id)} style={{ padding:'5px 10px', background:'#fef2f2', border:'1px solid #fecdd3', borderRadius:8, color:'#dc2626', fontSize:12, cursor:'pointer' }}>🗑</button>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
                 </div>
             )}
 
