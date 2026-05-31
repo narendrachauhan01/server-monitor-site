@@ -6,7 +6,7 @@ const path   = require('path');
 const upload = multer({
     storage: multer.diskStorage({
         destination: (req, file, cb) => cb(null, path.join(__dirname, '../uploads/support')),
-        filename:    (req, file, cb) => cb(null, `${Date.now()}-${file.originalname.replace(/\s/g,'_')}`),
+        filename:    (req, file, cb) => { const ext = file.originalname.split('.').pop(); cb(null, `${Date.now()}${Math.floor(Math.random()*1000)}.${ext}`); },
     }),
     limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
     fileFilter: (req, file, cb) => {
