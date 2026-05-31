@@ -1762,7 +1762,7 @@ export default function AdminPanel({ initialTab = 'overview' }) {
                                         ['6m','📅 6 Months','#10b981','#f0fdf4','#065f46'],
                                         ['annually','📆 Annual','#f59e0b','#fef3c7','#b45309'],
                                     ].map(([val, label, border, bg, color]) => (
-                                        <button key={val} onClick={() => setAssignForm(f => ({ ...f, billing: val === 'annually' ? 'annually' : 'monthly', planDuration: val === 'annually' ? '1y' : val }))}
+                                        <button key={val} onClick={() => setAssignForm(f => ({ ...f, billing: val === 'annually' ? 'annually' : 'monthly', planDuration: val === 'annually' ? '1y' : val === 'monthly' ? '1m' : val }))}
                                             style={{ flex:1, minWidth:80, padding:'9px 0', border:`2px solid ${assignForm.billing===(val==='annually'?'annually':'monthly') && assignForm.planDuration===(val==='annually'?'1y':val) ? border : T.border}`, borderRadius:8, fontWeight:700, fontSize:12, cursor:'pointer',
                                                 background: assignForm.billing===(val==='annually'?'annually':'monthly') && assignForm.planDuration===(val==='annually'?'1y':val) ? bg : '#fff',
                                                 color: assignForm.billing===(val==='annually'?'annually':'monthly') && assignForm.planDuration===(val==='annually'?'1y':val) ? color : T.sub }}>
