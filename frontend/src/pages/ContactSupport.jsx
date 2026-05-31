@@ -148,87 +148,110 @@ export default function ContactSupport({ user }) {
                     ← Back to tickets
                 </button>
             </div>
-            {/* Header */}
-            <div style={{ marginBottom:16 }}>
-                <h2 style={{ margin:'0 0 6px', fontSize:18, fontWeight:800, color:'#1e1b4b' }}>{selected.subject}</h2>
-                <div style={{ display:'flex', gap:8, alignItems:'center' }}>
-                    <span style={{ fontSize:12, color:'#94a3b8' }}>#{selected._id.slice(-6).toUpperCase()}</span>
-                    <span style={{ fontSize:12, fontWeight:700, color: PRIO_COLOR[selected.priority] }}>{PRIO_LABEL[selected.priority]}</span>
-                    <span style={{ padding:'2px 10px', borderRadius:20, fontSize:11, fontWeight:600, background:statusStyle(selected.status).bg, color:statusStyle(selected.status).color }}>{statusStyle(selected.status).label}</span>
-                </div>
-            </div>
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 220px', gap:20, alignItems:'start' }}>
+                {/* Chat window */}
+                <div style={{ background:'#fff', borderRadius:20, border:'1.5px solid #e2e8f0', overflow:'hidden', boxShadow:'0 4px 20px rgba(0,0,0,0.06)' }}>
 
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 240px', gap:20, alignItems:'start' }}>
-                {/* Chat area */}
-                <div>
+                    {/* Chat header */}
+                    <div style={{ background:'linear-gradient(135deg,#7c3aed,#6d28d9)', padding:'16px 20px', display:'flex', alignItems:'center', gap:12 }}>
+                        <div style={{ width:40, height:40, borderRadius:'50%', background:'rgba(255,255,255,0.2)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:18, flexShrink:0 }}>🎧</div>
+                        <div>
+                            <div style={{ fontWeight:800, color:'#fff', fontSize:15 }}>{selected.subject}</div>
+                            <div style={{ fontSize:12, color:'rgba(255,255,255,0.7)', display:'flex', gap:8, marginTop:2 }}>
+                                <span>#{selected._id.slice(-6).toUpperCase()}</span>
+                                <span>·</span>
+                                <span style={{ color: selected.status==='in_progress'?'#fde68a':selected.status==='resolved'?'#86efac':'rgba(255,255,255,0.7)' }}>
+                                    {statusStyle(selected.status).label}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
                     {/* Chat bubbles */}
-                    <div style={{ background:'#f1f5f9', borderRadius:16, padding:16, minHeight:300, display:'flex', flexDirection:'column', gap:12, marginBottom:12 }}>
+                    <div style={{ padding:'20px 16px', minHeight:350, maxHeight:480, overflowY:'auto', display:'flex', flexDirection:'column', gap:16, background:'#f8fafc' }}>
 
-                        {/* Original message — user (right) */}
-                        <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-end' }}>
-                            <div style={{ fontSize:11, color:'#94a3b8', marginBottom:3, marginRight:4 }}>
-                                {new Date(selected.createdAt).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',hour12:true})}
+                        {/* Original message — YOU (right) */}
+                        <div style={{ display:'flex', justifyContent:'flex-end', gap:8 }}>
+                            <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-end', maxWidth:'72%' }}>
+                                <div style={{ background:'#7c3aed', color:'#fff', borderRadius:'18px 18px 4px 18px', padding:'12px 16px', fontSize:14, lineHeight:1.6, whiteSpace:'pre-wrap', boxShadow:'0 4px 12px rgba(124,58,237,0.25)' }}>
+                                    {selected.message}
+                                </div>
+                                <ImagePreview urls={selected.images} />
+                                <span style={{ fontSize:11, color:'#94a3b8', marginTop:4 }}>
+                                    {new Date(selected.createdAt).toLocaleString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true})} · You
+                                </span>
                             </div>
-                            <div style={{ background:'#7c3aed', color:'#fff', borderRadius:'18px 18px 4px 18px', padding:'10px 16px', maxWidth:'75%', fontSize:14, lineHeight:1.6, whiteSpace:'pre-wrap', boxShadow:'0 2px 8px rgba(124,58,237,0.2)' }}>
-                                {selected.message}
+                            <div style={{ width:32, height:32, borderRadius:'50%', background:'#7c3aed', color:'#fff', display:'flex', alignItems:'center', justifyContent:'center', fontSize:13, fontWeight:800, flexShrink:0, alignSelf:'flex-end' }}>
+                                {(selected.name||'U')[0].toUpperCase()}
                             </div>
-                            <ImagePreview urls={selected.images} />
                         </div>
 
                         {/* Replies */}
                         {selected.replies?.map((r,i) => {
                             const isUser = r.from === 'user';
                             return (
-                                <div key={i} style={{ display:'flex', flexDirection:'column', alignItems: isUser?'flex-end':'flex-start' }}>
-                                    <div style={{ fontSize:11, color:'#94a3b8', marginBottom:3, [isUser?'marginRight':'marginLeft']:4 }}>
-                                        {isUser ? selected.name : '🛡 Support Team'} · {new Date(r.at).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',hour12:true})}
+                                <div key={i} style={{ display:'flex', justifyContent: isUser?'flex-end':'flex-start', gap:8 }}>
+                                    {!isUser && (
+                                        <div style={{ width:32, height:32, borderRadius:'50%', background:'#10b981', color:'#fff', display:'flex', alignItems:'center', justifyContent:'center', fontSize:13, flexShrink:0, alignSelf:'flex-end' }}>🛡</div>
+                                    )}
+                                    <div style={{ display:'flex', flexDirection:'column', alignItems: isUser?'flex-end':'flex-start', maxWidth:'72%' }}>
+                                        <div style={{ background: isUser?'#7c3aed':'#fff', color: isUser?'#fff':'#1e1b4b', borderRadius: isUser?'18px 18px 4px 18px':'18px 18px 18px 4px', padding:'12px 16px', fontSize:14, lineHeight:1.6, whiteSpace:'pre-wrap', boxShadow: isUser?'0 4px 12px rgba(124,58,237,0.25)':'0 2px 8px rgba(0,0,0,0.06)', border: isUser?'none':'1px solid #e2e8f0' }}>
+                                            {r.message}
+                                        </div>
+                                        <ImagePreview urls={r.images} />
+                                        <span style={{ fontSize:11, color:'#94a3b8', marginTop:4 }}>
+                                            {new Date(r.at).toLocaleString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true})} · {isUser?'You':'Support Team'}
+                                        </span>
                                     </div>
-                                    <div style={{ background: isUser?'#7c3aed':'#fff', color: isUser?'#fff':'#1e1b4b', borderRadius: isUser?'18px 18px 4px 18px':'18px 18px 18px 4px', padding:'10px 16px', maxWidth:'75%', fontSize:14, lineHeight:1.6, whiteSpace:'pre-wrap', boxShadow: isUser?'0 2px 8px rgba(124,58,237,0.2)':'0 2px 8px rgba(0,0,0,0.06)', border: isUser?'none':'1px solid #e2e8f0' }}>
-                                        {r.message}
-                                    </div>
-                                    <ImagePreview urls={r.images} />
+                                    {isUser && (
+                                        <div style={{ width:32, height:32, borderRadius:'50%', background:'#7c3aed', color:'#fff', display:'flex', alignItems:'center', justifyContent:'center', fontSize:13, fontWeight:800, flexShrink:0, alignSelf:'flex-end' }}>
+                                            {(selected.name||'U')[0].toUpperCase()}
+                                        </div>
+                                    )}
                                 </div>
                             );
                         })}
                     </div>
 
-                    {/* Reply input */}
+                    {/* Reply input bar */}
                     {selected.status !== 'closed' ? (
-                        <div style={{ background:'#fff', borderRadius:14, border:'1.5px solid #e2e8f0', padding:14 }}>
-                            <textarea value={reply} onChange={e=>setReply(e.target.value)} rows={3}
-                                placeholder="Write your reply..." style={{ width:'100%', padding:'8px 12px', border:'1.5px solid #e2e8f0', borderRadius:10, fontSize:14, outline:'none', resize:'none', boxSizing:'border-box', marginBottom:10, lineHeight:1.5 }} />
-                            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-                                <FileUploadBtn files={replyFiles} setFiles={setReplyFiles} />
+                        <div style={{ borderTop:'1.5px solid #e2e8f0', padding:'12px 16px', background:'#fff' }}>
+                            <div style={{ display:'flex', gap:10, alignItems:'flex-end' }}>
+                                <div style={{ flex:1 }}>
+                                    <textarea value={reply} onChange={e=>setReply(e.target.value)} rows={2}
+                                        placeholder="Type a message..." style={{ width:'100%', padding:'10px 14px', border:'1.5px solid #e2e8f0', borderRadius:12, fontSize:14, outline:'none', resize:'none', boxSizing:'border-box', lineHeight:1.5, background:'#f8fafc' }} />
+                                    <div style={{ marginTop:6 }}>
+                                        <FileUploadBtn files={replyFiles} setFiles={setReplyFiles} />
+                                    </div>
+                                </div>
                                 <button onClick={sendReply} disabled={sending||!reply.trim()}
-                                    style={{ padding:'9px 24px', background:'#7c3aed', color:'#fff', border:'none', borderRadius:10, fontWeight:700, cursor:'pointer', fontSize:14, opacity:(!reply.trim()||sending)?0.5:1 }}>
-                                    {sending?'⏳ Sending...':'Send →'}
+                                    style={{ padding:'12px 20px', background:'#7c3aed', color:'#fff', border:'none', borderRadius:12, fontWeight:700, cursor:'pointer', fontSize:14, opacity:(!reply.trim()||sending)?0.4:1, flexShrink:0, display:'flex', alignItems:'center', gap:6 }}>
+                                    {sending?'⏳':'➤'}
                                 </button>
                             </div>
                         </div>
                     ) : (
-                        <div style={{ textAlign:'center', padding:'14px', background:'#f8fafc', borderRadius:10, color:'#94a3b8', fontSize:13 }}>
-                            This ticket is closed. Open a new ticket if you need more help.
+                        <div style={{ textAlign:'center', padding:16, borderTop:'1px solid #e2e8f0', color:'#94a3b8', fontSize:13 }}>
+                            🔒 This ticket is closed
                         </div>
                     )}
                 </div>
 
-                {/* Sidebar info */}
-                <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
-                    <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:18 }}>
-                        <div style={{ fontSize:12, fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:0.5, marginBottom:12 }}>Ticket Info</div>
-                        {[
-                            ['Ticket ID', `#${selected._id.slice(-6).toUpperCase()}`],
-                            ['Status', statusStyle(selected.status).label],
-                            ['Priority', PRIO_LABEL[selected.priority]],
-                            ['Created', new Date(selected.createdAt).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})],
-                            ['Replies', selected.replies?.length || 0],
-                        ].map(([k,v]) => (
-                            <div key={k} style={{ display:'flex', justifyContent:'space-between', padding:'6px 0', borderBottom:'1px solid #f1f5f9', fontSize:13 }}>
-                                <span style={{ color:'#64748b' }}>{k}</span>
-                                <span style={{ fontWeight:600, color:'#1e1b4b' }}>{v}</span>
-                            </div>
-                        ))}
-                    </div>
+                {/* Sidebar */}
+                <div style={{ background:'#fff', border:'1.5px solid #e2e8f0', borderRadius:16, padding:20, boxShadow:'0 2px 8px rgba(0,0,0,0.04)' }}>
+                    <div style={{ fontSize:11, fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:0.8, marginBottom:14 }}>Ticket Info</div>
+                    {[
+                        ['Ticket ID', `#${selected._id.slice(-6).toUpperCase()}`],
+                        ['Status', statusStyle(selected.status).label],
+                        ['Priority', PRIO_LABEL[selected.priority]],
+                        ['Created', new Date(selected.createdAt).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})],
+                        ['Replies', selected.replies?.length || 0],
+                    ].map(([k,v]) => (
+                        <div key={k} style={{ display:'flex', justifyContent:'space-between', padding:'8px 0', borderBottom:'1px solid #f1f5f9', fontSize:13 }}>
+                            <span style={{ color:'#64748b' }}>{k}</span>
+                            <span style={{ fontWeight:700, color:'#1e1b4b' }}>{v}</span>
+                        </div>
+                    ))}
                 </div>
             </div>
         </div>
