@@ -2,11 +2,21 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { API_URL } from '../api';
 
+const TOPICS = [
+    { value:'Account blocked / refund issue', icon:'🔒', label:'Account blocked / refund issue' },
+    { value:'Payment issue',                  icon:'💳', label:'Payment issue' },
+    { value:'Plan upgrade help',              icon:'🚀', label:'Plan upgrade help' },
+    { value:'Technical issue',               icon:'⚙️', label:'Technical issue' },
+    { value:'Billing question',              icon:'🧾', label:'Billing question' },
+    { value:'Other',                         icon:'💬', label:'Other' },
+];
+
 export default function ContactSupport({ user }) {
     const [form,    setForm]    = useState({ name: user?.name||'', email: user?.email||'', subject: '', message: '' });
     const [sending, setSending] = useState(false);
     const [done,    setDone]    = useState(false);
     const [error,   setError]   = useState('');
+    const [topicOpen, setTopicOpen] = useState(false);
 
     const send = async (e) => {
         e.preventDefault();
@@ -66,18 +76,30 @@ export default function ContactSupport({ user }) {
                                     </div>
                                 </div>
 
-                                <div>
+                                <div style={{ position:'relative' }}>
                                     <label style={{ fontSize:12, fontWeight:700, color:'#374151', display:'block', marginBottom:6 }}>Topic *</label>
-                                    <select value={form.subject} onChange={e=>setForm({...form,subject:e.target.value})}
-                                        style={{ width:'100%', padding:'11px 14px', border:'1.5px solid #e2e8f0', borderRadius:10, fontSize:14, outline:'none', background:'#fff', color: form.subject?'#1e1b4b':'#9ca3af' }}>
-                                        <option value="">— Select a topic —</option>
-                                        <option value="Account blocked / refund issue">🔒 Account blocked / refund issue</option>
-                                        <option value="Payment issue">💳 Payment issue</option>
-                                        <option value="Plan upgrade help">🚀 Plan upgrade help</option>
-                                        <option value="Technical issue">⚙️ Technical issue</option>
-                                        <option value="Billing question">🧾 Billing question</option>
-                                        <option value="Other">💬 Other</option>
-                                    </select>
+                                    <div onClick={()=>setTopicOpen(o=>!o)}
+                                        style={{ width:'100%', padding:'11px 14px', border:`1.5px solid ${topicOpen?'#7c3aed':'#e2e8f0'}`, borderRadius:10, fontSize:14, background:'#fff', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'space-between', boxSizing:'border-box', userSelect:'none' }}>
+                                        {form.subject
+                                            ? <span style={{ color:'#1e1b4b', fontWeight:600 }}>{TOPICS.find(t=>t.value===form.subject)?.icon} {form.subject}</span>
+                                            : <span style={{ color:'#9ca3af' }}>— Select a topic —</span>
+                                        }
+                                        <span style={{ color:'#94a3b8', fontSize:12, transform:topicOpen?'rotate(180deg)':'none', transition:'transform 0.2s' }}>▼</span>
+                                    </div>
+                                    {topicOpen && (
+                                        <div style={{ position:'absolute', top:'100%', left:0, right:0, background:'#fff', border:'1.5px solid #e2e8f0', borderRadius:12, boxShadow:'0 8px 24px rgba(0,0,0,0.12)', zIndex:100, marginTop:4, overflow:'hidden' }}>
+                                            {TOPICS.map(t => (
+                                                <div key={t.value} onClick={()=>{ setForm({...form,subject:t.value}); setTopicOpen(false); }}
+                                                    style={{ padding:'11px 16px', cursor:'pointer', display:'flex', alignItems:'center', gap:10, fontSize:14, color:'#1e1b4b', fontWeight: form.subject===t.value?700:400, background: form.subject===t.value?'#f5f3ff':'#fff', borderBottom:'1px solid #f1f5f9', transition:'background 0.1s' }}
+                                                    onMouseEnter={e=>e.currentTarget.style.background='#f5f3ff'}
+                                                    onMouseLeave={e=>e.currentTarget.style.background=form.subject===t.value?'#f5f3ff':'#fff'}>
+                                                    <span style={{ fontSize:18 }}>{t.icon}</span>
+                                                    <span>{t.label}</span>
+                                                    {form.subject===t.value && <span style={{ marginLeft:'auto', color:'#7c3aed', fontWeight:800 }}>✓</span>}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div>
