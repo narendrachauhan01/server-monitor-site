@@ -148,57 +148,66 @@ export default function ContactSupport({ user }) {
                     ← Back to tickets
                 </button>
             </div>
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 280px', gap:24, alignItems:'start' }}>
-                {/* Thread */}
-                <div>
-                    <h2 style={{ margin:'0 0 4px', fontSize:20, fontWeight:800, color:'#1e1b4b' }}>{selected.subject}</h2>
-                    <div style={{ display:'flex', gap:8, marginBottom:20, alignItems:'center' }}>
-                        <span style={{ fontSize:13, color:'#94a3b8' }}>#{selected._id.slice(-6).toUpperCase()}</span>
-                        <span style={{ fontSize:13, fontWeight:700, color: PRIO_COLOR[selected.priority] }}>{PRIO_LABEL[selected.priority]}</span>
-                        <span style={{ padding:'2px 10px', borderRadius:4, fontSize:12, fontWeight:600, background:statusStyle(selected.status).bg, color:statusStyle(selected.status).color }}>
-                            {statusStyle(selected.status).label}
-                        </span>
-                    </div>
+            {/* Header */}
+            <div style={{ marginBottom:16 }}>
+                <h2 style={{ margin:'0 0 6px', fontSize:18, fontWeight:800, color:'#1e1b4b' }}>{selected.subject}</h2>
+                <div style={{ display:'flex', gap:8, alignItems:'center' }}>
+                    <span style={{ fontSize:12, color:'#94a3b8' }}>#{selected._id.slice(-6).toUpperCase()}</span>
+                    <span style={{ fontSize:12, fontWeight:700, color: PRIO_COLOR[selected.priority] }}>{PRIO_LABEL[selected.priority]}</span>
+                    <span style={{ padding:'2px 10px', borderRadius:20, fontSize:11, fontWeight:600, background:statusStyle(selected.status).bg, color:statusStyle(selected.status).color }}>{statusStyle(selected.status).label}</span>
+                </div>
+            </div>
 
-                    <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
-                        {/* Original */}
-                        <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, overflow:'hidden' }}>
-                            <div style={{ background:'#f8fafc', padding:'10px 16px', display:'flex', justifyContent:'space-between', borderBottom:'1px solid #e2e8f0' }}>
-                                <span style={{ fontWeight:700, fontSize:13, color:'#374151' }}>{selected.name}</span>
-                                <span style={{ fontSize:12, color:'#94a3b8' }}>{new Date(selected.createdAt).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</span>
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 240px', gap:20, alignItems:'start' }}>
+                {/* Chat area */}
+                <div>
+                    {/* Chat bubbles */}
+                    <div style={{ background:'#f1f5f9', borderRadius:16, padding:16, minHeight:300, display:'flex', flexDirection:'column', gap:12, marginBottom:12 }}>
+
+                        {/* Original message — user (right) */}
+                        <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-end' }}>
+                            <div style={{ fontSize:11, color:'#94a3b8', marginBottom:3, marginRight:4 }}>
+                                {new Date(selected.createdAt).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',hour12:true})}
                             </div>
-                            <div style={{ padding:'14px 16px', fontSize:14, color:'#374151', lineHeight:1.7, whiteSpace:'pre-wrap' }}>{selected.message}</div>
-                            <div style={{ padding:'0 16px 14px' }}><ImagePreview urls={selected.images} /></div>
+                            <div style={{ background:'#7c3aed', color:'#fff', borderRadius:'18px 18px 4px 18px', padding:'10px 16px', maxWidth:'75%', fontSize:14, lineHeight:1.6, whiteSpace:'pre-wrap', boxShadow:'0 2px 8px rgba(124,58,237,0.2)' }}>
+                                {selected.message}
+                            </div>
+                            <ImagePreview urls={selected.images} />
                         </div>
 
                         {/* Replies */}
-                        {selected.replies?.map((r,i) => (
-                            <div key={i} style={{ background:'#fff', border:`1px solid ${r.from==='admin'?'#bbf7d0':'#e2e8f0'}`, borderRadius:12, overflow:'hidden' }}>
-                                <div style={{ background: r.from==='admin'?'#f0fdf4':'#f8fafc', padding:'10px 16px', display:'flex', justifyContent:'space-between', borderBottom:`1px solid ${r.from==='admin'?'#bbf7d0':'#e2e8f0'}` }}>
-                                    <span style={{ fontWeight:700, fontSize:13, color: r.from==='admin'?'#15803d':'#374151' }}>
-                                        {r.from==='admin'?'🛡 Support Team':'👤 '+selected.name}
-                                    </span>
-                                    <span style={{ fontSize:12, color:'#94a3b8' }}>{new Date(r.at).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</span>
+                        {selected.replies?.map((r,i) => {
+                            const isUser = r.from === 'user';
+                            return (
+                                <div key={i} style={{ display:'flex', flexDirection:'column', alignItems: isUser?'flex-end':'flex-start' }}>
+                                    <div style={{ fontSize:11, color:'#94a3b8', marginBottom:3, [isUser?'marginRight':'marginLeft']:4 }}>
+                                        {isUser ? selected.name : '🛡 Support Team'} · {new Date(r.at).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',hour12:true})}
+                                    </div>
+                                    <div style={{ background: isUser?'#7c3aed':'#fff', color: isUser?'#fff':'#1e1b4b', borderRadius: isUser?'18px 18px 4px 18px':'18px 18px 18px 4px', padding:'10px 16px', maxWidth:'75%', fontSize:14, lineHeight:1.6, whiteSpace:'pre-wrap', boxShadow: isUser?'0 2px 8px rgba(124,58,237,0.2)':'0 2px 8px rgba(0,0,0,0.06)', border: isUser?'none':'1px solid #e2e8f0' }}>
+                                        {r.message}
+                                    </div>
+                                    <ImagePreview urls={r.images} />
                                 </div>
-                                <div style={{ padding:'14px 16px', fontSize:14, color:'#374151', lineHeight:1.7, whiteSpace:'pre-wrap' }}>{r.message}</div>
-                                <div style={{ padding:'0 16px 14px' }}><ImagePreview urls={r.images} /></div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
 
-                    {/* Reply box */}
-                    {selected.status !== 'closed' && (
-                        <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:20, marginTop:16 }}>
-                            <div style={{ fontWeight:700, fontSize:13, color:'#374151', marginBottom:10 }}>Add Reply</div>
-                            <textarea value={reply} onChange={e=>setReply(e.target.value)} rows={4}
-                                placeholder="Write your reply..." style={{ width:'100%', padding:'10px 14px', border:'1.5px solid #e2e8f0', borderRadius:8, fontSize:14, outline:'none', resize:'vertical', boxSizing:'border-box', marginBottom:10 }} />
-                            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-end' }}>
+                    {/* Reply input */}
+                    {selected.status !== 'closed' ? (
+                        <div style={{ background:'#fff', borderRadius:14, border:'1.5px solid #e2e8f0', padding:14 }}>
+                            <textarea value={reply} onChange={e=>setReply(e.target.value)} rows={3}
+                                placeholder="Write your reply..." style={{ width:'100%', padding:'8px 12px', border:'1.5px solid #e2e8f0', borderRadius:10, fontSize:14, outline:'none', resize:'none', boxSizing:'border-box', marginBottom:10, lineHeight:1.5 }} />
+                            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                                 <FileUploadBtn files={replyFiles} setFiles={setReplyFiles} />
                                 <button onClick={sendReply} disabled={sending||!reply.trim()}
-                                    style={{ padding:'9px 22px', background:'#7c3aed', color:'#fff', border:'none', borderRadius:8, fontWeight:700, cursor:'pointer', opacity:(!reply.trim()||sending)?0.5:1 }}>
-                                    {sending?'Sending...':'Submit'}
+                                    style={{ padding:'9px 24px', background:'#7c3aed', color:'#fff', border:'none', borderRadius:10, fontWeight:700, cursor:'pointer', fontSize:14, opacity:(!reply.trim()||sending)?0.5:1 }}>
+                                    {sending?'⏳ Sending...':'Send →'}
                                 </button>
                             </div>
+                        </div>
+                    ) : (
+                        <div style={{ textAlign:'center', padding:'14px', background:'#f8fafc', borderRadius:10, color:'#94a3b8', fontSize:13 }}>
+                            This ticket is closed. Open a new ticket if you need more help.
                         </div>
                     )}
                 </div>
