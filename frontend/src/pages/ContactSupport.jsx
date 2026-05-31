@@ -1,187 +1,241 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { API_URL } from '../api';
 
 const TOPICS = [
-    { value:'Account blocked / refund issue', icon:'🔒', label:'Account blocked / refund issue' },
-    { value:'Payment issue',                  icon:'💳', label:'Payment issue' },
-    { value:'Plan upgrade help',              icon:'🚀', label:'Plan upgrade help' },
-    { value:'Technical issue',               icon:'⚙️', label:'Technical issue' },
-    { value:'Billing question',              icon:'🧾', label:'Billing question' },
-    { value:'Other',                         icon:'💬', label:'Other' },
+    { value:'Account blocked / refund issue', icon:'🔒' },
+    { value:'Payment issue',                  icon:'💳' },
+    { value:'Plan upgrade help',              icon:'🚀' },
+    { value:'Technical issue',               icon:'⚙️' },
+    { value:'Billing question',              icon:'🧾' },
+    { value:'Other',                         icon:'💬' },
 ];
 
-export default function ContactSupport({ user }) {
-    const [form,    setForm]    = useState({ name: user?.name||'', email: user?.email||'', subject: '', message: '', priority: 'medium' });
-    const [sending, setSending] = useState(false);
-    const [done,    setDone]    = useState(false);
-    const [error,   setError]   = useState('');
-    const [topicOpen, setTopicOpen] = useState(false);
+const prioColor = p => p==='high'?'#ef4444':p==='medium'?'#f59e0b':'#22c55e';
+const prioBg    = p => p==='high'?'#fef2f2':p==='medium'?'#fffbeb':'#f0fdf4';
+const prioLabel = p => p==='high'?'🔴 High':p==='medium'?'🟡 Medium':'🟢 Low';
+const statusColor = s => s==='open'?'#3b82f6':s==='in_progress'?'#f59e0b':s==='resolved'?'#16a34a':'#94a3b8';
+const statusLabel = s => s==='open'?'Open':s==='in_progress'?'In Progress':s==='resolved'?'Resolved':'Closed';
 
-    const send = async (e) => {
+export default function ContactSupport({ user }) {
+    const [view,      setView]      = useState('list'); // 'list' | 'new' | 'detail'
+    const [tickets,   setTickets]   = useState([]);
+    const [selected,  setSelected]  = useState(null);
+    const [loading,   setLoading]   = useState(true);
+    const [reply,     setReply]     = useState('');
+    const [sending,   setSending]   = useState(false);
+    const [topicOpen, setTopicOpen] = useState(false);
+    const [form, setForm] = useState({ subject:'', message:'', priority:'medium' });
+    const [error, setError] = useState('');
+
+    const loadTickets = async () => {
+        setLoading(true);
+        try {
+            const r = await axios.get(`${API_URL}/api/users/support/my-tickets`, { withCredentials: true });
+            setTickets(r.data);
+        } catch {}
+        setLoading(false);
+    };
+
+    useEffect(() => { loadTickets(); }, []);
+
+    const submit = async (e) => {
         e.preventDefault();
-        if (!form.name || !form.email || !form.subject || !form.message) { setError('All fields required'); return; }
+        if (!form.subject || !form.message) { setError('All fields required'); return; }
         setSending(true); setError('');
         try {
-            await axios.post(`${API_URL}/api/users/support`, form, { withCredentials: true });
-            setDone(true);
-        } catch (err) {
-            const msg = err.response?.data?.error || err.message || 'Failed to send';
-            setError(msg + ' — Please email us directly at chauhan.narendrasingh.01@gmail.com');
-            console.error('Support send error:', err);
-        }
+            await axios.post(`${API_URL}/api/users/support`, {
+                name: user?.name || 'User',
+                email: user?.email || '',
+                subject: form.subject,
+                message: form.message,
+                priority: form.priority,
+            }, { withCredentials: true });
+            setForm({ subject:'', message:'', priority:'medium' });
+            setView('list');
+            loadTickets();
+        } catch (err) { setError(err.response?.data?.error || 'Failed to submit'); }
         setSending(false);
     };
 
-    return (
+    const sendReply = async () => {
+        if (!reply.trim()) return;
+        setSending(true);
+        try {
+            const r = await axios.post(`${API_URL}/api/users/support/${selected._id}/reply`, { message: reply }, { withCredentials: true });
+            setSelected(r.data);
+            setReply('');
+            loadTickets();
+        } catch {}
+        setSending(false);
+    };
+
+    const openDetail = (t) => { setSelected(t); setView('detail'); };
+
+    // ── List view ─────────────────────────────────────────────────────────────
+    if (view === 'list') return (
         <div className="pg-wrap">
-            {/* Header */}
             <div className="pg-header">
                 <div>
-                    <h1 className="pg-title">Contact Support <span style={{color:'#7c3aed'}}>.</span></h1>
-                    <p className="pg-sub">We typically respond within 24 hours</p>
+                    <h1 className="pg-title">Support <span style={{color:'#7c3aed'}}>.</span></h1>
+                    <p className="pg-sub">Raise a ticket — our team will respond shortly</p>
+                </div>
+                <button onClick={()=>setView('new')} style={{ padding:'10px 22px', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', border:'none', borderRadius:10, fontSize:14, fontWeight:700, cursor:'pointer' }}>
+                    + New Ticket
+                </button>
+            </div>
+
+            {loading ? (
+                <div style={{ padding:40, textAlign:'center', color:'#94a3b8' }}>Loading...</div>
+            ) : tickets.length === 0 ? (
+                <div style={{ background:'#fff', borderRadius:20, border:'1.5px solid #e2e8f0', padding:60, textAlign:'center' }}>
+                    <div style={{ fontSize:56, marginBottom:16 }}>🎧</div>
+                    <div style={{ fontWeight:800, fontSize:18, color:'#1e1b4b', marginBottom:8 }}>No tickets yet</div>
+                    <div style={{ fontSize:14, color:'#94a3b8', marginBottom:24 }}>Need help? Raise a support ticket and our team will assist you.</div>
+                    <button onClick={()=>setView('new')} style={{ padding:'11px 28px', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', border:'none', borderRadius:10, fontWeight:700, cursor:'pointer' }}>
+                        + Raise a Ticket
+                    </button>
+                </div>
+            ) : (
+                <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+                    {tickets.map(t => (
+                        <div key={t._id} onClick={()=>openDetail(t)} style={{ background:'#fff', borderRadius:14, border:'1.5px solid #e2e8f0', padding:'16px 20px', cursor:'pointer', borderLeft:`4px solid ${prioColor(t.priority)}`, display:'flex', alignItems:'center', gap:16, transition:'box-shadow 0.15s' }}
+                            onMouseEnter={e=>e.currentTarget.style.boxShadow='0 4px 16px rgba(0,0,0,0.08)'}
+                            onMouseLeave={e=>e.currentTarget.style.boxShadow='none'}>
+                            <div style={{ flex:1 }}>
+                                <div style={{ fontWeight:700, fontSize:15, color:'#1e1b4b', marginBottom:4 }}>{t.subject}</div>
+                                <div style={{ fontSize:12, color:'#94a3b8' }}>
+                                    {new Date(t.createdAt).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })}
+                                    {t.replies?.length > 0 && <span style={{ marginLeft:8 }}>· {t.replies.length} repl{t.replies.length===1?'y':'ies'}</span>}
+                                </div>
+                            </div>
+                            <div style={{ display:'flex', gap:8, alignItems:'center' }}>
+                                <span style={{ padding:'3px 10px', borderRadius:20, fontSize:11, fontWeight:700, background:prioBg(t.priority), color:prioColor(t.priority) }}>{prioLabel(t.priority)}</span>
+                                <span style={{ padding:'3px 10px', borderRadius:20, fontSize:11, fontWeight:700, background:`${statusColor(t.status)}15`, color:statusColor(t.status) }}>{statusLabel(t.status)}</span>
+                                <span style={{ color:'#94a3b8' }}>→</span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+
+    // ── New ticket form ────────────────────────────────────────────────────────
+    if (view === 'new') return (
+        <div className="pg-wrap">
+            <div className="pg-header">
+                <div>
+                    <button onClick={()=>setView('list')} style={{ background:'none', border:'none', color:'#7c3aed', fontWeight:700, cursor:'pointer', fontSize:14 }}>← Back</button>
+                    <h1 className="pg-title" style={{ marginTop:8 }}>New Ticket <span style={{color:'#7c3aed'}}>.</span></h1>
+                </div>
+            </div>
+            <div style={{ background:'#fff', borderRadius:20, border:'1.5px solid #e2e8f0', padding:32, maxWidth:600 }}>
+                <form onSubmit={submit} style={{ display:'flex', flexDirection:'column', gap:16 }}>
+                    {/* Topic */}
+                    <div style={{ position:'relative' }}>
+                        <label style={{ fontSize:12, fontWeight:700, color:'#374151', display:'block', marginBottom:6 }}>Topic *</label>
+                        <div onClick={()=>setTopicOpen(o=>!o)} style={{ padding:'11px 14px', border:`1.5px solid ${topicOpen?'#7c3aed':'#e2e8f0'}`, borderRadius:10, cursor:'pointer', display:'flex', justifyContent:'space-between', alignItems:'center', background:'#fff' }}>
+                            {form.subject ? <span style={{ fontWeight:600, color:'#1e1b4b' }}>{TOPICS.find(t=>t.value===form.subject)?.icon} {form.subject}</span> : <span style={{ color:'#9ca3af' }}>— Select topic —</span>}
+                            <span style={{ color:'#94a3b8', transform:topicOpen?'rotate(180deg)':'none', transition:'transform 0.2s' }}>▼</span>
+                        </div>
+                        {topicOpen && (
+                            <div style={{ position:'absolute', top:'100%', left:0, right:0, background:'#fff', border:'1.5px solid #e2e8f0', borderRadius:12, boxShadow:'0 8px 24px rgba(0,0,0,0.12)', zIndex:100, marginTop:4, overflow:'hidden' }}>
+                                {TOPICS.map(t => (
+                                    <div key={t.value} onClick={()=>{ setForm({...form,subject:t.value}); setTopicOpen(false); }}
+                                        style={{ padding:'11px 16px', cursor:'pointer', display:'flex', gap:10, fontSize:14, color:'#1e1b4b', fontWeight:form.subject===t.value?700:400, background:form.subject===t.value?'#f5f3ff':'#fff', borderBottom:'1px solid #f1f5f9' }}>
+                                        <span>{t.icon}</span><span>{t.value}</span>
+                                        {form.subject===t.value && <span style={{ marginLeft:'auto', color:'#7c3aed' }}>✓</span>}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Priority */}
+                    <div>
+                        <label style={{ fontSize:12, fontWeight:700, color:'#374151', display:'block', marginBottom:8 }}>Priority *</label>
+                        <div style={{ display:'flex', gap:8 }}>
+                            {[{v:'low',l:'🟢 Low',c:'#16a34a'},{v:'medium',l:'🟡 Medium',c:'#f59e0b'},{v:'high',l:'🔴 High',c:'#ef4444'}].map(p => (
+                                <button key={p.v} type="button" onClick={()=>setForm({...form,priority:p.v})}
+                                    style={{ flex:1, padding:'10px', border:`2px solid ${form.priority===p.v?p.c:'#e2e8f0'}`, borderRadius:10, fontSize:13, fontWeight:700, cursor:'pointer', background:form.priority===p.v?p.c:'#fff', color:form.priority===p.v?'#fff':p.c, transition:'all 0.15s' }}>
+                                    {p.l}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Message */}
+                    <div>
+                        <label style={{ fontSize:12, fontWeight:700, color:'#374151', display:'block', marginBottom:6 }}>Message *</label>
+                        <textarea value={form.message} onChange={e=>setForm({...form,message:e.target.value})} rows={6}
+                            placeholder="Describe your issue in detail..." style={{ width:'100%', padding:'11px 14px', border:'1.5px solid #e2e8f0', borderRadius:10, fontSize:14, outline:'none', resize:'vertical', boxSizing:'border-box', lineHeight:1.6 }} />
+                    </div>
+
+                    {error && <div style={{ background:'#fef2f2', border:'1px solid #fecdd3', color:'#dc2626', borderRadius:8, padding:'10px 14px', fontSize:13, fontWeight:600 }}>⚠️ {error}</div>}
+
+                    <button type="submit" disabled={sending} style={{ padding:'13px', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', border:'none', borderRadius:11, fontSize:15, fontWeight:700, cursor:'pointer', opacity:sending?0.7:1 }}>
+                        {sending ? '⏳ Submitting...' : '🎫 Submit Ticket'}
+                    </button>
+                </form>
+            </div>
+        </div>
+    );
+
+    // ── Ticket detail + thread ─────────────────────────────────────────────────
+    if (view === 'detail' && selected) return (
+        <div className="pg-wrap">
+            <div className="pg-header">
+                <div>
+                    <button onClick={()=>setView('list')} style={{ background:'none', border:'none', color:'#7c3aed', fontWeight:700, cursor:'pointer', fontSize:14 }}>← My Tickets</button>
+                    <h1 className="pg-title" style={{ marginTop:8 }}>{selected.subject} <span style={{color:'#7c3aed'}}>.</span></h1>
+                    <div style={{ display:'flex', gap:8, marginTop:6 }}>
+                        <span style={{ padding:'3px 10px', borderRadius:20, fontSize:11, fontWeight:700, background:prioBg(selected.priority), color:prioColor(selected.priority) }}>{prioLabel(selected.priority)}</span>
+                        <span style={{ padding:'3px 10px', borderRadius:20, fontSize:11, fontWeight:700, background:`${statusColor(selected.status)}15`, color:statusColor(selected.status) }}>{statusLabel(selected.status)}</span>
+                    </div>
                 </div>
             </div>
 
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 340px', gap:24, alignItems:'start' }}>
+            <div style={{ maxWidth:700 }}>
+                {/* Thread */}
+                <div style={{ display:'flex', flexDirection:'column', gap:12, marginBottom:20 }}>
+                    {/* Original message */}
+                    <div style={{ background:'#f5f3ff', borderRadius:14, padding:18, borderLeft:'4px solid #7c3aed' }}>
+                        <div style={{ fontSize:12, color:'#7c3aed', fontWeight:700, marginBottom:6 }}>YOU · {new Date(selected.createdAt).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</div>
+                        <div style={{ fontSize:14, color:'#1e1b4b', lineHeight:1.7, whiteSpace:'pre-wrap' }}>{selected.message}</div>
+                    </div>
 
-                {/* Left — Form */}
-                <div>
-                    {done ? (
-                        <div style={{ background:'#f0fdf4', border:'1.5px solid #bbf7d0', borderRadius:20, padding:48, textAlign:'center' }}>
-                            <div style={{ fontSize:56, marginBottom:16 }}>✅</div>
-                            <h2 style={{ color:'#16a34a', margin:'0 0 8px', fontSize:22 }}>Message Sent!</h2>
-                            <p style={{ color:'#15803d', fontSize:14, lineHeight:1.7 }}>
-                                We've received your message and will respond to<br/>
-                                <strong>{form.email}</strong> within 24 hours.
-                            </p>
-                            <button onClick={()=>{setDone(false); setForm(f=>({...f, subject:'', message:''}));}}
-                                style={{ marginTop:24, padding:'11px 28px', background:'#16a34a', color:'#fff', border:'none', borderRadius:10, fontWeight:700, cursor:'pointer', fontSize:14 }}>
-                                Send Another Message
-                            </button>
+                    {/* Replies */}
+                    {selected.replies?.map((r, i) => (
+                        <div key={i} style={{ background: r.from==='admin'?'#f0fdf4':'#f5f3ff', borderRadius:14, padding:18, borderLeft:`4px solid ${r.from==='admin'?'#16a34a':'#7c3aed'}`, alignSelf: r.from==='admin'?'flex-start':'flex-end', maxWidth:'90%' }}>
+                            <div style={{ fontSize:12, color: r.from==='admin'?'#16a34a':'#7c3aed', fontWeight:700, marginBottom:6 }}>
+                                {r.from==='admin'?'🛡 SUPPORT TEAM':'YOU'} · {new Date(r.at).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}
+                            </div>
+                            <div style={{ fontSize:14, color:'#1e1b4b', lineHeight:1.7, whiteSpace:'pre-wrap' }}>{r.message}</div>
                         </div>
-                    ) : (
-                        <div style={{ background:'#fff', borderRadius:20, border:'1.5px solid #e2e8f0', padding:32, boxShadow:'0 4px 20px rgba(0,0,0,0.05)' }}>
-                            <h2 style={{ margin:'0 0 24px', fontSize:17, fontWeight:800, color:'#1e1b4b' }}>Send us a message</h2>
+                    ))}
 
-                            <form onSubmit={send} style={{ display:'flex', flexDirection:'column', gap:16 }}>
-                                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
-                                    <div>
-                                        <label style={{ fontSize:12, fontWeight:700, color:'#374151', display:'block', marginBottom:6 }}>Your Name *</label>
-                                        <input value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="Narendra Singh"
-                                            style={{ width:'100%', padding:'11px 14px', border:'1.5px solid #e2e8f0', borderRadius:10, fontSize:14, outline:'none', boxSizing:'border-box', color:'#1e1b4b' }} />
-                                    </div>
-                                    <div>
-                                        <label style={{ fontSize:12, fontWeight:700, color:'#374151', display:'block', marginBottom:6 }}>Email Address *</label>
-                                        <input value={form.email} onChange={e=>setForm({...form,email:e.target.value})} placeholder="you@example.com" type="email"
-                                            style={{ width:'100%', padding:'11px 14px', border:'1.5px solid #e2e8f0', borderRadius:10, fontSize:14, outline:'none', boxSizing:'border-box', color:'#1e1b4b' }} />
-                                    </div>
-                                </div>
-
-                                <div style={{ position:'relative' }}>
-                                    <label style={{ fontSize:12, fontWeight:700, color:'#374151', display:'block', marginBottom:6 }}>Topic *</label>
-                                    <div onClick={()=>setTopicOpen(o=>!o)}
-                                        style={{ width:'100%', padding:'11px 14px', border:`1.5px solid ${topicOpen?'#7c3aed':'#e2e8f0'}`, borderRadius:10, fontSize:14, background:'#fff', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'space-between', boxSizing:'border-box', userSelect:'none' }}>
-                                        {form.subject
-                                            ? <span style={{ color:'#1e1b4b', fontWeight:600 }}>{TOPICS.find(t=>t.value===form.subject)?.icon} {form.subject}</span>
-                                            : <span style={{ color:'#9ca3af' }}>— Select a topic —</span>
-                                        }
-                                        <span style={{ color:'#94a3b8', fontSize:12, transform:topicOpen?'rotate(180deg)':'none', transition:'transform 0.2s' }}>▼</span>
-                                    </div>
-                                    {topicOpen && (
-                                        <div style={{ position:'absolute', top:'100%', left:0, right:0, background:'#fff', border:'1.5px solid #e2e8f0', borderRadius:12, boxShadow:'0 8px 24px rgba(0,0,0,0.12)', zIndex:100, marginTop:4, overflow:'hidden' }}>
-                                            {TOPICS.map(t => (
-                                                <div key={t.value} onClick={()=>{ setForm({...form,subject:t.value}); setTopicOpen(false); }}
-                                                    style={{ padding:'11px 16px', cursor:'pointer', display:'flex', alignItems:'center', gap:10, fontSize:14, color:'#1e1b4b', fontWeight: form.subject===t.value?700:400, background: form.subject===t.value?'#f5f3ff':'#fff', borderBottom:'1px solid #f1f5f9', transition:'background 0.1s' }}
-                                                    onMouseEnter={e=>e.currentTarget.style.background='#f5f3ff'}
-                                                    onMouseLeave={e=>e.currentTarget.style.background=form.subject===t.value?'#f5f3ff':'#fff'}>
-                                                    <span style={{ fontSize:18 }}>{t.icon}</span>
-                                                    <span>{t.label}</span>
-                                                    {form.subject===t.value && <span style={{ marginLeft:'auto', color:'#7c3aed', fontWeight:800 }}>✓</span>}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div>
-                                    <label style={{ fontSize:12, fontWeight:700, color:'#374151', display:'block', marginBottom:8 }}>Priority *</label>
-                                    <div style={{ display:'flex', gap:8 }}>
-                                        {[
-                                            { value:'low',    label:'🟢 Low',    border:'#86efac', color:'#15803d', activeBg:'#16a34a' },
-                                            { value:'medium', label:'🟡 Medium', border:'#fde68a', color:'#b45309', activeBg:'#f59e0b' },
-                                            { value:'high',   label:'🔴 High',   border:'#fca5a5', color:'#dc2626', activeBg:'#ef4444' },
-                                        ].map(p => (
-                                            <button key={p.value} type="button" onClick={()=>setForm({...form,priority:p.value})}
-                                                style={{ flex:1, padding:'10px 8px', border:`2px solid ${form.priority===p.value?p.activeBg:p.border}`, borderRadius:10, fontSize:13, fontWeight:700, cursor:'pointer', background: form.priority===p.value?p.activeBg:'#fff', color: form.priority===p.value?'#fff':p.color, transition:'all 0.15s' }}>
-                                                {p.label}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label style={{ fontSize:12, fontWeight:700, color:'#374151', display:'block', marginBottom:6 }}>Message *</label>
-                                    <textarea value={form.message} onChange={e=>setForm({...form,message:e.target.value})}
-                                        placeholder="Describe your issue in detail — the more you share, the faster we can help." rows={6}
-                                        style={{ width:'100%', padding:'11px 14px', border:'1.5px solid #e2e8f0', borderRadius:10, fontSize:14, outline:'none', resize:'vertical', boxSizing:'border-box', color:'#1e1b4b', lineHeight:1.6 }} />
-                                </div>
-
-                                {error && (
-                                    <div style={{ background:'#fef2f2', border:'1px solid #fecdd3', color:'#dc2626', borderRadius:10, padding:'11px 16px', fontSize:13, fontWeight:600, display:'flex', gap:8, alignItems:'center' }}>
-                                        ⚠️ {error}
-                                    </div>
-                                )}
-
-                                <button type="submit" disabled={sending}
-                                    style={{ padding:'13px', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', border:'none', borderRadius:11, fontSize:15, fontWeight:700, cursor:sending?'not-allowed':'pointer', opacity:sending?0.7:1, display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
-                                    {sending ? (<><span style={{animation:'spin 1s linear infinite',display:'inline-block'}}>⏳</span> Sending...</>) : '📨 Send Message'}
-                                </button>
-                            </form>
+                    {selected.status === 'open' && !selected.replies?.length && (
+                        <div style={{ textAlign:'center', padding:20, color:'#94a3b8', fontSize:13 }}>
+                            ⏳ Waiting for support team to respond...
                         </div>
                     )}
                 </div>
 
-                {/* Right — Info */}
-                <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
-                    {/* Contact info */}
-                    <div style={{ background:'#fff', borderRadius:16, border:'1.5px solid #e2e8f0', padding:22, boxShadow:'0 2px 8px rgba(0,0,0,0.04)' }}>
-                        <div style={{ fontWeight:800, fontSize:14, color:'#1e1b4b', marginBottom:16 }}>Get in touch</div>
-                        {[
-                            { icon:'📧', label:'Email', value:'chauhan.narendrasingh.01@gmail.com', href:'mailto:chauhan.narendrasingh.01@gmail.com', color:'#ea4335' },
-                            { icon:'⏱', label:'Response time', value:'Within 24 hours', href:null, color:'#7c3aed' },
-                            { icon:'🕐', label:'Support hours', value:'Mon–Sat, 9am–6pm IST', href:null, color:'#0369a1' },
-                        ].map(c => (
-                            <div key={c.label} style={{ display:'flex', gap:12, alignItems:'flex-start', marginBottom:14 }}>
-                                <div style={{ width:36, height:36, borderRadius:10, background:`${c.color}11`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:16, flexShrink:0 }}>{c.icon}</div>
-                                <div>
-                                    <div style={{ fontSize:11, color:'#94a3b8', fontWeight:600, textTransform:'uppercase', letterSpacing:0.5 }}>{c.label}</div>
-                                    {c.href
-                                        ? <a href={c.href} style={{ fontSize:13, color:c.color, fontWeight:600, wordBreak:'break-all', textDecoration:'none' }}>{c.value}</a>
-                                        : <div style={{ fontSize:13, color:'#374151', fontWeight:600 }}>{c.value}</div>
-                                    }
-                                </div>
-                            </div>
-                        ))}
+                {/* Reply box — only if not closed */}
+                {selected.status !== 'closed' && (
+                    <div style={{ background:'#fff', borderRadius:14, border:'1.5px solid #e2e8f0', padding:20 }}>
+                        <label style={{ fontSize:12, fontWeight:700, color:'#374151', display:'block', marginBottom:8 }}>Add Reply</label>
+                        <textarea value={reply} onChange={e=>setReply(e.target.value)} rows={4}
+                            placeholder="Write your reply..." style={{ width:'100%', padding:'11px 14px', border:'1.5px solid #e2e8f0', borderRadius:10, fontSize:14, outline:'none', resize:'vertical', boxSizing:'border-box', marginBottom:10 }} />
+                        <button onClick={sendReply} disabled={sending||!reply.trim()} style={{ padding:'10px 24px', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', border:'none', borderRadius:10, fontWeight:700, cursor:'pointer', opacity:(!reply.trim()||sending)?0.5:1 }}>
+                            {sending?'Sending...':'Send Reply'}
+                        </button>
                     </div>
-
-                    {/* Common topics */}
-                    <div style={{ background:'#f8fafc', borderRadius:16, border:'1.5px solid #e2e8f0', padding:22 }}>
-                        <div style={{ fontWeight:800, fontSize:14, color:'#1e1b4b', marginBottom:12 }}>Common topics</div>
-                        {[
-                            '🔒 Account blocked after refund',
-                            '💳 Payment not processed',
-                            '🚀 Upgrade plan',
-                            '⚙️ Monitoring not working',
-                            '📊 Alert not received',
-                        ].map(t => (
-                            <div key={t} style={{ fontSize:13, color:'#475569', padding:'7px 0', borderBottom:'1px solid #f1f5f9', display:'flex', alignItems:'center', gap:8 }}>
-                                <span>{t}</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
+                )}
             </div>
         </div>
     );
+
+    return null;
 }

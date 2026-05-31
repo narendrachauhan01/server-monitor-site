@@ -15,5 +15,7 @@ router.delete('/me',                 auth, ctrl.deleteMe);
 router.get('/me',                    auth, ctrl.getMe);
 router.post('/logout',               ctrl.logout);
 router.post('/support',              ctrl.contactSupport);
+router.get('/support/my-tickets',    auth, ctrl.myTickets);
+router.post('/support/:id/reply',    auth, ctrl.replyTicket);
 
 module.exports = router;

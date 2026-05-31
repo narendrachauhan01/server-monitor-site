@@ -272,34 +272,40 @@ exports.getMe = async (req, res) => {
     res.json({ ...userPayload(u), siteLimit: dynamicLimit });
 };
 
-// POST /api/users/support — save ticket + send email to admin
+// POST /api/users/support — create ticket
 exports.contactSupport = async (req, res) => {
     try {
         const { name, email, subject, message, priority } = req.body;
         if (!name || !email || !subject || !message) return res.status(400).json({ error: 'All fields required' });
-
-        // Save to DB first — so ticket is never lost even if email fails
         const SupportTicket = require('../models/SupportTicket');
-        const ticket = await SupportTicket.create({ name, email, subject, message, priority: priority || 'medium' });
+        const ticket = await SupportTicket.create({
+            userId: req.userId || null,
+            name, email, subject, message,
+            priority: priority || 'medium',
+        });
         console.log(`[Support] Ticket #${ticket._id} from ${email} — ${subject}`);
+        res.json({ success: true, ticketId: ticket._id });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+};
 
-        // Send email notification to admin (fire and forget)
-        const { sendEmail } = require('../services/email');
-        const adminEmail = process.env.ADMIN_EMAIL || 'chauhan.narendrasingh.01@gmail.com';
-        sendEmail(adminEmail, `[UptimeForge Support] ${subject}`,
-            `<div style="font-family:Inter,sans-serif;padding:24px;max-width:520px">
-                <h2 style="color:#7c3aed">New Support Ticket</h2>
-                <p style="color:#64748b;font-size:13px">Ticket ID: ${ticket._id}</p>
-                <table style="width:100%;border-collapse:collapse;font-size:14px">
-                    <tr><td style="padding:8px;font-weight:700;color:#64748b;width:100px">From</td><td style="padding:8px">${name} &lt;${email}&gt;</td></tr>
-                    <tr style="background:#f8fafc"><td style="padding:8px;font-weight:700;color:#64748b">Subject</td><td style="padding:8px">${subject}</td></tr>
-                    <tr><td style="padding:8px;font-weight:700;color:#64748b;vertical-align:top">Message</td><td style="padding:8px;white-space:pre-wrap">${message}</td></tr>
-                </table>
-                <p style="margin-top:16px;font-size:12px;color:#94a3b8">Reply directly to ${email} to respond.</p>
-            </div>`
-        ).catch(() => {});
+// GET /api/users/support/my-tickets
+exports.myTickets = async (req, res) => {
+    try {
+        const SupportTicket = require('../models/SupportTicket');
+        const tickets = await SupportTicket.find({ userId: req.userId }).sort('-createdAt');
+        res.json(tickets);
+    } catch (e) { res.status(500).json({ error: e.message }); }
+};
 
-        res.json({ success: true });
+// POST /api/users/support/:id/reply
+exports.replyTicket = async (req, res) => {
+    try {
+        const SupportTicket = require('../models/SupportTicket');
+        const t = await SupportTicket.findOne({ _id: req.params.id, userId: req.userId });
+        if (!t) return res.status(404).json({ error: 'Ticket not found' });
+        t.replies.push({ from: 'user', message: req.body.message });
+        await t.save();
+        res.json(t);
     } catch (e) { res.status(500).json({ error: e.message }); }
 };
 

@@ -19,18 +19,27 @@ router.put('/payments/:id/approve', auth, adminOnly, ctrl.approvePayment);
 router.put('/payments/:id/reject',  auth, adminOnly, ctrl.rejectPayment);
 router.post('/clear-cache',         auth, adminOnly, ctrl.clearCache);
 
-// Support tickets
-router.get('/support-tickets',           auth, adminOnly, async (req, res) => {
+// Support tickets — admin
+router.get('/support-tickets',              auth, adminOnly, async (req, res) => {
     const SupportTicket = require('../models/SupportTicket');
-    const tickets = await SupportTicket.find().sort('-createdAt');
-    res.json(tickets);
+    res.json(await SupportTicket.find().sort('-createdAt'));
 });
-router.put('/support-tickets/:id',       auth, adminOnly, async (req, res) => {
+router.put('/support-tickets/:id',          auth, adminOnly, async (req, res) => {
     const SupportTicket = require('../models/SupportTicket');
-    const t = await SupportTicket.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const { status, priority } = req.body;
+    const t = await SupportTicket.findByIdAndUpdate(req.params.id, { status, priority }, { new: true });
     res.json(t);
 });
-router.delete('/support-tickets/:id',    auth, adminOnly, async (req, res) => {
+router.post('/support-tickets/:id/reply',   auth, adminOnly, async (req, res) => {
+    const SupportTicket = require('../models/SupportTicket');
+    const t = await SupportTicket.findById(req.params.id);
+    if (!t) return res.status(404).json({ error: 'Not found' });
+    t.replies.push({ from: 'admin', message: req.body.message });
+    t.status = 'in_progress';
+    await t.save();
+    res.json(t);
+});
+router.delete('/support-tickets/:id',       auth, adminOnly, async (req, res) => {
     const SupportTicket = require('../models/SupportTicket');
     await SupportTicket.findByIdAndDelete(req.params.id);
     res.json({ success: true });
