@@ -86,6 +86,7 @@ function Sidebar({ onLogout, user, isAdmin, open, setOpen, onBell, unreadCount }
     { to: '/server-resources',     label: 'Infra',               icon: <IcoServer /> },
     { to: '/integration-backend', label: '🔗 Integration Backend', icon: <IcoMail /> },
     { to: '/redis-cache',         label: '🗑 Redis Cache',         icon: <IcoSettings /> },
+    { to: '/support-tickets',    label: '🎧 Support Tickets',    icon: <IcoSettings /> },
   ] : [
     { to: '/performance',  label: 'Performance',  icon: <IcoChart /> },
     { to: '/monitoring',   label: 'Monitoring',   icon: <IcoDash /> },
@@ -479,6 +480,7 @@ function AppInner() {
             {isAdmin && <Route path="/integration-backend" element={<IntegrationBackend />} />}
             {isAdmin && <Route path="/redis-cache" element={<RedisCache />} />}
             {isAdmin && <Route path="/plan-canceling" element={<PlanCanceling />} />}
+            {isAdmin && <Route path="/support-tickets" element={<AdminPanel initialTab="support" />} />}
             <Route path="/site/:id" element={<SiteDetail />} />
             <Route path="/add-monitor" element={<AddMonitor />} />
             <Route path="/integrations" element={<Integrations />} />
