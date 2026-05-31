@@ -50,7 +50,7 @@ body {
 .app-layout { display: flex; min-height: 100vh; }
 
 .sidebar {
-  width: 240px; height: 100vh;
+  width: 240px; height: 100vh; height: 100dvh;
   background: #1C2434;
   display: flex; flex-direction: column;
   position: fixed; left: 0; top: 0; bottom: 0;
@@ -5079,3 +5079,15 @@ tr:hover td { background: linear-gradient(135deg,#faf5ff,#f8fafc); }
 /* Performance charts labels */
 
 /* Domain SSL */
+
+/* Logout button mobile fix */
+@media (max-width: 1280px) {
+  .sb-footer {
+    padding-bottom: max(10px, env(safe-area-inset-bottom, 10px));
+    margin-bottom: 0;
+  }
+  .sb-logout {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+}
