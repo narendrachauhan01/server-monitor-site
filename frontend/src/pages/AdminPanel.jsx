@@ -343,7 +343,8 @@ export default function AdminPanel({ initialTab = 'overview' }) {
         const matchPlan = planFilter === 'all' || u.plan === planFilter;
         const matchDuration = durationFilter === 'all'
             || (durationFilter === 'free_trial' && u.plan === 'free_trial')
-            || (durationFilter !== 'free_trial' && u.planDuration === durationFilter);
+            || (durationFilter === '1y' && (u.planDuration === '1y' || u.billing === 'annually'))
+            || (durationFilter !== 'free_trial' && durationFilter !== '1y' && u.planDuration === durationFilter);
         return matchSearch && matchPlan && matchDuration;
     });
     const monthlyFiltered = filtered.filter(u => u.billing !== 'annually');
@@ -731,29 +732,25 @@ export default function AdminPanel({ initialTab = 'overview' }) {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
                     {/* Toolbar */}
-                    <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+                    <div style={{ display:'flex', gap:10, alignItems:'center', flexWrap:'wrap', background:'#fff', border:`1px solid ${T.border}`, borderRadius:10, padding:'10px 14px' }}>
                         {/* Search */}
-                        <div style={{
-                            flex: 1, minWidth: 220, display: 'flex', alignItems: 'center', gap: 10,
-                            background: '#fff', border: `1px solid ${T.border}`, borderRadius: 8,
-                            padding: '9px 12px',
-                        }}>
+                        <div style={{ flex:1, minWidth:200, display:'flex', alignItems:'center', gap:8 }}>
                             <SearchIcon />
-                            <input style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: 13, color: T.text, flex: 1, fontFamily: 'inherit' }}
+                            <input style={{ border:'none', outline:'none', background:'transparent', fontSize:13, color:T.text, flex:1, fontFamily:'inherit' }}
                                 placeholder="Search name, email, phone..."
                                 value={search} onChange={e => setSearch(e.target.value)} />
-                            {search && <button onClick={() => setSearch('')} style={{ background: 'none', border: 'none', color: T.muted, cursor: 'pointer', fontSize: 13, padding: 0 }}>✕</button>}
+                            {search && <button onClick={() => setSearch('')} style={{ background:'none', border:'none', color:T.muted, cursor:'pointer', fontSize:13, padding:0 }}>✕</button>}
                         </div>
-
+                        <div style={{ width:1, height:28, background:T.border }} />
                         {/* Duration filter select */}
                         <select value={durationFilter} onChange={e => setDurationFilter(e.target.value)}
-                            style={{ padding:'9px 14px', border:`1px solid ${T.border}`, borderRadius:8, fontSize:13, fontWeight:600, color:T.text, background:'#fff', cursor:'pointer', fontFamily:'inherit', outline:'none' }}>
+                            style={{ padding:'6px 12px', border:'none', borderRadius:6, fontSize:13, fontWeight:600, color:T.text, background:'#F9FAFB', cursor:'pointer', fontFamily:'inherit', outline:'none' }}>
                             <option value="all">All Users</option>
-                            <option value="free_trial">🆓 Free Trial</option>
-                            <option value="1m">📅 Monthly (1M)</option>
-                            <option value="3m">📅 3 Months</option>
-                            <option value="6m">📅 6 Months</option>
-                            <option value="1y">📆 Yearly (1Y)</option>
+                            <option value="free_trial">Free Trial</option>
+                            <option value="1m">Monthly (1M)</option>
+                            <option value="3m">3 Months</option>
+                            <option value="6m">6 Months</option>
+                            <option value="1y">Yearly (1Y)</option>
                         </select>
 
 
