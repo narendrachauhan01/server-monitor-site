@@ -63,6 +63,7 @@ export default function Landing() {
             <span className="lp-brand-text">UptimeForge</span>
           </Link>
           <div className="lp-nav-center">
+            <a href="#">Home</a>
             <a href="#features">Features</a>
             <a href="#how">How it works</a>
             <a href="#pricing">Pricing</a>
@@ -77,6 +78,7 @@ export default function Landing() {
         </div>
         {menuOpen && (
           <div className="lp-mobile-menu">
+            <a href="#" onClick={() => setMenuOpen(false)}>Home</a>
             <a href="#features" onClick={() => setMenuOpen(false)}>Features</a>
             <a href="#how" onClick={() => setMenuOpen(false)}>How it works</a>
             <a href="#pricing" onClick={() => setMenuOpen(false)}>Pricing</a>
