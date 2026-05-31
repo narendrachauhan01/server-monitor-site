@@ -30,6 +30,7 @@ import IntegrationBackend from './pages/IntegrationBackend';
 import RedisCache from './pages/RedisCache';
 import PlanCanceling from './pages/PlanCanceling';
 import ContactSupport from './pages/ContactSupport';
+import SupportTickets from './pages/SupportTickets';
 import Servers from './pages/Servers';
 import TermsOfService from './pages/TermsOfService';
 import { API_URL, getNotifications, markNotificationsRead, getPlans } from './api';
@@ -480,7 +481,7 @@ function AppInner() {
             {isAdmin && <Route path="/integration-backend" element={<IntegrationBackend />} />}
             {isAdmin && <Route path="/redis-cache" element={<RedisCache />} />}
             {isAdmin && <Route path="/plan-canceling" element={<PlanCanceling />} />}
-            {isAdmin && <Route path="/support-tickets" element={<AdminPanel initialTab="support" />} />}
+            {isAdmin && <Route path="/support-tickets" element={<SupportTickets />} />}
             <Route path="/site/:id" element={<SiteDetail />} />
             <Route path="/add-monitor" element={<AddMonitor />} />
             <Route path="/integrations" element={<Integrations />} />

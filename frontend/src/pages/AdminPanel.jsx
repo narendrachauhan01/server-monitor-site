@@ -410,7 +410,6 @@ export default function AdminPanel({ initialTab = 'overview' }) {
         { id: 'payments',      label: `Payments (${payments.length})` },
         { id: 'transactions',  label: `Payments & Refund (${payments.length})` },
         { id: 'canceling',     label: `❌ Plan Canceling (${refundedPayments.length})` },
-        { id: 'support',       label: `🎧 Support Tickets` },
     ];
 
     // Filtered payments for the payments tab
