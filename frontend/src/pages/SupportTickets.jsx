@@ -379,9 +379,39 @@ export default function SupportTickets() {
                         <div style={{ fontSize:40,marginBottom:12 }}>🎫</div>
                         <div style={{ fontWeight:600,color:'#374151' }}>No tickets found</div>
                     </div>
+                ) : window.innerWidth < 768 ? (
+                    /* ── Mobile card view ── */
+                    <div>
+                        {filtered.map(t=>(
+                            <div key={t._id} onClick={()=>openTicket(t)}
+                                style={{ padding:'14px 16px', borderBottom:'1px solid #F3F4F6', cursor:'pointer', background:t.adminUnread?'#FAFAF7':'#fff' }}>
+                                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:8 }}>
+                                    <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+                                        <span style={{ fontFamily:'monospace',fontSize:12,color:'#4F46E5',fontWeight:700 }}>#{t._id.slice(-6).toUpperCase()}</span>
+                                        {t.adminUnread && <span style={{ width:8,height:8,borderRadius:'50%',background:'#EF4444',display:'inline-block' }}/>}
+                                    </div>
+                                    <span style={{ fontSize:12,fontWeight:600,color:statusColor[t.status]||'#6B7280' }}>{statusLabel[t.status]||t.status}</span>
+                                </div>
+                                <div style={{ fontWeight:600,color:'#111827',fontSize:14,marginBottom:6 }}>{t.subject}</div>
+                                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                                    <div style={{ display:'flex', gap:6, alignItems:'center' }}>
+                                        <span style={{ fontSize:11,fontWeight:700,
+                                            color:t.priority==='high'?'#DC2626':t.priority==='medium'?'#D97706':'#6B7280',
+                                            background:t.priority==='high'?'#FEF2F2':t.priority==='medium'?'#FFFBEB':'#F9FAFB',
+                                            padding:'2px 8px',borderRadius:20 }}>
+                                            {t.priority==='high'?'🔴 High':t.priority==='medium'?'🟡 Medium':'🟢 Low'}
+                                        </span>
+                                        <span style={{ fontSize:11,color:'#9CA3AF' }}>{t.name}</span>
+                                    </div>
+                                    <span style={{ fontSize:11,color:'#9CA3AF' }}>{timeAgo(t.createdAt)}</span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 ) : (
-                    <div style={{ overflowX:'auto', WebkitOverflowScrolling:'touch' }}>
-                    <table style={{ width:'100%',borderCollapse:'collapse',fontSize:13,minWidth:600 }}>
+                    /* ── Desktop table view ── */
+                    <div style={{ overflowX:'auto' }}>
+                    <table style={{ width:'100%',borderCollapse:'collapse',fontSize:13 }}>
                         <thead>
                             <tr style={{ background:'#F9FAFB',borderBottom:'1px solid #E5E7EB' }}>
                                 <th style={{ padding:'11px 16px',textAlign:'left',fontSize:11,fontWeight:700,color:'#6B7280',textTransform:'uppercase',letterSpacing:0.5 }}>Ticket ID</th>
@@ -411,10 +441,7 @@ export default function SupportTickets() {
                                     </td>
                                     <td style={{ padding:'14px 16px',color:'#374151',maxWidth:280 }}>{t.subject}</td>
                                     <td style={{ padding:'14px 16px' }}>
-                                        <span style={{ fontSize:12, fontWeight:700,
-                                            color: t.priority==='high'?'#DC2626':t.priority==='medium'?'#D97706':'#6B7280',
-                                            background: t.priority==='high'?'#FEF2F2':t.priority==='medium'?'#FFFBEB':'#F9FAFB',
-                                            padding:'3px 10px', borderRadius:20, whiteSpace:'nowrap' }}>
+                                        <span style={{ fontSize:12,fontWeight:700,color:t.priority==='high'?'#DC2626':t.priority==='medium'?'#D97706':'#6B7280',background:t.priority==='high'?'#FEF2F2':t.priority==='medium'?'#FFFBEB':'#F9FAFB',padding:'3px 10px',borderRadius:20,whiteSpace:'nowrap' }}>
                                             {t.priority==='high'?'🔴 High':t.priority==='medium'?'🟡 Medium':'🟢 Low'}
                                         </span>
                                     </td>
@@ -423,27 +450,15 @@ export default function SupportTickets() {
                                         <div style={{ fontSize:11,color:'#9CA3AF',marginTop:2 }}>{timeAgo(t.createdAt)}</div>
                                     </td>
                                     <td style={{ padding:'14px 16px' }}>
-                                        <span style={{ fontSize:12,fontWeight:600,color:statusColor[t.status]||'#6B7280' }}>
-                                            {statusLabel[t.status]||t.status}
-                                        </span>
+                                        <span style={{ fontSize:12,fontWeight:600,color:statusColor[t.status]||'#6B7280' }}>{statusLabel[t.status]||t.status}</span>
                                     </td>
-                                    <td style={{ padding:'14px 16px', position:'relative' }} onClick={e=>e.stopPropagation()}>
+                                    <td style={{ padding:'14px 16px',position:'relative' }} onClick={e=>e.stopPropagation()}>
                                         <button onClick={e=>{ e.stopPropagation(); setMenuOpen(menuOpen===t._id?null:t._id); }}
                                             style={{ background:'none',border:'none',color:'#9CA3AF',cursor:'pointer',fontSize:18,padding:'2px 8px',borderRadius:6,lineHeight:1 }}>···</button>
                                         {menuOpen===t._id && (
                                             <div style={{ position:'absolute',right:12,top:'100%',background:'#fff',border:'1px solid #E5E7EB',borderRadius:8,boxShadow:'0 4px 16px rgba(0,0,0,0.1)',zIndex:100,minWidth:130,overflow:'hidden' }}>
-                                                <div onClick={()=>{ openTicket(t); setMenuOpen(null); }}
-                                                    style={{ padding:'10px 16px',fontSize:13,color:'#374151',cursor:'pointer',fontWeight:500 }}
-                                                    onMouseEnter={e=>e.target.style.background='#F9FAFB'}
-                                                    onMouseLeave={e=>e.target.style.background='#fff'}>
-                                                    View More
-                                                </div>
-                                                <div onClick={()=>{ setMenuOpen(null); del(t._id); }}
-                                                    style={{ padding:'10px 16px',fontSize:13,color:'#EF4444',cursor:'pointer',fontWeight:500 }}
-                                                    onMouseEnter={e=>e.target.style.background='#FEF2F2'}
-                                                    onMouseLeave={e=>e.target.style.background='#fff'}>
-                                                    Delete
-                                                </div>
+                                                <div onClick={()=>{ openTicket(t); setMenuOpen(null); }} style={{ padding:'10px 16px',fontSize:13,color:'#374151',cursor:'pointer' }} onMouseEnter={e=>e.target.style.background='#F9FAFB'} onMouseLeave={e=>e.target.style.background='#fff'}>View More</div>
+                                                <div onClick={()=>{ setMenuOpen(null); del(t._id); }} style={{ padding:'10px 16px',fontSize:13,color:'#EF4444',cursor:'pointer' }} onMouseEnter={e=>e.target.style.background='#FEF2F2'} onMouseLeave={e=>e.target.style.background='#fff'}>Delete</div>
                                             </div>
                                         )}
                                     </td>
