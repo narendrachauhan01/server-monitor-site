@@ -83,16 +83,15 @@ const ADMIN_NAV_GROUPS = [
   {
     label: 'MENU',
     items: [
-      { to: '/admin',          label: 'Payment Admin Panel', icon: <IcoAdmin /> },
-      { to: '/support-tickets',label: 'Support Tickets',     icon: <IcoHeadset /> },
+      { to: '/admin',            label: 'Payment Admin Panel', icon: <IcoAdmin /> },
     ],
   },
   {
     label: 'MANAGEMENT',
     items: [
-      { to: '/plan-settings',    label: 'Plan Settings',   icon: <IcoSettings /> },
-      { to: '/feature-access',   label: 'Feature Access',  icon: <IcoToggle /> },
-      { to: '/server-resources', label: 'Infra',           icon: <IcoServer /> },
+      { to: '/plan-settings',    label: 'Plan Settings',       icon: <IcoSettings /> },
+      { to: '/feature-access',   label: 'Feature Access',      icon: <IcoToggle /> },
+      { to: '/server-resources', label: 'Infra',               icon: <IcoServer /> },
     ],
   },
   {
@@ -100,7 +99,13 @@ const ADMIN_NAV_GROUPS = [
     items: [
       { to: '/integration-backend', label: 'Integration Backend', icon: <IcoLink /> },
       { to: '/redis-cache',         label: 'Redis Cache',         icon: <IcoDatabase /> },
-      { to: '/admin-profile',       label: 'My Profile',         icon: <IcoProfile /> },
+      { to: '/admin-profile',       label: 'My Profile',          icon: <IcoProfile /> },
+    ],
+  },
+  {
+    label: 'SUPPORT',
+    items: [
+      { to: '/support-tickets', label: 'Support Tickets', icon: <IcoHeadset /> },
     ],
   },
 ];
