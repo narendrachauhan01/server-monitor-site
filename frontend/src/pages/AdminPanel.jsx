@@ -193,6 +193,7 @@ export default function AdminPanel({ initialTab = 'overview' }) {
     const [search, setSearch]       = useState('');
     const [planFilter, setPlanFilter] = useState('all');
     const [billingFilter, setBillingFilter] = useState('all');
+    const [durationFilter, setDurationFilter] = useState('all');
     const [toast, setToast]         = useState('');
     const [settingsForm, setSettingsForm] = useState(null);
     const [settingsSaving, setSettingsSaving] = useState(false);
@@ -340,7 +341,10 @@ export default function AdminPanel({ initialTab = 'overview' }) {
         const q = search.toLowerCase();
         const matchSearch = !q || u.name?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q) || u.phone?.includes(q);
         const matchPlan = planFilter === 'all' || u.plan === planFilter;
-        return matchSearch && matchPlan;
+        const matchDuration = durationFilter === 'all'
+            || (durationFilter === 'free_trial' && u.plan === 'free_trial')
+            || (durationFilter !== 'free_trial' && u.planDuration === durationFilter);
+        return matchSearch && matchPlan && matchDuration;
     });
     const monthlyFiltered = filtered.filter(u => u.billing !== 'annually');
     const annualFiltered  = filtered.filter(u => u.billing === 'annually');
@@ -433,7 +437,7 @@ export default function AdminPanel({ initialTab = 'overview' }) {
         const endsAt = calcEndsAt();
         if (!endsAt) { showToast('Select plan end date'); return; }
         try {
-            await adminUpdateUser(assignModal.user._id, { plan: assignForm.plan, planEndsAt: endsAt, billing: assignForm.billing, isBlocked: false });
+            await adminUpdateUser(assignModal.user._id, { plan: assignForm.plan, planEndsAt: endsAt, billing: assignForm.billing, planDuration: assignForm.duration === 'custom' ? '1m' : assignForm.duration, isBlocked: false });
             showToast(`${PLAN_LABEL[assignForm.plan]} assigned to ${assignModal.user.name}`);
             setAssignModal(null);
             load();
@@ -740,6 +744,17 @@ export default function AdminPanel({ initialTab = 'overview' }) {
                                 value={search} onChange={e => setSearch(e.target.value)} />
                             {search && <button onClick={() => setSearch('')} style={{ background: 'none', border: 'none', color: T.muted, cursor: 'pointer', fontSize: 13, padding: 0 }}>✕</button>}
                         </div>
+
+                        {/* Duration filter select */}
+                        <select value={durationFilter} onChange={e => setDurationFilter(e.target.value)}
+                            style={{ padding:'9px 14px', border:`1px solid ${T.border}`, borderRadius:8, fontSize:13, fontWeight:600, color:T.text, background:'#fff', cursor:'pointer', fontFamily:'inherit', outline:'none' }}>
+                            <option value="all">All Users</option>
+                            <option value="free_trial">🆓 Free Trial</option>
+                            <option value="1m">📅 Monthly (1M)</option>
+                            <option value="3m">📅 3 Months</option>
+                            <option value="6m">📅 6 Months</option>
+                            <option value="1y">📆 Yearly (1Y)</option>
+                        </select>
 
                         {/* Plan filter pills */}
                         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>

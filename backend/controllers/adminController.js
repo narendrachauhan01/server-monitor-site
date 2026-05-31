@@ -33,12 +33,13 @@ exports.getUsers = async (req, res) => {
 // PUT /api/admin/users/:id
 exports.updateUser = async (req, res) => {
     try {
-        const { plan, planEndsAt, trialEndsAt, isBlocked, extendTrial, billing } = req.body;
+        const { plan, planEndsAt, trialEndsAt, isBlocked, extendTrial, billing, planDuration } = req.body;
         const user = await User.findById(req.params.id);
         if (!user) return res.status(404).json({ error: 'User not found' });
 
         if (plan !== undefined) user.plan = plan;
         if (billing !== undefined) user.billing = billing;
+        if (planDuration !== undefined) user.planDuration = planDuration;
         if (planEndsAt !== undefined) user.planEndsAt = new Date(planEndsAt);
         if (trialEndsAt !== undefined) user.trialEndsAt = new Date(trialEndsAt);
         if (isBlocked !== undefined) user.isBlocked = isBlocked;

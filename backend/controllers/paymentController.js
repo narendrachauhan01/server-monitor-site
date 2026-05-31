@@ -176,9 +176,10 @@ exports.verifyPayment = async (req, res) => {
             const currentEnd = user.planEndsAt && user.planEndsAt > now ? user.planEndsAt : now;
             const newEnd     = new Date(currentEnd);
             newEnd.setMonth(newEnd.getMonth() + months);
-            user.plan        = plan;
-            user.billing     = billing;
-            user.planEndsAt  = newEnd;
+            user.plan         = plan;
+            user.billing      = billing;
+            user.planDuration = isAnnual ? '1y' : '1m';
+            user.planEndsAt   = newEnd;
             user.trialVerified = true;
             planEndsAt = newEnd;
         } else {
