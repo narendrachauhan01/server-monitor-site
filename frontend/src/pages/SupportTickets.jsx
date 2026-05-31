@@ -2,11 +2,59 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { API_URL } from '../api';
 
+const API_BASE = (API_URL||'').replace('/api','');
 const prioColor = p => p==='high'?'#ef4444':p==='medium'?'#f59e0b':'#22c55e';
 const prioBg    = p => p==='high'?'#fef2f2':p==='medium'?'#fffbeb':'#f0fdf4';
 const prioLabel = p => p==='high'?'🔴 High':p==='medium'?'🟡 Medium':'🟢 Low';
 const statusColor = s => s==='open'?'#3b82f6':s==='in_progress'?'#f59e0b':s==='resolved'?'#16a34a':'#94a3b8';
 const statusLabel = s => s==='open'?'Open':s==='in_progress'?'In Progress':s==='resolved'?'Resolved':'Closed';
+
+function fmtDate(d) {
+    return new Date(d).toLocaleString('en-IN', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit', hour12:true });
+}
+function timeAgo(d) {
+    const s = Math.floor((Date.now()-new Date(d))/1000);
+    if (s<60) return 'just now';
+    if (s<3600) return `${Math.floor(s/60)}m ago`;
+    if (s<86400) return `${Math.floor(s/3600)}h ago`;
+    return `${Math.floor(s/86400)}d ago`;
+}
+function ImgThumb({ urls }) {
+    if (!urls?.length) return null;
+    return <div style={{ display:'flex', flexWrap:'wrap', gap:6, marginTop:8 }}>
+        {urls.map((u,i) => <a key={i} href={u.startsWith('http')?u:`${API_BASE}${u}`} target="_blank" rel="noreferrer">
+            <img src={u.startsWith('http')?u:`${API_BASE}${u}`} alt="" style={{ width:80, height:60, objectFit:'cover', borderRadius:6, border:'1px solid #e2e8f0', cursor:'zoom-in' }}/>
+        </a>)}
+    </div>;
+}
+
+function AdminImageUpload({ sendReply, reply, sending }) {
+    const [files, setFiles] = React.useState([]);
+    const ref = React.useRef();
+    return (
+        <div>
+            <div style={{ display:'flex', gap:6, marginBottom:6, flexWrap:'wrap' }}>
+                {files.map((f,i) => (
+                    <div key={i} style={{ position:'relative' }}>
+                        <img src={URL.createObjectURL(f)} alt="" style={{ width:50, height:40, objectFit:'cover', borderRadius:5, border:'1px solid #e2e8f0' }}/>
+                        <button type="button" onClick={()=>setFiles(files.filter((_,j)=>j!==i))}
+                            style={{ position:'absolute', top:-3, right:-3, width:14, height:14, borderRadius:'50%', background:'#ef4444', color:'#fff', border:'none', fontSize:8, cursor:'pointer', fontWeight:900 }}>✕</button>
+                    </div>
+                ))}
+            </div>
+            <div style={{ display:'flex', gap:6 }}>
+                <input ref={ref} type="file" accept="image/*" multiple style={{ display:'none' }} onChange={e=>{ setFiles(p=>[...p,...Array.from(e.target.files)].slice(0,5)); e.target.value=''; }}/>
+                <button type="button" onClick={()=>ref.current.click()} style={{ padding:'7px 12px', border:'1.5px dashed #e2e8f0', borderRadius:8, background:'#f8fafc', color:'#64748b', fontSize:12, cursor:'pointer' }}>
+                    📎 {files.length>0?`${files.length} image${files.length>1?'s':''}` : 'Attach'}
+                </button>
+                <button onClick={()=>sendReply(files).then(()=>setFiles([]))} disabled={sending||!reply.trim()}
+                    style={{ flex:1, padding:'7px', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', border:'none', borderRadius:8, fontWeight:700, cursor:'pointer', opacity:(!reply.trim()||sending)?0.5:1, fontSize:13 }}>
+                    {sending?'Sending...':'🛡 Send Reply'}
+                </button>
+            </div>
+        </div>
+    );
+}
 
 export default function SupportTickets() {
     const [tickets,  setTickets]  = useState([]);
@@ -33,11 +81,14 @@ export default function SupportTickets() {
         if (selected?._id === id) setSelected(t => ({ ...t, ...data }));
     };
 
-    const sendReply = async () => {
-        if (!reply.trim() || !selected) return;
+    const sendReply = async (files=[]) => {
+        if (!reply.trim() || !selected) return Promise.resolve();
         setSending(true);
         try {
-            const r = await axios.post(`${API_URL}/api/admin/support-tickets/${selected._id}/reply`, { message: reply }, { withCredentials: true });
+            const fd = new FormData();
+            fd.append('message', reply);
+            (files||[]).forEach(f => fd.append('images', f));
+            const r = await axios.post(`${API_URL}/api/admin/support-tickets/${selected._id}/reply`, fd, { withCredentials: true });
             setSelected(r.data);
             setReply('');
             load();
@@ -149,17 +200,37 @@ export default function SupportTickets() {
                         </div>
 
                         {/* Thread */}
-                        <div style={{ maxHeight:340, overflowY:'auto', display:'flex', flexDirection:'column', gap:10, marginBottom:16, paddingRight:4 }}>
+                        <div style={{ maxHeight:380, overflowY:'auto', display:'flex', flexDirection:'column', gap:10, marginBottom:16, paddingRight:4 }}>
+                            {/* Original message */}
                             <div style={{ background:'#f5f3ff', borderRadius:12, padding:14, borderLeft:'3px solid #7c3aed' }}>
-                                <div style={{ fontSize:11, color:'#7c3aed', fontWeight:700, marginBottom:4 }}>USER · {new Date(selected.createdAt).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</div>
+                                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:6 }}>
+                                    <div>
+                                        <span style={{ fontSize:12, fontWeight:800, color:'#7c3aed' }}>👤 {selected.name}</span>
+                                        <span style={{ fontSize:11, color:'#94a3b8', marginLeft:6 }}>{selected.email}</span>
+                                    </div>
+                                    <div style={{ textAlign:'right' }}>
+                                        <div style={{ fontSize:11, color:'#64748b', fontWeight:600 }}>{fmtDate(selected.createdAt)}</div>
+                                        <div style={{ fontSize:10, color:'#94a3b8' }}>{timeAgo(selected.createdAt)}</div>
+                                    </div>
+                                </div>
                                 <div style={{ fontSize:13, color:'#1e1b4b', lineHeight:1.6, whiteSpace:'pre-wrap' }}>{selected.message}</div>
+                                <ImgThumb urls={selected.images} />
                             </div>
+
+                            {/* Replies */}
                             {selected.replies?.map((r,i) => (
                                 <div key={i} style={{ background:r.from==='admin'?'#f0fdf4':'#f5f3ff', borderRadius:12, padding:14, borderLeft:`3px solid ${r.from==='admin'?'#16a34a':'#7c3aed'}` }}>
-                                    <div style={{ fontSize:11, color:r.from==='admin'?'#16a34a':'#7c3aed', fontWeight:700, marginBottom:4 }}>
-                                        {r.from==='admin'?'🛡 YOU (Admin)':'👤 USER'} · {new Date(r.at).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}
+                                    <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:6 }}>
+                                        <span style={{ fontSize:12, fontWeight:800, color:r.from==='admin'?'#16a34a':'#7c3aed' }}>
+                                            {r.from==='admin'?'🛡 Support (Admin)':'👤 '+selected.name}
+                                        </span>
+                                        <div style={{ textAlign:'right' }}>
+                                            <div style={{ fontSize:11, color:'#64748b', fontWeight:600 }}>{fmtDate(r.at)}</div>
+                                            <div style={{ fontSize:10, color:'#94a3b8' }}>{timeAgo(r.at)}</div>
+                                        </div>
                                     </div>
                                     <div style={{ fontSize:13, color:'#1e1b4b', lineHeight:1.6, whiteSpace:'pre-wrap' }}>{r.message}</div>
+                                    <ImgThumb urls={r.images} />
                                 </div>
                             ))}
                         </div>
@@ -169,10 +240,7 @@ export default function SupportTickets() {
                             <div>
                                 <textarea value={reply} onChange={e=>setReply(e.target.value)} rows={3}
                                     placeholder="Type your reply..." style={{ width:'100%', padding:'10px 12px', border:'1.5px solid #e2e8f0', borderRadius:10, fontSize:13, outline:'none', resize:'none', boxSizing:'border-box', marginBottom:8 }} />
-                                <button onClick={sendReply} disabled={sending||!reply.trim()}
-                                    style={{ width:'100%', padding:'10px', background:'linear-gradient(135deg,#7c3aed,#6d28d9)', color:'#fff', border:'none', borderRadius:10, fontWeight:700, cursor:'pointer', opacity:(!reply.trim()||sending)?0.5:1, fontSize:13 }}>
-                                    {sending?'Sending...':'🛡 Send Reply'}
-                                </button>
+                                <AdminImageUpload sendReply={sendReply} reply={reply} sending={sending} />
                             </div>
                         )}
                     </div>

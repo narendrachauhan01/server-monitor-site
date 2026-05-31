@@ -30,6 +30,47 @@ const statusStyle = s => ({
     closed:      { bg:'#f2f3f4', color:'#717d7e', label:'Closed' },
 })[s] || { bg:'#f2f3f4', color:'#717d7e', label: s };
 
+const API_BASE = (API_URL || '').replace('/api','');
+
+function ImagePreview({ urls }) {
+    if (!urls?.length) return null;
+    return (
+        <div style={{ display:'flex', flexWrap:'wrap', gap:8, marginTop:10 }}>
+            {urls.map((u,i) => (
+                <a key={i} href={u.startsWith('http')?u:`${API_BASE}${u}`} target="_blank" rel="noreferrer">
+                    <img src={u.startsWith('http')?u:`${API_BASE}${u}`} alt={`attachment-${i}`}
+                        style={{ width:90, height:70, objectFit:'cover', borderRadius:8, border:'1px solid #e2e8f0', cursor:'zoom-in' }} />
+                </a>
+            ))}
+        </div>
+    );
+}
+
+function FileUploadBtn({ files, setFiles, max=5 }) {
+    const ref = React.useRef();
+    return (
+        <div>
+            <input ref={ref} type="file" accept="image/*" multiple style={{ display:'none' }}
+                onChange={e=>{ const arr=[...files,...Array.from(e.target.files)].slice(0,max); setFiles(arr); e.target.value=''; }} />
+            <button type="button" onClick={()=>ref.current.click()}
+                style={{ padding:'6px 14px', border:'1.5px dashed #e2e8f0', borderRadius:8, background:'#f8fafc', color:'#64748b', fontSize:12, fontWeight:600, cursor:'pointer', display:'flex', alignItems:'center', gap:6 }}>
+                📎 Attach image {files.length>0?`(${files.length})`:''}
+            </button>
+            {files.length>0 && (
+                <div style={{ display:'flex', flexWrap:'wrap', gap:6, marginTop:8 }}>
+                    {files.map((f,i)=>(
+                        <div key={i} style={{ position:'relative' }}>
+                            <img src={URL.createObjectURL(f)} alt="" style={{ width:60, height:50, objectFit:'cover', borderRadius:6, border:'1px solid #e2e8f0' }}/>
+                            <button type="button" onClick={()=>setFiles(files.filter((_,j)=>j!==i))}
+                                style={{ position:'absolute', top:-4, right:-4, width:16, height:16, borderRadius:'50%', background:'#ef4444', color:'#fff', border:'none', fontSize:9, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:900 }}>✕</button>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
+
 export default function ContactSupport({ user }) {
     const [view,      setView]      = useState('list');
     const [tickets,   setTickets]   = useState([]);
@@ -41,6 +82,8 @@ export default function ContactSupport({ user }) {
     const [sending,   setSending]   = useState(false);
     const [topicOpen, setTopicOpen] = useState(false);
     const [form,      setForm]      = useState({ subject:'', message:'', priority:'medium' });
+    const [formFiles, setFormFiles] = useState([]);
+    const [replyFiles,setReplyFiles]= useState([]);
     const [error,     setError]     = useState('');
 
     const load = async () => {
@@ -59,11 +102,16 @@ export default function ContactSupport({ user }) {
         if (!form.subject || !form.message) { setError('All fields required'); return; }
         setSending(true); setError('');
         try {
-            await axios.post(`${API_URL}/api/users/support`, {
-                name: user?.name || 'User', email: user?.email || '',
-                subject: form.subject, message: form.message, priority: form.priority,
-            }, { withCredentials: true });
+            const fd = new FormData();
+            fd.append('name', user?.name || 'User');
+            fd.append('email', user?.email || '');
+            fd.append('subject', form.subject);
+            fd.append('message', form.message);
+            fd.append('priority', form.priority);
+            formFiles.forEach(f => fd.append('images', f));
+            await axios.post(`${API_URL}/api/users/support`, fd, { withCredentials: true });
             setForm({ subject:'', message:'', priority:'medium' });
+            setFormFiles([]);
             setView('list'); load();
         } catch (err) { setError(err.response?.data?.error || 'Failed to submit'); }
         setSending(false);
@@ -73,8 +121,11 @@ export default function ContactSupport({ user }) {
         if (!reply.trim()) return;
         setSending(true);
         try {
-            const r = await axios.post(`${API_URL}/api/users/support/${selected._id}/reply`, { message: reply }, { withCredentials: true });
-            setSelected(r.data); setReply(''); load();
+            const fd = new FormData();
+            fd.append('message', reply);
+            replyFiles.forEach(f => fd.append('images', f));
+            const r = await axios.post(`${API_URL}/api/users/support/${selected._id}/reply`, fd, { withCredentials: true });
+            setSelected(r.data); setReply(''); setReplyFiles([]); load();
         } catch {}
         setSending(false);
     };
@@ -115,6 +166,7 @@ export default function ContactSupport({ user }) {
                                 <span style={{ fontSize:12, color:'#94a3b8' }}>{new Date(selected.createdAt).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</span>
                             </div>
                             <div style={{ padding:'14px 16px', fontSize:14, color:'#374151', lineHeight:1.7, whiteSpace:'pre-wrap' }}>{selected.message}</div>
+                            <div style={{ padding:'0 16px 14px' }}><ImagePreview urls={selected.images} /></div>
                         </div>
 
                         {/* Replies */}
@@ -127,6 +179,7 @@ export default function ContactSupport({ user }) {
                                     <span style={{ fontSize:12, color:'#94a3b8' }}>{new Date(r.at).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</span>
                                 </div>
                                 <div style={{ padding:'14px 16px', fontSize:14, color:'#374151', lineHeight:1.7, whiteSpace:'pre-wrap' }}>{r.message}</div>
+                                <div style={{ padding:'0 16px 14px' }}><ImagePreview urls={r.images} /></div>
                             </div>
                         ))}
                     </div>
@@ -137,10 +190,13 @@ export default function ContactSupport({ user }) {
                             <div style={{ fontWeight:700, fontSize:13, color:'#374151', marginBottom:10 }}>Add Reply</div>
                             <textarea value={reply} onChange={e=>setReply(e.target.value)} rows={4}
                                 placeholder="Write your reply..." style={{ width:'100%', padding:'10px 14px', border:'1.5px solid #e2e8f0', borderRadius:8, fontSize:14, outline:'none', resize:'vertical', boxSizing:'border-box', marginBottom:10 }} />
-                            <button onClick={sendReply} disabled={sending||!reply.trim()}
-                                style={{ padding:'9px 22px', background:'#7c3aed', color:'#fff', border:'none', borderRadius:8, fontWeight:700, cursor:'pointer', opacity:(!reply.trim()||sending)?0.5:1 }}>
-                                {sending?'Sending...':'Submit'}
-                            </button>
+                            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-end' }}>
+                                <FileUploadBtn files={replyFiles} setFiles={setReplyFiles} />
+                                <button onClick={sendReply} disabled={sending||!reply.trim()}
+                                    style={{ padding:'9px 22px', background:'#7c3aed', color:'#fff', border:'none', borderRadius:8, fontWeight:700, cursor:'pointer', opacity:(!reply.trim()||sending)?0.5:1 }}>
+                                    {sending?'Sending...':'Submit'}
+                                </button>
+                            </div>
                         </div>
                     )}
                 </div>
@@ -215,6 +271,11 @@ export default function ContactSupport({ user }) {
                         <label style={{ fontSize:13, fontWeight:600, color:'#374151', display:'block', marginBottom:6 }}>Description *</label>
                         <textarea value={form.message} onChange={e=>setForm({...form,message:e.target.value})} rows={7}
                             placeholder="Describe your issue in detail..." style={{ width:'100%', padding:'10px 14px', border:'1.5px solid #e2e8f0', borderRadius:8, fontSize:14, outline:'none', resize:'vertical', boxSizing:'border-box', lineHeight:1.6, color:'#374151' }} />
+                    </div>
+
+                    <div>
+                        <label style={{ fontSize:13, fontWeight:600, color:'#374151', display:'block', marginBottom:6 }}>Attachments <span style={{color:'#94a3b8',fontWeight:400}}>(optional, max 5 images)</span></label>
+                        <FileUploadBtn files={formFiles} setFiles={setFormFiles} />
                     </div>
 
                     {error && <div style={{ background:'#fef2f2', border:'1px solid #fecdd3', color:'#dc2626', borderRadius:8, padding:'10px 14px', fontSize:13, fontWeight:600 }}>⚠️ {error}</div>}

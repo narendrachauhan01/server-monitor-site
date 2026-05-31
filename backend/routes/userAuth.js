@@ -1,6 +1,19 @@
 const router = require('express').Router();
 const auth = require('../middleware/auth');
 const ctrl = require('../controllers/userAuthController');
+const multer = require('multer');
+const path   = require('path');
+const upload = multer({
+    storage: multer.diskStorage({
+        destination: (req, file, cb) => cb(null, path.join(__dirname, '../uploads/support')),
+        filename:    (req, file, cb) => cb(null, `${Date.now()}-${file.originalname.replace(/\s/g,'_')}`),
+    }),
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype.startsWith('image/')) cb(null, true);
+        else cb(new Error('Only images allowed'));
+    },
+});
 
 router.get('/config',                ctrl.getConfig);
 router.post('/register/send-otp',    ctrl.sendOtp);
@@ -14,8 +27,12 @@ router.put('/profile',               auth, ctrl.updateProfile);
 router.delete('/me',                 auth, ctrl.deleteMe);
 router.get('/me',                    auth, ctrl.getMe);
 router.post('/logout',               ctrl.logout);
-router.post('/support',              ctrl.contactSupport);
-router.get('/support/my-tickets',    auth, ctrl.myTickets);
-router.post('/support/:id/reply',    auth, ctrl.replyTicket);
+router.post('/support',                           upload.array('images', 5), ctrl.contactSupport);
+router.get('/support/my-tickets',                 auth, ctrl.myTickets);
+router.post('/support/:id/reply',                 auth, upload.array('images', 5), ctrl.replyTicket);
+router.post('/support/upload',                    auth, upload.array('images', 5), (req, res) => {
+    const files = (req.files||[]).map(f => `/uploads/support/${f.filename}`);
+    res.json({ urls: files });
+});
 
 module.exports = router;

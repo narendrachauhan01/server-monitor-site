@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const replySchema = new mongoose.Schema({
     from:    { type: String, enum: ['user','admin'], required: true },
     message: { type: String, required: true },
+    images:  [{ type: String }], // file paths
     at:      { type: Date, default: Date.now },
 });
 
@@ -12,6 +13,7 @@ const supportTicketSchema = new mongoose.Schema({
     email:    { type: String, required: true },
     subject:  { type: String, required: true },
     message:  { type: String, required: true },
+    images:   [{ type: String }],
     priority: { type: String, enum: ['low','medium','high'], default: 'medium' },
     status:   { type: String, enum: ['open','in_progress','resolved','closed'], default: 'open' },
     replies:  [replySchema],

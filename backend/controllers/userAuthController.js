@@ -278,9 +278,10 @@ exports.contactSupport = async (req, res) => {
         const { name, email, subject, message, priority } = req.body;
         if (!name || !email || !subject || !message) return res.status(400).json({ error: 'All fields required' });
         const SupportTicket = require('../models/SupportTicket');
+        const images = (req.files||[]).map(f => `/uploads/support/${f.filename}`);
         const ticket = await SupportTicket.create({
             userId: req.userId || null,
-            name, email, subject, message,
+            name, email, subject, message, images,
             priority: priority || 'medium',
         });
         console.log(`[Support] Ticket #${ticket._id} from ${email} — ${subject}`);
@@ -306,7 +307,8 @@ exports.replyTicket = async (req, res) => {
         const SupportTicket = require('../models/SupportTicket');
         const t = await SupportTicket.findOne({ _id: req.params.id, userId: req.userId });
         if (!t) return res.status(404).json({ error: 'Ticket not found' });
-        t.replies.push({ from: 'user', message: req.body.message });
+        const images = (req.files||[]).map(f => `/uploads/support/${f.filename}`);
+        t.replies.push({ from: 'user', message: req.body.message, images });
         await t.save();
         res.json(t);
     } catch (e) { res.status(500).json({ error: e.message }); }
