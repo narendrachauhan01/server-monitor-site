@@ -14,6 +14,10 @@ function timeAgo(d) {
 function fmtDate(d) {
     return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
 }
+function fmtDateTime(d) {
+    return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) + ', ' +
+           new Date(d).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true});
+}
 
 const statusColor = { open:'#F59E0B', in_progress:'#3B82F6', resolved:'#10B981', closed:'#6B7280' };
 const statusLabel = { open:'Pending', in_progress:'In Progress', resolved:'Solved', closed:'Closed' };
@@ -411,7 +415,7 @@ export default function SupportTickets() {
                                             {t.priority==='high'?'🔴 High':t.priority==='medium'?'🟡 Medium':'🟢 Low'}
                                         </span>
                                     </td>
-                                    <td style={{ padding:'14px 16px',color:'#6B7280',whiteSpace:'nowrap',fontSize:12 }}>{fmtDate(t.createdAt)}</td>
+                                    <td style={{ padding:'14px 16px',color:'#6B7280',whiteSpace:'nowrap',fontSize:12 }}>{fmtDateTime(t.createdAt)}</td>
                                     <td style={{ padding:'14px 16px' }}>
                                         <span style={{ fontSize:12,fontWeight:600,color:statusColor[t.status]||'#6B7280' }}>
                                             {statusLabel[t.status]||t.status}

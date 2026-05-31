@@ -38,7 +38,17 @@ router.get('/support-tickets/unread',       auth, adminOnly, async (req, res) =>
 });
 router.get('/support-tickets',              auth, adminOnly, async (req, res) => {
     const SupportTicket = require('../models/SupportTicket');
-    res.json(await SupportTicket.find().sort('-createdAt'));
+    const User = require('../models/User');
+    const tickets = await SupportTicket.find().sort('-createdAt');
+    const filled = await Promise.all(tickets.map(async t => {
+        const obj = t.toObject();
+        if (!obj.accountId && obj.userId) {
+            const u = await User.findById(obj.userId).select('accountId');
+            obj.accountId = u?.accountId || null;
+        }
+        return obj;
+    }));
+    res.json(filled);
 });
 router.put('/support-tickets/:id',          auth, adminOnly, async (req, res) => {
     const SupportTicket = require('../models/SupportTicket');
