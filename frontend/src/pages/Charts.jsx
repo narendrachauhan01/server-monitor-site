@@ -15,12 +15,14 @@ export default function Charts() {
   const [siteSearch, setSiteSearch]     = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
   const [uptimeSearch, setUptimeSearch] = useState('');
+  const [pageLoading, setPageLoading]   = useState(true);
 
   useEffect(() => {
     getServers().then(r => {
       setServers(r.data);
       if (r.data.length > 0) setSelectedId(r.data[0]._id);
-    });
+      setPageLoading(false);
+    }).catch(()=>setPageLoading(false));
     getAlerts().then(r => setAlerts(r.data));
   }, []);
 
@@ -97,6 +99,14 @@ export default function Charts() {
       </div>
     );
   };
+
+  if (pageLoading) return (
+    <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',minHeight:400,gap:14}}>
+      <div style={{width:44,height:44,borderRadius:'50%',border:'4px solid #e2e8f0',borderTop:'4px solid #7c3aed',animation:'spin 0.3s linear infinite'}}/>
+      <div style={{fontSize:13,color:'#94a3b8',fontWeight:500}}>Loading...</div>
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+    </div>
+  );
 
   return (
     <div className="pg-wrap">

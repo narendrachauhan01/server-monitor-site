@@ -8,8 +8,9 @@ export default function DomainSSL() {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
   const [checkingAll, setCheckingAll] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true);
 
-  const load = () => getServers().then(r => setServers(r.data));
+  const load = () => getServers().then(r => { setServers(r.data); setPageLoading(false); }).catch(()=>setPageLoading(false));
   useEffect(() => { load(); }, []);
 
   const checkOne = async (server) => {
@@ -99,7 +100,13 @@ export default function DomainSSL() {
       </div>
 
       {/* Cards */}
-      {filtered.length === 0 ? (
+      {pageLoading ? (
+        <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'80px 0',gap:14}}>
+          <div style={{width:44,height:44,borderRadius:'50%',border:'4px solid #e2e8f0',borderTop:'4px solid #7c3aed',animation:'spin 0.3s linear infinite'}}/>
+          <div style={{fontSize:13,color:'#94a3b8',fontWeight:500}}>Loading...</div>
+          <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+        </div>
+      ) : filtered.length === 0 ? (
         <div className="data-card"><div className="empty-msg">No sites found.</div></div>
       ) : (
         <div className="ssl-cards-grid">

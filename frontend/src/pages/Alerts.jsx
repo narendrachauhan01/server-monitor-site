@@ -5,8 +5,9 @@ export default function Alerts() {
   const [alerts, setAlerts] = useState([]);
   const [search, setSearch]   = useState('');
   const [filter, setFilter]   = useState('all');
+  const [pageLoading, setPageLoading] = useState(true);
 
-  useEffect(() => { getAlerts().then(r => setAlerts(r.data)).catch(() => {}); }, []);
+  useEffect(() => { getAlerts().then(r => { setAlerts(r.data); setPageLoading(false); }).catch(()=>setPageLoading(false)); }, []);
 
   const filtered = alerts.filter(a => {
     const q = search.toLowerCase();
@@ -50,7 +51,13 @@ export default function Alerts() {
 
       {/* Alert list */}
       <div className="al-list">
-        {filtered.length === 0 ? (
+        {pageLoading ? (
+          <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'80px 0',gap:14}}>
+            <div style={{width:44,height:44,borderRadius:'50%',border:'4px solid #e2e8f0',borderTop:'4px solid #7c3aed',animation:'spin 0.3s linear infinite'}}/>
+            <div style={{fontSize:13,color:'#94a3b8',fontWeight:500}}>Loading...</div>
+            <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+          </div>
+        ) : filtered.length === 0 ? (
           <div className="al-empty">
             {alerts.length === 0 ? 'No alerts yet — alerts appear here when a site goes down.' : 'No results match your search.'}
           </div>
