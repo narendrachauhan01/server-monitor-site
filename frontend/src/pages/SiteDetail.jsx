@@ -120,21 +120,15 @@ export default function SiteDetail() {
     const hist24 = server?.history?.slice(-48) || [];
 
     if (loading || !server) return (
-        <div style={{ padding:'32px 24px' }}>
-            {/* Skeleton loader */}
-            <div style={{ display:'flex', gap:12, marginBottom:28 }}>
-                <div style={{ width:120, height:36, borderRadius:8, background:'#f1f5f9', animation:'pulse 1.5s ease-in-out infinite' }}/>
-                <div style={{ flex:1 }}/>
-                <div style={{ width:80, height:36, borderRadius:8, background:'#f1f5f9', animation:'pulse 1.5s ease-in-out infinite' }}/>
-                <div style={{ width:80, height:36, borderRadius:8, background:'#f1f5f9', animation:'pulse 1.5s ease-in-out infinite' }}/>
-            </div>
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(180px,1fr))', gap:16, marginBottom:24 }}>
-                {[1,2,3,4].map(i=>(
-                    <div key={i} style={{ height:90, borderRadius:14, background:'#f1f5f9', animation:'pulse 1.5s ease-in-out infinite' }}/>
-                ))}
-            </div>
-            <div style={{ height:200, borderRadius:16, background:'#f1f5f9', marginBottom:20, animation:'pulse 1.5s ease-in-out infinite' }}/>
-            <style>{`@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }`}</style>
+        <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:400, gap:16 }}>
+            <div style={{
+                width:48, height:48, borderRadius:'50%',
+                border:'4px solid #e2e8f0',
+                borderTop:'4px solid #7c3aed',
+                animation:'spin 0.8s linear infinite'
+            }}/>
+            <div style={{ fontSize:14, color:'#94a3b8', fontWeight:500 }}>Loading site data...</div>
+            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
         </div>
     );
 
