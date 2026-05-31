@@ -285,7 +285,7 @@ export default function Account({ user, onUserUpdate }) {
 
             {/* Tabs */}
             <div className="acct-tabs">
-                <button className={`acct-tab${tab === 'plan' ? ' acct-tab-active' : ''}`} onClick={() => setTab('plan')}>Upgrade Plan</button>
+                <button className={`acct-tab${tab === 'plan' ? ' acct-tab-active' : ''}`} onClick={() => setTab('plan')}>My Plan</button>
                 <button className={`acct-tab${tab === 'billing' ? ' acct-tab-active' : ''}`} onClick={() => setTab('billing')}>
                     Billing & Invoices
                     {myRequests.length > 0 && <span className="acct-tab-count">{myRequests.length}</span>}
@@ -296,66 +296,58 @@ export default function Account({ user, onUserUpdate }) {
             </div>
 
             {/* ── PLAN TAB ── */}
-            {tab === 'plan' && (
-                <div className="acct-plans-row">
-                    {[
-                        { pk: 'free_trial', emoji: '🆓', features: parseFeatures(plans?.free_trial?.features || planData?.freeTrialFeatures) },
-                        { pk: 'bronze',     emoji: '🥉', features: parseFeatures(plans?.bronze?.features) },
-                        { pk: 'silver',     emoji: '🥈', features: parseFeatures(plans?.silver?.features) },
-                        { pk: 'gold',       emoji: '🥇', features: parseFeatures(plans?.gold?.features) },
-                    ].map(({ pk, emoji, features }) => {
-                        const cfg   = plans[pk] || {};
-                        const price = pk === 'free_trial' ? 'Free' : (cfg.price || (pk === 'bronze' ? 499 : pk === 'silver' ? 999 : 1499));
-                        const sites = cfg.sites || (pk === 'free_trial' ? 2 : pk === 'bronze' ? 5 : pk === 'silver' ? 15 : 30);
-                        const isCurrent  = plan === pk;
-                        const isPopular  = pk === 'silver';
-                        const isUpgrade  = PLAN_RANK[pk] > PLAN_RANK[plan];
-                        const isDowngrade = PLAN_RANK[pk] < PLAN_RANK[plan];
-                        return (
-                            <div key={pk} className={`acct-plan-card ${isCurrent ? 'acct-current' : ''} ${isPopular ? 'acct-popular' : ''}`}>
-                                {isPopular && <div className="acct-pop-badge">⭐ Most Popular</div>}
-                                {isCurrent && <div className="acct-active-glow" />}
-                                <div className="acct-plan-card-header" style={{ background: PLAN_GRADIENTS[pk] }}>
-                                    <div className="acct-plan-card-emoji">{emoji}</div>
-                                    <div className="acct-plan-card-name">{PLAN_LABEL[pk]}</div>
-                                    <div className="acct-plan-card-price">{pk === 'free_trial' ? 'Free' : <>₹{price}<span>/mo</span></>}</div>
+            {tab === 'plan' && (() => {
+                const emojiMap = { free_trial:'🆓', bronze:'🥉', silver:'🥈', gold:'🥇' };
+                const featMap  = {
+                    free_trial: parseFeatures(plans?.free_trial?.features || planData?.freeTrialFeatures),
+                    bronze:     parseFeatures(plans?.bronze?.features),
+                    silver:     parseFeatures(plans?.silver?.features),
+                    gold:       parseFeatures(plans?.gold?.features),
+                };
+                const cfg      = plans[plan] || {};
+                const price    = plan === 'free_trial' ? 'Free' : (cfg.price || (plan === 'bronze' ? 499 : plan === 'silver' ? 999 : 1499));
+                const sites    = cfg.sites || (plan === 'free_trial' ? 2 : plan === 'bronze' ? 5 : plan === 'silver' ? 15 : 30);
+                const features = featMap[plan] || [];
+                const expired  = !isActive;
+
+                return (
+                    <div style={{ display:'flex', justifyContent:'center', padding:'8px 0' }}>
+                        <div style={{ width:'100%', maxWidth:380 }}>
+                            <div className={`acct-plan-card acct-current`} style={{ margin:'0 auto' }}>
+                                <div className="acct-active-glow" />
+                                <div className="acct-plan-card-header" style={{ background: PLAN_GRADIENTS[plan] }}>
+                                    <div className="acct-plan-card-emoji">{emojiMap[plan]}</div>
+                                    <div className="acct-plan-card-name">{PLAN_LABEL[plan]}</div>
+                                    <div className="acct-plan-card-price">{plan === 'free_trial' ? 'Free' : <>₹{price}<span>/mo</span></>}</div>
                                     <div className="acct-plan-card-sites">{sites} sites included</div>
                                 </div>
                                 <div className="acct-plan-card-body">
                                     <ul className="acct-plan-features">
                                         {features.map(({ label, type }) => (
                                             <li key={label} style={{ display:'flex', alignItems:'center', gap:7, color: type === 'no' ? '#cbd5e1' : '#475569', opacity: type === 'no' ? 0.6 : 1 }}>
-                                                {type === 'ok'      && <span style={{ color:'#10b981', fontWeight:900, fontSize:12, flexShrink:0, lineHeight:1 }}>✓</span>}
-                                                {type === 'no'      && <span style={{ color:'#ef4444', fontWeight:900, fontSize:12, flexShrink:0, lineHeight:1 }}>✕</span>}
-                                                {type === 'limited' && <span style={{ fontSize:12, flexShrink:0, lineHeight:1 }}>😐</span>}
-                                                {type === 'soon'    && <span style={{ fontSize:11, flexShrink:0, lineHeight:1 }}>🔜</span>}
+                                                {type === 'ok'      && <span style={{ color:'#10b981', fontWeight:900, fontSize:12, flexShrink:0 }}>✓</span>}
+                                                {type === 'no'      && <span style={{ color:'#ef4444', fontWeight:900, fontSize:12, flexShrink:0 }}>✕</span>}
+                                                {type === 'limited' && <span style={{ fontSize:12, flexShrink:0 }}>😐</span>}
+                                                {type === 'soon'    && <span style={{ fontSize:11, flexShrink:0 }}>🔜</span>}
                                                 <span style={{ fontSize:11 }}>{label}</span>
                                                 {type === 'soon' && <span style={{ fontSize:9, background:'#f1f5f9', color:'#94a3b8', borderRadius:4, padding:'1px 5px', fontWeight:700, flexShrink:0 }}>Soon</span>}
                                             </li>
                                         ))}
                                     </ul>
-                                    {isCurrent ? (
-                                        <div className="acct-current-label">✓ Your Current Plan</div>
-                                    ) : isDowngrade ? (
-                                        <div style={{ background:'#fef9ec', border:'1px solid #fde68a', borderRadius:8, padding:'8px 10px', fontSize:11, color:'#92400e', textAlign:'center', lineHeight:1.5 }}>
-                                            🔒 Downgrade available after your plan expires
-                                            {user?.planEndsAt && <><br/><strong>{fmt(user.planEndsAt)}</strong></>}
-                                        </div>
-                                    ) : (
-                                        <button
-                                            className="acct-upgrade-btn"
-                                            style={{ background: PLAN_GRADIENTS[pk] }}
-                                            onClick={() => setConfirmPlan(pk)}
-                                        >
-                                            {isUpgrade ? `Upgrade to ${PLAN_LABEL[pk]} →` : `Get ${PLAN_LABEL[pk]} →`}
+                                    {expired ? (
+                                        <button className="acct-upgrade-btn" style={{ background:'linear-gradient(135deg,#7c3aed,#6d28d9)' }}
+                                            onClick={() => navigate('/pay?plan=select')}>
+                                            🔄 Renew / Upgrade Plan →
                                         </button>
+                                    ) : (
+                                        <div className="acct-current-label">✓ Your Current Plan</div>
                                     )}
                                 </div>
                             </div>
-                        );
-                    })}
-                </div>
-            )}
+                        </div>
+                    </div>
+                );
+            })()}
 
             {/* ── BILLING TAB ── */}
             {tab === 'billing' && (
