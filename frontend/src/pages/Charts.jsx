@@ -16,7 +16,7 @@ export default function Charts() {
   const [siteSearch, setSiteSearch]     = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
   const [uptimeSearch, setUptimeSearch] = useState('');
-  const [pageLoading, setPageLoading]   = useState(!_loaded_Charts);
+  const [pageLoading, setPageLoading]   = useState(false);
 
   useEffect(() => {
     getServers().then(r => {
