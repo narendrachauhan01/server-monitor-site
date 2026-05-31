@@ -292,7 +292,10 @@ exports.contactSupport = async (req, res) => {
 exports.myTickets = async (req, res) => {
     try {
         const SupportTicket = require('../models/SupportTicket');
-        const tickets = await SupportTicket.find({ userId: req.userId }).sort('-createdAt');
+        // Match by userId OR by email (for tickets submitted before userId was stored)
+        const tickets = await SupportTicket.find({
+            $or: [{ userId: req.userId }, { email: req.user?.email }]
+        }).sort('-createdAt');
         res.json(tickets);
     } catch (e) { res.status(500).json({ error: e.message }); }
 };
