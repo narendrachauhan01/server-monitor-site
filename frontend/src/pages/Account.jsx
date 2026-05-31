@@ -236,6 +236,18 @@ export default function Account({ user, onUserUpdate }) {
                     <h1 className="pg-title">My Account</h1>
                     <p className="pg-sub">Plan & billing management</p>
                 </div>
+                {user?.accountId && (
+                    <div style={{ background:'#1e1b4b', borderRadius:12, padding:'10px 18px', display:'flex', alignItems:'center', gap:10 }}>
+                        <div>
+                            <div style={{ fontSize:10, color:'rgba(255,255,255,0.5)', fontWeight:700, textTransform:'uppercase', letterSpacing:0.8 }}>Account ID</div>
+                            <div style={{ fontSize:18, fontWeight:800, color:'#a78bfa', fontFamily:'monospace', letterSpacing:1 }}>{user.accountId}</div>
+                        </div>
+                        <button onClick={()=>navigator.clipboard.writeText(user.accountId).then(()=>alert('Copied!'))}
+                            style={{ background:'rgba(255,255,255,0.1)', border:'none', borderRadius:6, padding:'4px 10px', color:'rgba(255,255,255,0.6)', fontSize:11, cursor:'pointer' }}>
+                            📋 Copy
+                        </button>
+                    </div>
+                )}
             </div>
 
             {/* Current Plan Card */}

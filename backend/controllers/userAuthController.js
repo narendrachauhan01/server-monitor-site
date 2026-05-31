@@ -24,6 +24,7 @@ function genOtp() {
 function userPayload(u) {
     return {
         id: u._id,
+        accountId: u.accountId || null,
         name: u.name,
         email: u.email,
         phone: u.phone || null,

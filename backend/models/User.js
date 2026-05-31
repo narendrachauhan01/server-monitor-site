@@ -19,9 +19,16 @@ const userSchema = new mongoose.Schema({
     planEndsAt: { type: Date },
     isBlocked: { type: Boolean, default: false },
     trialVerified: { type: Boolean, default: false },
+    accountId: { type: String, unique: true, sparse: true },
 }, { timestamps: true });
 
 userSchema.pre('save', async function () {
+    if (this.isNew && !this.accountId) {
+        // Generate UF-YYYY-XXXXX format
+        const year = new Date().getFullYear();
+        const rand = Math.floor(10000 + Math.random() * 90000);
+        this.accountId = `UF-${year}-${rand}`;
+    }
     if (this.isNew && !this.trialEndsAt) {
         this.trialEndsAt = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000);
     }
