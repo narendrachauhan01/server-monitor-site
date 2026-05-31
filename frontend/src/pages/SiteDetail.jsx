@@ -125,7 +125,7 @@ export default function SiteDetail() {
                 width:48, height:48, borderRadius:'50%',
                 border:'4px solid #e2e8f0',
                 borderTop:'4px solid #7c3aed',
-                animation:'spin 0.1s linear infinite'
+                animation:'spin 0.8s linear infinite'
             }}/>
             <div style={{ fontSize:14, color:'#94a3b8', fontWeight:500 }}>Loading site data...</div>
             <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
@@ -301,7 +301,7 @@ export default function SiteDetail() {
                         </div>
                         {incidents.length === 0 && !expiry ? (
                             <div style={{padding:'16px 0', color:'#94a3b8', fontSize:13, display:'flex', alignItems:'center', gap:8}}>
-                                <span style={{display:'inline-block', width:12, height:12, border:'2px solid #e2e8f0', borderTopColor:'#7c3aed', borderRadius:'50%', animation:'spin 0.1s linear infinite'}} />
+                                <span style={{display:'inline-block', width:12, height:12, border:'2px solid #e2e8f0', borderTopColor:'#7c3aed', borderRadius:'50%', animation:'spin 0.8s linear infinite'}} />
                                 Loading incidents...
                             </div>
                         ) : incidents.length > 0 ? (<>
