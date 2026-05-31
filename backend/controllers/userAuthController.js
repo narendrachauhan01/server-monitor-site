@@ -280,8 +280,14 @@ exports.contactSupport = async (req, res) => {
         if (!name || !email || !subject || !message) return res.status(400).json({ error: 'All fields required' });
         const SupportTicket = require('../models/SupportTicket');
         const images = (req.files||[]).map(f => `/uploads/support/${f.filename}`);
+        let accountId = null;
+        if (req.userId) {
+            const u = await User.findById(req.userId).select('accountId');
+            accountId = u?.accountId || null;
+        }
         const ticket = await SupportTicket.create({
             userId: req.userId || null,
+            accountId,
             name, email, subject, message, images,
             priority: priority || 'medium',
         });

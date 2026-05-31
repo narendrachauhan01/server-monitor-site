@@ -257,11 +257,12 @@ export default function SupportTickets() {
                 <div style={{ background:'#fff', borderRadius:12, border:'1px solid #E5E7EB', boxShadow:'0 1px 3px rgba(0,0,0,0.06)', padding:'20px' }}>
                     <div style={{ fontWeight:700, fontSize:15, color:'#111827', marginBottom:16, paddingBottom:12, borderBottom:'1px solid #F3F4F6' }}>Ticket Details</div>
                     {[
-                        ['Customer',  selected.name],
-                        ['Email',     selected.email],
-                        ['Ticket ID', `#${selected._id.slice(-6).toUpperCase()}`],
-                        ['Category',  selected.subject?.split(' ').slice(0,2).join(' ')+'...'],
-                        ['Created',   fmtDate(selected.createdAt)],
+                        ['Customer',   selected.name],
+                        ['Account ID', selected.accountId || '—'],
+                        ['Email',      selected.email],
+                        ['Ticket ID',  `#${selected._id.slice(-6).toUpperCase()}`],
+                        ['Category',   selected.subject?.split(' ').slice(0,2).join(' ')+'...'],
+                        ['Created',    fmtDate(selected.createdAt)],
                     ].map(([k,v])=>(
                         <div key={k} style={{ display:'flex', justifyContent:'space-between', padding:'10px 0', borderBottom:'1px solid #F3F4F6', fontSize:13 }}>
                             <span style={{ color:'#6B7280' }}>{k}</span>
@@ -399,6 +400,7 @@ export default function SupportTickets() {
                                     <td style={{ padding:'14px 16px' }}>
                                         <div style={{ fontWeight:600,color:'#111827' }}>{t.name}</div>
                                         <div style={{ fontSize:11,color:'#9CA3AF',marginTop:2 }}>{t.email}</div>
+                                        {t.accountId && <div style={{ fontSize:10,fontWeight:700,color:'#4F46E5',background:'#EEF2FF',padding:'1px 6px',borderRadius:4,marginTop:2,display:'inline-block',fontFamily:'monospace' }}>{t.accountId}</div>}
                                     </td>
                                     <td style={{ padding:'14px 16px',color:'#374151',maxWidth:280 }}>{t.subject}</td>
                                     <td style={{ padding:'14px 16px' }}>
