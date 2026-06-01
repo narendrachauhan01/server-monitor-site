@@ -615,6 +615,14 @@ function AppInner() {
           </div>
         </div>
 
+        {/* Desktop topbar for admin */}
+        {isAdmin && (
+          <div style={{ background:'#fff', borderBottom:'1px solid #E5E7EB', padding:'14px 28px', display:'flex', alignItems:'center', justifyContent:'space-between', position:'sticky', top:0, zIndex:50, boxShadow:'0 1px 4px rgba(0,0,0,0.04)' }}>
+            <span style={{ fontSize:13, fontWeight:700, color:'#7c3aed', background:'#ede9fe', padding:'4px 14px', borderRadius:20 }}>⚡ Admin Panel</span>
+            <div style={{ fontSize:13, color:'#6B7280', fontWeight:500 }}>Full Access — <strong style={{ color:'#111827' }}>Admin</strong></div>
+          </div>
+        )}
+
         <TrialBanner user={user} />
 
         <main className="content">
