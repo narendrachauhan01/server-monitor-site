@@ -17,26 +17,35 @@ function adminOnly(req, res, next) {
     next();
 }
 
-router.get('/users',                auth, adminOnly, ctrl.getUsers);
-router.put('/users/:id',            auth, adminOnly, ctrl.updateUser);
-router.delete('/users/:id',         auth, adminOnly, ctrl.deleteUser);
-router.get('/deleted-users',        auth, adminOnly, ctrl.getDeletedUsers);
-router.get('/servers',              auth, adminOnly, ctrl.getServers);
-router.get('/settings',             auth, adminOnly, ctrl.getSettings);
-router.put('/settings',             auth, adminOnly, ctrl.updateSettings);
-router.get('/payments',             auth, adminOnly, ctrl.getPayments);
-router.delete('/payments/:id',      auth, adminOnly, ctrl.deletePayment);
-router.put('/payments/:id/approve', auth, adminOnly, ctrl.approvePayment);
-router.put('/payments/:id/reject',  auth, adminOnly, ctrl.rejectPayment);
-router.post('/clear-cache',         auth, adminOnly, ctrl.clearCache);
+// Allow admin OR staff with specific permission
+function allow(permission) {
+    return (req, res, next) => {
+        if (req.isAdmin) return next();
+        if (req.isStaff && req.permissions.includes(permission)) return next();
+        return res.status(403).json({ error: 'Access denied' });
+    };
+}
+
+router.get('/users',                auth, allow('users'),    ctrl.getUsers);
+router.put('/users/:id',            auth, allow('users'),    ctrl.updateUser);
+router.delete('/users/:id',         auth, adminOnly,         ctrl.deleteUser);
+router.get('/deleted-users',        auth, allow('deletedUsers'), ctrl.getDeletedUsers);
+router.get('/servers',              auth, allow('dashboard'), ctrl.getServers);
+router.get('/settings',             auth, allow('planSettings'), ctrl.getSettings);
+router.put('/settings',             auth, allow('planSettings'), ctrl.updateSettings);
+router.get('/payments',             auth, allow('payments'), ctrl.getPayments);
+router.delete('/payments/:id',      auth, adminOnly,         ctrl.deletePayment);
+router.put('/payments/:id/approve', auth, allow('payments'), ctrl.approvePayment);
+router.put('/payments/:id/reject',  auth, allow('payments'), ctrl.rejectPayment);
+router.post('/clear-cache',         auth, adminOnly,         ctrl.clearCache);
 
 // Support tickets — admin
-router.get('/support-tickets/unread',       auth, adminOnly, async (req, res) => {
+router.get('/support-tickets/unread',       auth, allow('supportTickets'), async (req, res) => {
     const SupportTicket = require('../models/SupportTicket');
     const tickets = await SupportTicket.find({ adminUnread: true }).sort('-updatedAt').limit(10).select('name subject priority updatedAt');
     res.json({ count: tickets.length, tickets });
 });
-router.get('/support-tickets',              auth, adminOnly, async (req, res) => {
+router.get('/support-tickets',              auth, allow('supportTickets'), async (req, res) => {
     const SupportTicket = require('../models/SupportTicket');
     const User = require('../models/User');
     const tickets = await SupportTicket.find().sort('-createdAt');
@@ -53,18 +62,18 @@ router.get('/support-tickets',              auth, adminOnly, async (req, res) =>
     }));
     res.json(filled);
 });
-router.put('/support-tickets/:id',          auth, adminOnly, async (req, res) => {
+router.put('/support-tickets/:id',          auth, allow('supportTickets'), async (req, res) => {
     const SupportTicket = require('../models/SupportTicket');
     const { status, priority } = req.body;
     const t = await SupportTicket.findByIdAndUpdate(req.params.id, { status, priority, adminUnread: false }, { new: true });
     res.json(t);
 });
-router.post('/support-tickets/:id/mark-read', auth, adminOnly, async (req, res) => {
+router.post('/support-tickets/:id/mark-read', auth, allow('supportTickets'), async (req, res) => {
     const SupportTicket = require('../models/SupportTicket');
     await SupportTicket.findByIdAndUpdate(req.params.id, { adminUnread: false });
     res.json({ ok: true });
 });
-router.post('/support-tickets/:id/reply',   auth, adminOnly, upload.array('images',5), async (req, res) => {
+router.post('/support-tickets/:id/reply',   auth, allow('supportTickets'), upload.array('images',5), async (req, res) => {
     const SupportTicket = require('../models/SupportTicket');
     const t = await SupportTicket.findById(req.params.id);
     if (!t) return res.status(404).json({ error: 'Not found' });
@@ -76,7 +85,7 @@ router.post('/support-tickets/:id/reply',   auth, adminOnly, upload.array('image
     await t.save();
     res.json(t);
 });
-router.delete('/support-tickets/:id',       auth, adminOnly, async (req, res) => {
+router.delete('/support-tickets/:id',       auth, allow('supportTickets'), async (req, res) => {
     const SupportTicket = require('../models/SupportTicket');
     await SupportTicket.findByIdAndDelete(req.params.id);
     res.json({ success: true });
