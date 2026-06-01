@@ -18,15 +18,17 @@ function adminOnly(req, res, next) {
 }
 
 // Allow admin OR staff with specific permission (read or write)
+// Supports both old format ('dashboard') and new format ('dashboard:read', 'dashboard:write')
 function allow(section, access = 'read') {
     return (req, res, next) => {
         if (req.isAdmin) return next();
         if (req.isStaff) {
             const perms = req.permissions || [];
+            const hasOld   = perms.includes(section);                  // old format
             const hasWrite = perms.includes(`${section}:write`);
             const hasRead  = perms.includes(`${section}:read`);
-            if (access === 'write' && hasWrite) return next();
-            if (access === 'read'  && (hasRead || hasWrite)) return next();
+            if (access === 'write' && (hasWrite || hasOld)) return next();
+            if (access === 'read'  && (hasRead || hasWrite || hasOld)) return next();
         }
         return res.status(403).json({ error: 'Access denied' });
     };

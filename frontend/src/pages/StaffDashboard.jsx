@@ -51,7 +51,7 @@ const NAV_GROUPS = [
 ];
 
 function hasAccess(permissions, key) {
-    return permissions.some(p => p.startsWith(`${key}:`));
+    return permissions.some(p => p === key || p.startsWith(`${key}:`));
 }
 
 export default function StaffDashboard() {
@@ -89,7 +89,7 @@ export default function StaffDashboard() {
             <aside style={{
                 width: 220, background:'#1e1b4b', display:'flex', flexDirection:'column',
                 flexShrink:0, position:'fixed', top:0, bottom:0, left:0, zIndex:100,
-                overflowY:'auto',
+                overflowY:'auto', transition:'transform 0.25s',
             }}>
                 {/* Logo */}
                 <div style={{ padding:'18px 16px 14px', borderBottom:'1px solid rgba(255,255,255,0.08)' }}>
@@ -149,7 +149,8 @@ export default function StaffDashboard() {
             </aside>
 
             {/* Main content */}
-            <main style={{ flex:1, marginLeft:220, overflowY:'auto', minHeight:'100vh' }}>
+            <main style={{ flex:1, marginLeft:220, overflowY:'auto', minHeight:'100vh', maxWidth:'100vw' }}>
+                <style>{`@media(max-width:640px){main{margin-left:0!important}}`}</style>
                 <Suspense fallback={
                     <div style={{ display:'flex', alignItems:'center', justifyContent:'center', minHeight:300 }}>
                         <div style={{ width:36, height:36, borderRadius:'50%', border:'4px solid #e2e8f0', borderTop:'4px solid #7c3aed', animation:'spin 0.8s linear infinite' }}/>
