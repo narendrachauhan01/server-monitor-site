@@ -150,7 +150,7 @@ function StaffModal({ staff, onClose, onSaved }) {
                                 {items.map(s => (
                                     <div key={s.key} style={{ display:'grid', gridTemplateColumns:'1fr 140px', gap:8, alignItems:'center', padding:'7px 12px', borderRadius:8, background: permMap[s.key] ? (permMap[s.key]==='write'?'#faf5ff':'#eff6ff') : '#fff', border:`1px solid ${permMap[s.key]?(permMap[s.key]==='write'?'#e9d5ff':'#bfdbfe'):'#F3F4F6'}`, marginBottom:3 }}>
                                         <span style={{ fontSize:13, fontWeight:600, color:'#374151' }}>{s.label}</span>
-                                        <div style={{ display:'flex', gap:4', justifyContent:'center' }}>
+                                        <div style={{ display:'flex', gap:4, justifyContent:'center' }}>
                                             <AccessBtn sKey={s.key} access="read"  label="Read"  color="#2563eb" bg="#eff6ff" />
                                             <AccessBtn sKey={s.key} access="write" label="Write" color="#7c3aed" bg="#ede9fe" />
                                         </div>
